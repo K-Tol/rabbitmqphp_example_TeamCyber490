@@ -15,7 +15,7 @@ public function __construct()
 	}
 	echo "correctly connected to database".PHP_EOL;
 }
-//Just doing this as a check, no real changes made
+//Just doing this as a check, no real changes made. Another test
 public function validateLogin($username,$password)
 {
 	$un = $this->logindb->real_escape_string($username);
