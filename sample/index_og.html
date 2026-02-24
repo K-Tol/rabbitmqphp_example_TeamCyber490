@@ -4,7 +4,7 @@
 function HandleLoginResponse(response)
 {
 	var text = JSON.parse(response);
-	document.getElementById("textResponse").innerHTML = response+"<p>";	
+//	document.getElementById("textResponse").innerHTML = response+"<p>";	
 	document.getElementById("textResponse").innerHTML = "response: "+text+"<p>";
 }
 
@@ -25,28 +25,15 @@ function SendLoginRequest(username,password)
 }
 </script>
 
-<h1>Welcome to Team Cyber's Site</h1>
+<h1>login page</h1>
 <body>
 <div id="textResponse">
 awaiting response
 </div>
-# This is the container for both username and password
-<div class="container">
-	<label for="name">Username</label>
-	<input type="text" placeholder="Username" name="name" required>
-
-	<label for="pass">Password</label>
-	<input type=:text: placeholder="Password" name="pass" required>
-    </script>
-</head>
-	<br>
-	<button type="submit" class="login">Login</button>
-	<button type="submit" class="register">Register</button>
-
 <script>
-var username = document.getElementById("username").value;
-var password = document.getElementById("password").value;
-SendLoginRequest("username","password");
+SendLoginRequest("kehoed","12345");
 </script>
 </body>
 </html>
+
+
