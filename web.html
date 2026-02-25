@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Authentication</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+button {
+    background: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+button:hover {
+    background: #0056b3;
+}
+.message {
+    margin-top: 15px;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Authentication</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+
+    <button onclick="submitForm('login')">Login</button>
+    <button onclick="submitForm('register')">Register</button>
+
+    <div class="message" id="message"></div>
+</div>
+
+<script>
+function submitForm(action) {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const messageDiv = document.getElementById('message');
+
+    fetch('auth.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            action: action,
+            username: username,
+            password: password
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            messageDiv.style.color = "green";
+        } else {
+            messageDiv.style.color = "red";
+        }
+        messageDiv.textContent = data.message;
+    })
+    .catch(error => {
+        messageDiv.style.color = "red";
+        messageDiv.textContent = "Error connecting to server.";
+    });
+}
+</script>
+
+</body>
+</html>
