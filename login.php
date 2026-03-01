@@ -1,75 +1,97 @@
-
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/rmq.php';
+
 header('Content-Type: application/json; charset=utf-8');
+
+function respond(int $code, array $payload): void {
+    http_response_code($code);
+    echo json_encode($payload, JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+function set_session_cookie(string $sessionKey, int $ttlSeconds): void {
+    setcookie('session_key', $sessionKey, [
+        'expires'  => time() + $ttlSeconds,
+        'path'     => '/',
+        'httponly' => true,
+        'secure'   => false,   // set true when HTTPS enabled
+        'samesite' => 'Lax'
+    ]);
+}
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        http_response_code(405);
-        echo json_encode(['ok' => false, 'error' => 'POST only']);
-        exit;
+        respond(405, ['ok' => false, 'status' => 'error', 'message' => 'POST only']);
     }
 
-    $username = trim($_POST['username'] ?? '');
-    $password = (string)($_POST['password'] ?? '');
+    $type  = trim($_POST['type'] ?? '');
+    $uname = trim($_POST['uname'] ?? '');
+    $pword = (string)($_POST['pword'] ?? '');
 
-    if ($username === '' || $password === '') {
-        http_response_code(400);
-        echo json_encode(['ok' => false, 'error' => 'Missing username/password']);
-        exit;
+    if ($type === '' || $uname === '' || $pword === '') {
+        respond(400, ['ok' => false, 'status' => 'error', 'message' => 'Missing type/uname/pword']);
     }
 
-    $cfg = parse_ini_file('/etc/rmqapp.ini');
-    if ($cfg === false) {
-        throw new RuntimeException('Cannot read /etc/rmqapp.ini');
+    $pdo = db();
+    $ip  = $_SERVER['REMOTE_ADDR'] ?? null;
+    $ua  = $_SERVER['HTTP_USER_AGENT'] ?? null;
+    $now = time();
+
+    if ($type === 'register') {
+        if (strlen($pword) < 10) {
+            publish_auth_event(['type'=>'register_failed','username'=>$uname,'reason'=>'weak_password','ts'=>$now,'ip'=>$ip]);
+            respond(400, ['ok'=>false,'status'=>'error','message'=>'Password must be at least 10 chars']);
+        }
+
+        $check = $pdo->prepare('SELECT id FROM users WHERE username = ? LIMIT 1');
+        $check->execute([$uname]);
+        if ($check->fetch()) {
+            publish_auth_event(['type'=>'register_failed','username'=>$uname,'reason'=>'username_taken','ts'=>$now,'ip'=>$ip]);
+            respond(409, ['ok'=>false,'status'=>'error','message'=>'Username already exists']);
+        }
+
+        $hash = password_hash($pword, PASSWORD_DEFAULT);
+        $ins = $pdo->prepare('INSERT INTO users (username, pass_hash, acc_creation_time) VALUES (?, ?, ?)');
+        $ins->execute([$uname, $hash, $now]);
+        $uid = (int)$pdo->lastInsertId();
+
+        publish_auth_event(['type'=>'user_registered','user_id'=>$uid,'username'=>$uname,'ts'=>$now,'ip'=>$ip,'user_agent'=>$ua]);
+
+        respond(200, ['ok'=>true,'status'=>'registered','message'=>'Account created. Now login.']);
     }
 
-    require_once __DIR__ . '/vendor/autoload.php';
+    if ($type === 'login') {
+        $sel = $pdo->prepare('SELECT id, pass_hash FROM users WHERE username = ? LIMIT 1');
+        $sel->execute([$uname]);
+        $user = $sel->fetch();
 
-    // Security: do NOT send raw password. Only send a fingerprint.
-    $password_fingerprint = hash('sha256', $password);
+        if (!$user || !password_verify($pword, $user['pass_hash'])) {
+            publish_auth_event(['type'=>'login_failed','username'=>$uname,'ts'=>$now,'ip'=>$ip,'user_agent'=>$ua]);
+            respond(200, ['ok'=>false,'status'=>'denied','message'=>'Invalid credentials']);
+        }
 
-    $payload = [
-        'type' => 'login_attempt',
-        'username' => $username,
-        'password_fingerprint' => $password_fingerprint,
-        'ts' => time(),
-        'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
-        'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
-    ];
+        $uid = (int)$user['id'];
 
-    $conn = new PhpAmqpLib\Connection\AMQPStreamConnection(
-        $cfg['host'], (int)$cfg['port'], $cfg['user'], $cfg['pass'], $cfg['vhost'],
-        false, 'AMQPLAIN', null, 'en_US',
-        3.0,  // connection_timeout
-        3.0   // read_write_timeout
-    );
+        $sessionKey = bin2hex(random_bytes(32)); // 64 hex chars
+        $ttl = 3600; // 1 hour
+        $start = $now;
+        $end   = $now + $ttl;
 
-    $ch = $conn->channel();
+        $insS = $pdo->prepare('INSERT INTO sessions (session_key, user_id, start_time, end_time) VALUES (?, ?, ?, ?)');
+        $insS->execute([$sessionKey, $uid, $start, $end]);
 
-    $exchange = 'web.direct';
-    $queue    = 'web.login';
-    $routing  = 'auth.login';
+        set_session_cookie($sessionKey, $ttl);
 
-    // Durable exchange/queue + bind
-    $ch->exchange_declare($exchange, 'direct', false, true, false);
-    $ch->queue_declare($queue, false, true, false, false);
-    $ch->queue_bind($queue, $exchange, $routing);
+        publish_auth_event(['type'=>'login_success','user_id'=>$uid,'username'=>$uname,'ts'=>$now,'ip'=>$ip,'user_agent'=>$ua]);
 
-    $msg = new PhpAmqpLib\Message\AMQPMessage(
-        json_encode($payload, JSON_UNESCAPED_SLASHES),
-        ['content_type' => 'application/json', 'delivery_mode' => 2]
-    );
+        respond(200, ['ok'=>true,'status'=>'authorized','message'=>'Login success','redirect'=>'welcome.php']);
+    }
 
-    $ch->basic_publish($msg, $exchange, $routing);
+    respond(400, ['ok'=>false,'status'=>'error','message'=>'Unknown type (use register/login)']);
 
-    $ch->close();
-    $conn->close();
-
-    echo json_encode(['ok' => true, 'status' => 'queued', 'queue' => $queue]);
 } catch (Throwable $e) {
-    http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => 'Server error', 'detail' => $e->getMessage()]);
+    respond(500, ['ok'=>false,'status'=>'error','message'=>'Server error','detail'=>$e->getMessage()]);
 }
-PHP

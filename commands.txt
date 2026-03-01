@@ -1,0 +1,43 @@
+sudo apt update
+sudo apt install -y apache2 php php-cli libapache2-mod-php php-mysql composer
+sudo systemctl enable --now apache2
+
+
+//database connect
+
+sudo tee /etc/rmqapp-db.ini >/dev/null <<'EOF'
+host=100.86.209.99
+port=3306
+dbname=auth_db
+user=db_user
+pass=test123
+EOF
+
+sudo chown root:www-data /etc/rmqapp-db.ini
+sudo chmod 640 /etc/rmqapp-db.ini
+
+//RabbitMQ connect
+
+sudo tee /etc/rmqapp.ini >/dev/null <<'EOF'
+host=100.114.28.75
+port=5672
+user=admin1
+pass=teamcyber490
+vhost=testHost
+EOF
+
+sudo chown root:www-data /etc/rmqapp.ini
+sudo chmod 640 /etc/rmqapp.ini
+
+
+install RabbitMQ PHP library in /var/www/html
+
+cd /var/www/html
+sudo composer require php-amqplib/php-amqplib
+
+
+
+//permissions + apache reload 
+
+sudo chown -R www-data:www-data /var/www/html
+sudo systemctl reload apache2

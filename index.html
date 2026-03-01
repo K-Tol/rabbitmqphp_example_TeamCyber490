@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Team Cyber Login</title>
+
+  <script>
+    function show(msg){ document.getElementById("textResponse").innerText = msg; }
+
+    function HandleResponse(resp){
+      let data;
+      try { data = JSON.parse(resp); }
+      catch(e){ show("Invalid JSON: " + resp); return; }
+
+      show((data.ok ? "✅ " : "❌ ") + (data.message || data.status || ""));
+
+      if (data.ok === true && data.status === "authorized") {
+        window.location.href = data.redirect || "welcome.php";
+      }
+    }
+
+    function SendAuthRequest(type){
+      const u = document.getElementById("username").value;
+      const p = document.getElementById("password").value;
+
+      const r = new XMLHttpRequest();
+      r.open("POST","login.php",true);
+      r.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+      r.onreadystatechange = function(){ if (this.readyState === 4) HandleResponse(this.responseText); };
+
+      r.send("type="+encodeURIComponent(type)+"&uname="+encodeURIComponent(u)+"&pword="+encodeURIComponent(p));
+    }
+  </script>
+</head>
+<body>
+  <h1>Welcome to Team Cyber's Site</h1>
+  <div id="textResponse">awaiting response</div><br>
+
+  <label>Username</label>
+  <input id="username" type="text" placeholder="Username" required><br><br>
+
+  <label>Password</label>
+  <input id="password" type="password" placeholder="Password" required><br><br>
+
+  <button type="button" onclick="SendAuthRequest('register')">Register</button>
+  <button type="button" onclick="SendAuthRequest('login')">Login</button>
+</body>
+</html>
