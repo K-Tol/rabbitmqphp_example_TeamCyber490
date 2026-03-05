@@ -36,12 +36,6 @@ try {
       $err = $resp["error"] ?? "register_failed";
       respond(200, ["ok"=>false, "status"=>"denied", "error"=>$err, "message"=>"Register failed"]);
     }
-  
-  /* [ ] TODO
-    if ($resp contains existing user) {
-      echo "User already exists"
-    }
-  */  
     respond(200, ["ok"=>true, "status"=>"registered", "message"=>"Registered. Now login."]);
   }
 
