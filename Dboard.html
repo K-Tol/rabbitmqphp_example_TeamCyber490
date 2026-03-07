@@ -25,10 +25,47 @@
  </p>
   </div>
 
+<div class = content>
+  ,<div class ="section-header">
+    <h2>Popular Movies</h2>
+    <button class ="Refresh-button" onclick="refreshMovies()">Refresh The facking Movies</button>
+  </div>
+</div>
+
+<div id="movieContainer">
+      <div class="status-box">Loading movies...</div>
+    </div>
+</div>
+
+<!-- the login place -->
+ 
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <h2>Sign In</h2>
+      <input type="text" id="Username" placeholder="Username">
+      <input type="password" id="Password" placeholder="Password">
+
+      <button onclick="loginUser()">Sign In</button>
+      <button class="close-btn" onclick="closeLogin()">Close</button>
+
+      <div class="form-message" id="loginMessage"></div>
+    </div>
+  </div>
+
+  <!-- Registeration place -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <h1>Register</h1>
+      <input type="text" id="registerUsername" placeholder="Username">
+      <input type="password" id="registerPassword" placeholder="Password">
+
+      <button onclick="registerUser()">Register</button>
+      <button class="close-btn" onclick="closeRegister()">Close</button>
+
+      <div class="form-message" id="registerMessage"></div>
+    </div>
+  </div>
 
 
  </body>
-
-
-
-  <html>
+<html>
