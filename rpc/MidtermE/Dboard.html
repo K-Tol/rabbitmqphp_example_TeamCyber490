@@ -180,13 +180,63 @@ body{
     document.getElementById('loginMessage').textContent = '';
   
   }
-    function showLogin() {
-    document.getElementById('loginModal ').style.display = 'block';}
+    function showRegister() {
+    document.getElementById('registerModal').style.display = 'block';}
 
-  function closeLogin() {
-    document.getElementById('loginModal').style.display = 'none';
-    document.getElementById('loginMessage').textContent = '';}
+  function closeRegister() {
+    document.getElementById('registerModal').style.display = 'none';
+    document.getElementById('registerMessage').textContent = '';}
 
+
+    window.onclick = function(event) {
+      if (event.target == document.getElementById('loginModal')) {
+        closeLogin();
+      }
+      if (event.target == document.getElementById('registerModal')) {
+        closeRegister();
+      }
+
+
+    };
+
+    //login and register functions --!>
+
+
+function loginUser() {
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
+  const msg = document.getElementById("loginMessage");
+  if (!username || !password) {
+    msg.style.color = "red";
+    msg.textContent = "Enter username and password.";
+    return;
+  }
+  msg.textContent = "Signing in...";
+  fetch("login.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      msg.style.color = "green";
+      msg.textContent = "Login successful!";
+      setTimeout(() => {
+        window.location.href = "dashboard.php";
+      }, 700);
+    } else {
+      msg.style.color = "red";
+      msg.textContent = data.message || "Login failed";
+    }
+  })
+  .catch(() => {
+    msg.style.color = "red";
+    msg.textContent = "Server error.";
+  });
+}
 
 
 
