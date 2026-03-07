@@ -4,6 +4,26 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+// function for connecting to the database locally
+function db() {
+  static $connect = null;
+  if($connect !== null) {
+    return $connect;
+  }
+
+  $connect = new mysqli('127.0.0.1', 'db_user', 'passwd123', 'auth_db');  // direct connection to our database
+
+  if($connect->connect_errno) {
+    die("Database connections failed: " . $connect->connect_errno . PHP_EOL);
+  }
+  return $connect;
+}
+
+// make a function to register
+// make a function to validate a session
+// make a function to logout
+
+// work on login after register function
 function doLogin($username,$password)
 {
     // lookup username in databas
