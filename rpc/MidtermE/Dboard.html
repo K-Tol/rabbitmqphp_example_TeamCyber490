@@ -121,16 +121,48 @@ body{
     background: #080808;
 }
 
-.hero{
+.hero {
   padding: 50px 30px 25px 30px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.35), #141414), url("Theater.avif") center center/cover no-repeat;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.35), #141414),
+              url("Theater.avif") center / cover no-repeat;
   min-height: 300px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   
 }
+.hero h1 {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+.content{
+  padding: 25px 30px 40px 30px;
+}
 
+.section-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.Refresh-button{
+  background-color: #222;
+  color: #fff;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.2s ease;
+}
+.section-header h2{
+  font-size: 28px;
+  color: #e50914;
+}
 
 
 </style>
