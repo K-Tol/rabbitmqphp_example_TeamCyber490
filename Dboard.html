@@ -12,7 +12,7 @@
 <body>
 
  <div class="topnav">
-  <div class="logo">MovieDB </div>
+  <div class="logo">TeamCyber </div>
   <div class = "auth-buttons">
     <button onclick="showLogin()">Sign In</button>
     <button onclick="showRegister()">Register</button>
@@ -65,7 +65,65 @@
       <div class="form-message" id="registerMessage"></div>
     </div>
   </div>
+<style>
 
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Arial, Helvetica, sans-serif;
+}
+
+body{
+  background: #141414;
+  color: #fff;
+  min-height: 100vh;
+
+}
+
+.topnav{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 30px;
+  background-color:rgb(0, 0, 0,0.85) #333;
+}
+
+.logo{
+  font-size: 28px;
+  font-weight: bold;
+  color: #e50914;
+  letter-spacing: 0.5px;
+}
+
+.auth-buttons{
+  display: flex;
+  gap: 10px;
+}
+
+.auth-buttons button{
+  background-color: #e50914;
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: bold;
+
+  cursor: pointer;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  }
+
+  .auth-buttons button:hover{
+    background: #080808;
+}
+
+
+
+</style>
 
  </body>
 <html>
