@@ -4,6 +4,8 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
+
+
 /* 
 function for connecting to the database locally
 */
@@ -20,6 +22,8 @@ function db() {
   }
   return $connect;
 }
+
+
 
 /* 
 function for account registration
@@ -58,6 +62,8 @@ function doRegister($username, $password) {
   }
   return ["success" => true];
 }
+
+
 
 /*
 function for logging in
@@ -122,6 +128,8 @@ function doLogin($username,$password)
     ];
 }
 
+
+
 /*
 function for checking if a session key exists and is still active
 */
@@ -157,9 +165,29 @@ function doValidate($sessionKey) {
   return ["success" => false];
 }
 
-// WORK ON LOGOUT FUNCTION NEXT
 
-// work on this last
+
+/*
+function for logging out
+*/
+function doLogout($sessionKey) {
+  // prepping a query to delete a session from our db
+  $stmt = db()->prepare(
+    "DELETE FROM sessions WHERE session_key = ?"
+  );
+  // logout will fail if our db fails to create the query
+  if(!$stmt) {
+    return ["success" => false];
+  }
+  // binding session key and executing query, then returns success when logout is complete
+  $stmt->bind_param("s", $sessionKey);
+  $stmt->execute();
+  return ["success" => true];
+}
+
+
+
+// work on this next
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
@@ -177,6 +205,7 @@ function requestProcessor($request)
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
+
 
 $server = new rabbitMQServer("testRabbitMQ.ini","testServer");
 
