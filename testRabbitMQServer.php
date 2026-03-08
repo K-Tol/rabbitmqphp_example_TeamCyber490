@@ -61,9 +61,26 @@ function doRegister($username, $password) {
 // work on login after register function
 function doLogin($username,$password)
 {
-    // lookup username in databas
-    // check password
-    return true;
+    // prepping the query and checking if it fails
+    $stmt = db()->prepare(
+      "SELECT id, pass_hash FROM users WHERE username = ? LIMIT 1"
+    );
+    if(!$stmt) {
+      return ["success" => false];
+    }
+    // binding the username and executing the query
+    // then getting the result 
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    // checking if the user even exists
+    if (!$user) {
+      return [
+        "success" => false,
+        "error" => "invalid_credentials"
+      ];
+    }
     //return false if not valid
 }
 
