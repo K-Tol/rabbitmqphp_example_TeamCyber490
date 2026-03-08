@@ -9,9 +9,14 @@ try {
 	$username = $_POST['uname'];
 	$password = $_POST['pword'];
 	$response = "unsupported request type, politely FUCK OFF";
-	switch ($request["type"]) {
+	switch ($request) {
 		case "login":
-			$response = "login, yeah we can do that";
+			$client = new rabbitMQClient("testRabbitMQ.ini","testServer");
+			$client->send_request([
+				"type"=>"login", 
+				"username"=>$username, 
+				"password"=>$password]);
+			$response = "(testing) login, yeah we can do that";
 			break;
 	}
 	echo json_encode($response);
