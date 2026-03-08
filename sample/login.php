@@ -22,9 +22,10 @@ try {
 
 	$response = "unsupported request type, politely FUCK OFF";
 
-	if ($type == "" || $username == "" || $password == "") {
+	if ($request == "" || $username == "" || $password == "") {
 		$msg = "Missing type, username, or password";
 		echo json_encode($msg);
+		exit(0);
 	}
 
 	switch ($request) {
@@ -34,7 +35,14 @@ try {
 				"username" => $username,
 				"password" => $password
 			]);
+			if (!is_array($response) || empty($response["ok"])) {
+				echo json_encode(["ok"=>false, "message"=>"login failed"]);
+				exit(0);
+			}
 			$response = "(testing) login, yeah we can do that";
+			echo json_encode(["ok"=>true, "status"=>"authorized", "message"=>"login sucess"]);
+			// add session hash checker
+			exit(0);
 			break;
 		case "register":
 			$client->send_request([
