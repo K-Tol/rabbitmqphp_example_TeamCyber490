@@ -14,6 +14,12 @@ try {
 	$username = $_POST['uname'];
 	$password = $_POST['pword'];
 	$response = "unsupported request type, politely FUCK OFF";
+
+	if ($type == "" || $username == "" || $password == "") {
+		$msg = "Missing type, username, or password";
+		echo json_encode($msg);
+	}
+
 	switch ($request) {
 		case "login":
 			$client->send_request([
