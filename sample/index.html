@@ -4,10 +4,11 @@
 function HandleLoginResponse(response)
 {
 	var text = JSON.parse(response);
-	//document.getElementById("textResponse").innerHTML = response+"<p>";	
 	document.getElementById("textResponse").innerHTML = "response: "+text+"<p>";
 
-	//Still need a redirect to welcome.html after a succsessul login
+	if(text == "authorized"){
+		window.location.href = "welcome.html"
+	}
 }
 
 function SendLoginRequest(username,password)
@@ -42,13 +43,19 @@ function SendLoginRequest(username,password)
     </script>
 </head>
 	<br>
-	<button type="submit" class="login">Login</button>
-	<button type="submit" class="register">Register</button>
+	<button type="button" id="login">Login</button>
+	<button type="button" id="register">Register</button>
 
 <script>
+const btn1 = document.getElementById("login");
+const btn2 = document.getElementById("register");
+
 var username = document.getElementById("username").value;
 var password = document.getElementById("password").value;
-SendLoginRequest("username","password");
+
+btn1.addEventListener("click", SendLoginRequest("username","password"));
+btn2.addEventListener("click", SendLoginRequest("username","password"));
+
 </script>
 </body>
 </html>
