@@ -151,7 +151,7 @@ function doValidate($sessionKey) {
   // inserting session key into query then executing said query, and getting the result
   $stmt->bind_param("s", $sessionKey);
   $stmt->execute();
-  $result = $stmt->get_results();
+  $result = $stmt->get_result();
   $row = $result->$fetch_assoc();
   // if a valid session is found, return the user's info
   if($row) {
