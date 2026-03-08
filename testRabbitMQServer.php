@@ -58,7 +58,7 @@ function doRegister($username, $password) {
 // make a function to validate a session
 // make a function to logout
 
-// work on login after register function
+// function for logging in
 function doLogin($username,$password)
 {
     // prepping the query and checking if it fails
@@ -75,15 +75,51 @@ function doLogin($username,$password)
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
     // checking if the user even exists
-    if (!$user) {
+    if(!$user) {
       return [
         "success" => false,
         "error" => "invalid_credentials"
       ];
     }
-    //return false if not valid
+    // verifying the password that's coming through
+    if(!password_verify($password, $user["pass_hash"])) {
+      return [
+        "success" => false,
+        "error" => "invalid_credentials"
+      ];
+    }
+    // generating a session key
+    $sessionKey = bin2hex(random_bytes(32));
+    $userId = (int)$user["id"];
+    // prepping query that'll insert into sessions table
+    $stmt2 = db()->prepare(
+      "INSERT INTO sessions (session_key, user_id, start_time, end_time)
+       VALUES (?, ?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + 86400)"
+    );
+    // checks if our query failed
+    if(!$stmt2) {
+      return [
+        "success" => false,
+        "error" => "session_insert_failed"
+      ];
+    }
+    // binding session values
+    $stmt2->bind_param("si", $sessionKey, $userId);
+    // executing the session insert and if it fails then login fails
+    if(!$stmt2->execute()) {
+      return [
+        "success" => false,
+        "error" => "session_insert_failed"
+      ];
+    }
+    // returning a successful login
+    return [
+      "success" => true,
+      "session_key" => $sessionKey
+    ];
 }
 
+// work on this last
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
