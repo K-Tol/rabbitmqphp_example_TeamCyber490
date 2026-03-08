@@ -20,7 +20,7 @@ try {
 	$username = trim($_POST['uname'] ?? "");
 	$password = (string)($_POST['pword'] ?? "");
 
-	$response = "unsupported request type, politely FUCK OFF";
+	$msg = "unsupported request type, politely FUCK OFF";
 
 	if ($request == "" || $username == "" || $password == "") {
 		$msg = "Missing type, username, or password";
@@ -30,7 +30,7 @@ try {
 
 	switch ($request) {
 		case "login":
-			$client->send_request([
+			$response = $client->send_request([
 				"type" => "login",
 				"username" => $username,
 				"password" => $password
@@ -39,22 +39,23 @@ try {
 				echo json_encode(["ok"=>false, "message"=>"login failed"]);
 				exit(0);
 			}
-			$response = "(testing) login, yeah we can do that";
+			$msg = "(testing) login, yeah we can do that";
 			echo json_encode(["ok"=>true, "status"=>"authorized", "message"=>"login sucess"]);
 			// add session hash checker
 			exit(0);
 			break;
 		case "register":
-			$client->send_request([
+			$response = $client->send_request([
 				"type" => "register",
 				"username" => $username,
 				"password" => $password
 			]);
-			$response = "registering...";
+			$msg = "registering...";
 			break;
+		default:
+			echo json_encode($msg);
+			exit(0);
 	}
-	echo json_encode($response);
-	exit(0);
 } catch (Exception $e) {
 	echo $e->getMessage();
 }
