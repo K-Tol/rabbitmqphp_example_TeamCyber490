@@ -121,16 +121,16 @@ body{
     background: #080808;
 }
 
-.hero {
-  padding: 50px 30px 25px 30px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.35), #141414),
-              url("Theater.avif") center / cover no-repeat;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  
-}
+.hero{
+      padding:50px 30px 25px 30px;
+      background:linear-gradient(to bottom, rgba(0,0,0,0.35), #141414),
+                 url('Theater.jpg') center/cover no-repeat; /* Updated background image */
+      min-height:300px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+    }
+
 .hero h1 {
   font-size: 42px;
   margin-bottom: 10px;
@@ -172,230 +172,64 @@ body{
 
 
 <script>
-  function showLogin() {
-    document.getElementById('loginModal ').style.display = 'block';}
-
-  function closeLogin() {
-    document.getElementById('loginModal').style.display = 'none';
-    document.getElementById('loginMessage').textContent = '';
-  
-  }
-    function showRegister() {
-    document.getElementById('registerModal').style.display = 'block';}
-
-  function closeRegister() {
-    document.getElementById('registerModal').style.display = 'none';
-    document.getElementById('registerMessage').textContent = '';}
-
-
-    window.onclick = function(event) {
-      if (event.target == document.getElementById('loginModal')) {
-        closeLogin();
-      }
-      if (event.target == document.getElementById('registerModal')) {
-        closeRegister();
-      }
-
-
-    };
-
-    //login and register functions --!>
-
-
-function loginUser() {
-  const username = document.getElementById("loginUsername").value.trim();
-  const password = document.getElementById("loginPassword").value.trim();
-  const msg = document.getElementById("loginMessage");
-  if (!username || !password) {
-    msg.style.color = "red";
-    msg.textContent = "Enter username and password.";
-    return;
-  }
-  msg.textContent = "Signing in...";
-  fetch("login.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      msg.style.color = "green";
-      msg.textContent = "Login successful!";
-      setTimeout(() => {
-        window.location.href = "dashboard.php";
-      }, 700);
-    } else {
-      msg.style.color = "red";
-      msg.textContent = data.message || "Login failed";
-    }
-  })
-  .catch(() => {
-    msg.style.color = "red";
-    msg.textContent = "Server error.";
-  });
-}
-
-
-
-function registerUser() {
-  const username = document.getElementById("registerUsername").value.trim();
-  const email = document.getElementById("registerEmail").value.trim();
-  const password = document.getElementById("registerPassword").value.trim();
-  const msg = document.getElementById("registerMessage");
-  if (!username || !email || !password) {
-    msg.style.color = "red";
-    msg.textContent = "Enter all fields.";
-    return;
-  }
-  msg.textContent = "Signing up...";
-  fetch("register.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: `username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      msg.style.color = "green";
-      msg.textContent = "Registration successful!";
-      setTimeout(() => {
-        window.location.href = "dashboard.php";
-      }, 700);
-    } else {
-      msg.style.color = "red";
-      msg.textContent = data.message || "Registration failed";
-    }
-  })
-  .catch(() => {
-    msg.style.color = "red";
-    msg.textContent = "Server error.";
-  });
-}
-
-// Function to handle user registration
-function registerUser(){
-  // Get the username and password from input fields
-  const username = document.getElementById("registerUsername").value.trim();
-  const password = document.getElementById("registerPassword").value.trim();
-  const msg = document.getElementById("registerMessage"); // Message area for showing feedback
-  
-  // Check if the username or password is empty
-  if(username === "" || password === ""){
-    msg.style.color = "red";
-    msg.textContent = "Please enter username and password.";
-    return; // Stop the function here if fields are empty
-  }
-
-  // Show a loading message while registering
-  msg.style.color = "#111";
-  msg.textContent = "Registering...";
-
-  // Create a new request to send data to the server
-  const xhr = new XMLHttpRequest();
-  xhr.open("POST", "login.php", true); // Send data to login.php (server-side script)
-  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-  // What happens when the server responds
-  xhr.onreadystatechange = function(){
-    if(xhr.readyState === 4){ // Check if the request is complete
+    async function loadMovies(){
+     const movieContainer = document.getElementById("movieContainer");
+      movieContainer.innerHTML = '<div class="status-box">Loading movies...</div>';
       try{
-        // Try to parse the server's response
-        const response = JSON.parse(xhr.responseText);
-
-        // If registration was successful
-        if(response.ok || response.success){
-          msg.style.color = "green";
-          msg.textContent = response.message || "Registration successful";
-        } else {
-          msg.style.color = "red";
-          msg.textContent = response.message || response.error || "Registration failed";
+        const response = await fetch("movies.php");
+        const data = await response.json();
+        if(!data.success){
+          movieContainer.innerHTML = '<div class="status-box">Could not load movies.</div>';
+          return;
         }
-      }catch(e){
-        // If there was an error with the response
-        msg.style.color = "red";
-        msg.textContent = "Invalid server response.";
+        const movies = data.movies || [];
+
+        if(movies.length === 0){
+          movieContainer.innerHTML = '<div class="status-box">No movies found.</div>';
+          return;
+        }
+        movieContainer.innerHTML = "";
+
+        for(let i = 0; i < movies.length; i++){
+          const movie = movies[i];
+
+          const poster = movie.poster_path
+            ? "https://image.tmdb.org/t/p/w500" + movie.poster_path
+            : "https://via.placeholder.com/500x750?text=No+Image";
+
+          const title = movie.title ? escapeHtml(movie.title) : "Untitled";
+          const releaseDate = movie.release_date ? escapeHtml(movie.release_date) : "N/A";
+          let overview = "No description available.";
+          if(movie.overview){
+            overview = movie.overview.length > 120
+              ? movie.overview.substring(0, 120) + "..."
+              : movie.overview;
+            overview = escapeHtml(overview);}
+
+          const card = document.createElement("div");
+          card.className = "movie-card";
+          card.innerHTML = `
+            <img class="movie-poster" src="${poster}" alt="${title}">
+            <div class="movie-info">
+              <div class="movie-title">${title}</div>
+              <div class="movie-date">Release: ${releaseDate}</div>
+              <div class="movie-overview">${overview}</div>
+            </div>
+          `;
+
+          movieContainer.appendChild(card);
+      }
+      }catch(error){
+        document.getElementById("movieContainer").innerHTML =
+          '<div class="status-box">Error fetching movies from movies.php</div>';
       }
     }
-  };
 
-  // Send the username and password to the server
-  xhr.send(
-    "type=Register" + 
-    "&username=" + encodeURIComponent(username) +
-    "&password=" + encodeURIComponent(password)
-  );
-}
-
-// Function to load movies from the server
-async function loadMovies(){
-  const movieContainer = document.getElementById("movieContainer");
-  movieContainer.innerHTML = '<div class="status-box">Loading movies...</div>'; // Show loading message
-
-  try{
-    const response = await fetch("movies.php");
-    const data = await response.json(); 
-
-    if(!data.success){
-      movieContainer.innerHTML = '<div class="status-box">Could not load movies.</div>';
-      return; 
+    function escapeHtml(text){
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
     }
-    const movies = data.movies || [];
-
-    if(movies.length === 0){
-      movieContainer.innerHTML = '<div class="status-box">No movies found.</div>';
-      return;
-    }
-    movieContainer.innerHTML = "";
-    for(let i = 0; i < movies.length; i++){
-      const movie = movies[i];
-      const poster = movie.poster_path
-        ? "https://image.tmdb.org/t/p/w500" + movie.poster_path
-        : "https://via.placeholder.com/500x750?text=No+Image";
-
-      
-      const title = movie.title ? escapeHtml(movie.title) : "Untitled";
-
-      
-      const releaseDate = movie.release_date ? escapeHtml(movie.release_date) : "N/A";
-
-      let overview = "No description available.";
-      if(movie.overview){
-        overview = movie.overview.length > 120
-          ? movie.overview.substring(0, 120) + "..."
-          : movie.overview;
-        overview = escapeHtml(overview);
-      }
-
-      //  movie Card
-      const card = document.createElement("div");
-      card.className = "movie-card";
-      card.innerHTML = `
-        <img class="movie-poster" src="${poster}" alt="${title}">
-        <div class="movie-info">
-          <div class="movie-title">${title}</div>
-          <div class="movie-date">Release: ${releaseDate}</div>
-          <div class="movie-overview">${overview}</div>
-        </div>
-      `;
-
-      movieContainer.appendChild(card);
-    }
-  }catch(error){
-    document.getElementById("movieContainer").innerHTML =
-      '<div class="status-box">Movies is not been search</div>';
-  }
-}
-
-function escapeHtml(text){
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
-}
 
 loadMovies();
 
