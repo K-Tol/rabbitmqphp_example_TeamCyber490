@@ -140,7 +140,7 @@ function doValidate($sessionKey) {
     "SELECT u.id, u.username
      FROM sessions s
      JOIN users u ON s.user_id = u.id
-     WHERE s.session_key = ??
+     WHERE s.session_key = ?
      AND s.end_time > UNIX_TIMESTAMP()
      LIMIT 1"
   );
