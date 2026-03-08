@@ -152,7 +152,7 @@ function doValidate($sessionKey) {
   $stmt->bind_param("s", $sessionKey);
   $stmt->execute();
   $result = $stmt->get_result();
-  $row = $result->$fetch_assoc();
+  $row = $result->fetch_assoc();
   // if a valid session is found, return the user's info
   if($row) {
     return [
