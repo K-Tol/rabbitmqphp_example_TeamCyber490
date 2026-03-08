@@ -187,23 +187,52 @@ function doLogout($sessionKey) {
 
 
 
-// work on this next
+/*
+function for processing requests that are comming in from rabbitMQ 
+*/
 function requestProcessor($request)
 {
+  // will print debug messages
   echo "received request".PHP_EOL;
   var_dump($request);
+  // check if the requests that are coming through has a type
   if(!isset($request['type']))
   {
-    return "ERROR: unsupported message type";
+    return [
+      "success" => false
+      "error" => "missing_type"
+    ];
   }
+  // makes type not case sensitive
+  $type = strtolower($request['type']);
+
+  // switch + case statements to check the value of type and decide what function to run
   switch ($request['type'])
   {
     case "login":
-      return doLogin($request['username'],$request['password']);
+      return doLogin(
+        $request['username'] ?? "",
+        $request['password'] ?? ""
+      );
+    case "register":
+      return doRegister(
+        $request['username'] ?? "",
+        $request['password'] ?? ""
+      );
     case "validate_session":
-      return doValidate($request['sessionId']);
+      return doValidate(
+        $request['session_key'] ?? ""
+      );
+    case "logout":
+      return doLogout(
+        $request['session_key'] ?? ""
+      );
+    default:
+      return [
+        "success" => false
+        "error" => "unsupported_type"
+      ];
   }
-  return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
 
 
