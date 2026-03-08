@@ -18,7 +18,7 @@ function db() {
   $connect = new mysqli('127.0.0.1', 'db_user', 'passwd123', 'auth_db');  // direct connection to our database
   // kills this script if connection fails
   if($connect->connect_errno) {
-    die("Database connections failed: " . $connect->connect_errno . PHP_EOL);
+    die("Database connections failed: " . $connect->connect_error . PHP_EOL);
   }
   return $connect;
 }
