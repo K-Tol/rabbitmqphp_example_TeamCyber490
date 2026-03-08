@@ -207,7 +207,7 @@ function requestProcessor($request)
   $type = strtolower($request['type']);
 
   // switch + case statements to check the value of type and decide what function to run
-  switch ($request['type'])
+  switch ($type)
   {
     case "login":
       return doLogin(
