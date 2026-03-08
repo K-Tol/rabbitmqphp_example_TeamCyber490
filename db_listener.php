@@ -199,7 +199,7 @@ function requestProcessor($request)
   if(!isset($request['type']))
   {
     return [
-      "success" => false
+      "success" => false,
       "error" => "missing_type"
     ];
   }
@@ -229,7 +229,7 @@ function requestProcessor($request)
       );
     default:
       return [
-        "success" => false
+        "success" => false,
         "error" => "unsupported_type"
       ];
   }
