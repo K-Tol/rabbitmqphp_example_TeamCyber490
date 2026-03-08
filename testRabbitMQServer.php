@@ -4,7 +4,9 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
-// function for connecting to the database locally
+/* 
+function for connecting to the database locally
+*/
 function db() {
   static $connect = null;
   if($connect !== null) {
@@ -19,7 +21,9 @@ function db() {
   return $connect;
 }
 
-// function for account registration
+/* 
+function for account registration
+*/
 function doRegister($username, $password) {
   $hashedPword = password_hash($password, PASSWORD_DEFAULT);
   // prepping our query
@@ -55,10 +59,9 @@ function doRegister($username, $password) {
   return ["success" => true];
 }
 
-// make a function to validate a session
-// make a function to logout
-
-// function for logging in
+/*
+function for logging in
+*/
 function doLogin($username,$password)
 {
     // prepping the query and checking if it fails
@@ -118,6 +121,43 @@ function doLogin($username,$password)
       "session_key" => $sessionKey
     ];
 }
+
+/*
+function for checking if a session key exists and is still active
+*/
+function doValidate($sessionKey) {
+  // asking the db if there's a session with this session key that hasn't expired
+  // if there is, let us know which user it belongs to
+  $stmt = db()->prepare(
+    "SELECT u.id, u.username
+     FROM sessions s
+     JOIN users u ON s.user_id = u.id
+     WHERE s.session_key = ??
+     AND s.end_time > UNIX_TIMESTAMP()
+     LIMIT 1"
+  );
+  // checking if our query failed
+  if(!$stmt) {
+    return ["success" => false];
+  }
+  // inserting session key into query then executing said query, and getting the result
+  $stmt->bind_param("s", $sessionKey);
+  $stmt->execute();
+  $result = $stmt->get_results();
+  $row = $result->$fetch_assoc();
+  // if a valid session is found, return the user's info
+  if($row) {
+    return [
+      "success" => true,
+      "user_id" => (int)$row["id"],
+      "username" => $row["username"]
+    ];
+  }
+  // if no valid sesh was found
+  return ["success" => false];
+}
+
+// WORK ON LOGOUT FUNCTION NEXT
 
 // work on this last
 function requestProcessor($request)
