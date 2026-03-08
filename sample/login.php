@@ -19,7 +19,6 @@ try {
 	$request = strtolower(trim($_POST['type'] ?? ""));
 	$username = trim($_POST['uname'] ?? "");
 	$password = (string)($_POST['pword'] ?? "");
-
 	$msg = "unsupported request type, politely FUCK OFF";
 
 	if ($request == "" || $username == "" || $password == "") {
@@ -36,12 +35,13 @@ try {
 				"password" => $password
 			]);
 			if (!is_array($response) || empty($response["ok"])) {
-				echo json_encode(["ok"=>false, "message"=>"login failed"]);
+				echo json_encode(["ok" => false, "message" => "login failed"]);
 				exit(0);
 			}
-			$msg = "(testing) login, yeah we can do that";
-			echo json_encode(["ok"=>true, "status"=>"authorized", "message"=>"login sucess"]);
+			echo json_encode(["ok" => true, "status" => "authorized", "message" => "login sucess"]);
 			// add session hash checker
+			$msg = "(testing) login, yeah we can do that";
+			echo json_encode($msg);
 			exit(0);
 			break;
 		case "register":
@@ -50,7 +50,13 @@ try {
 				"username" => $username,
 				"password" => $password
 			]);
+			if (!is_array($response) || empty($response["ok"])) {
+				echo json_encode(["ok" => false, "message" => "register failed"]);
+				exit(0);
+			}
+			echo json_encode(["ok" => true, "status" => "registered", "message" => "registration successful"]);
 			$msg = "registering...";
+			echo json_encode($msg);
 			break;
 		default:
 			echo json_encode($msg);
@@ -59,3 +65,4 @@ try {
 } catch (Exception $e) {
 	echo $e->getMessage();
 }
+?>
