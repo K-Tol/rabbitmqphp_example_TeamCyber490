@@ -9,10 +9,17 @@ try {
 		echo json_encode($msg);
 		exit(0);
 	}
+	if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+		$msg = "Only type POST allowed";
+		echo json_encode($msg);
+		exit(0);
+	}
+
 	$client = new rabbitMQClient("testRabbitMQ.ini", "testServer");
-	$request = $_POST['type'];
-	$username = $_POST['uname'];
-	$password = $_POST['pword'];
+	$request = strtolower(trim($_POST['type'] ?? ""));
+	$username = trim($_POST['uname'] ?? "");
+	$password = (string)($_POST['pword'] ?? "");
+
 	$response = "unsupported request type, politely FUCK OFF";
 
 	if ($type == "" || $username == "" || $password == "") {
