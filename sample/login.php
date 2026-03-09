@@ -39,6 +39,11 @@ try {
 				echo json_encode(["ok" => false, "message" => "no session key"]);
 				exit(0);
 			}
+			setcookie("session_key", $sessionKey, [
+				"expires" => time() + 86400,
+				 "path" => "/",
+				 "httponly" => true,
+				 ]);
 			echo json_encode(["ok" => true, "status" => "authorized", "message" => "login sucess"]);
 			exit(0);
 			break;
