@@ -5,13 +5,11 @@ require_once('rabbitMQLib.inc');
 
 try {
 	if (!isset($_POST)) {
-		$msg = "NO POST MESSAGE SET, POLITELY FUCK OFF";
-		echo json_encode($msg);
+		echo json_encode(["ok" => false, "message" => "NO POST MESSAGE SET, POLITELY FUCK OFF"]);
 		exit(0);
 	}
 	if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-		$msg = "Only type POST allowed";
-		echo json_encode($msg);
+		echo json_encode(["ok" => false, "message" => "Only type POST allowed"]);
 		exit(0);
 	}
 
@@ -19,11 +17,9 @@ try {
 	$request = strtolower(trim($_POST['type'] ?? ""));
 	$username = trim($_POST['uname'] ?? "");
 	$password = (string)($_POST['pword'] ?? "");
-	$msg = "unsupported request type, politely FUCK OFF";
 
 	if ($request == "" || $username == "" || $password == "") {
-		$msg = "Missing type, username, or password";
-		echo json_encode($msg);
+		echo json_encode(["ok" => false, "message" => "Missing type, username, or password"]);
 		exit(0);
 	}
 
@@ -41,10 +37,9 @@ try {
 			$sessionKey = $response["session_key"] ?? "";
 			if ($sessionKey == "") {
 				echo json_encode(["ok" => false, "message" => "no session key"]);
+				exit(0);
 			}
 			echo json_encode(["ok" => true, "status" => "authorized", "message" => "login sucess"]);
-			$msg = "(testing) login, yeah we can do that";
-			echo json_encode($msg);
 			exit(0);
 			break;
 		case "register":
@@ -58,11 +53,9 @@ try {
 				exit(0);
 			}
 			echo json_encode(["ok" => true, "status" => "registered", "message" => "registration successful"]);
-			$msg = "registering...";
-			echo json_encode($msg);
 			break;
 		default:
-			echo json_encode($msg);
+			echo json_encode(["ok" => false, "message" => "unsupported request type, politely FUCK OFF"]);
 			exit(0);
 	}
 } catch (Exception $e) {
