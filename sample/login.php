@@ -38,8 +38,11 @@ try {
 				echo json_encode(["ok" => false, "message" => "login failed"]);
 				exit(0);
 			}
+			$sessionKey = $response["session_key"] ?? "";
+			if ($sessionKey == "") {
+				echo json_encode(["ok" => false, "message" => "no session key"]);
+			}
 			echo json_encode(["ok" => true, "status" => "authorized", "message" => "login sucess"]);
-			// add session hash checker
 			$msg = "(testing) login, yeah we can do that";
 			echo json_encode($msg);
 			exit(0);
