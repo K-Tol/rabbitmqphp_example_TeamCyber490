@@ -1,251 +1,357 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Movie Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Dashboard</title>
 
-</head>
-
-
-<body>
-
-  <div class="topnav">
-  <div class="logo">TeamCyber </div>
-  <div class = "auth-buttons">
-    <button onclick="showLogin()">Sign In</button>
-    <button onclick="showRegister()">Register</button>
-  </div>
-
- </div class="hero">
- <h1>Welcome to the Movie Dashboard!</h1>
-    <p>
-  Sign in to watch your favorite movies!
-    </p>
-  </div>
-
-<div class = content>
-  ,<div class ="section-header">
-      <h2>Popular Movies</h2>
-    <button class ="Refresh-button" onclick="refreshMovies()">Refresh The facking Movies</button>
-  </div>
-    </div>
-
-    <div id="movieContainer">
-      <div class="status-box">Loading movies...</div>
-    </div>
-</div>
-
-<!-- login place -->
- 
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <h2>Sign In</h2>
-      <input type="text" id="Username" placeholder="Username">
-      <input type="password" id="Password" placeholder="Password">
-
-      <button onclick="loginUser()">Sign In</button>
-      <button class="close-btn" onclick="closeLogin()">Close</button>
-
-      <div class="form-message" id="loginMessage"></div>
-    </div>
-  </div>
-
-  <!-- Registeration place -->
-  <div id="registerModal" class="modal">
-    <div class="modal-content">
-      <h1>Register</h1>
-      <input type="text" id="registerUsername" placeholder="Username">
-      <input type="password" id="registerPassword" placeholder="Password">
-
-      <button onclick="registerUser()">Register</button>
-      <button class="close-btn" onclick="closeRegister()">Close</button>
-
-      <div class="form-message" id="registerMessage"></div>
-    </div>
-  </div>
 <style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+}
 
-    *{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, Arial, Helvetica, sans-serif;
-    }
+body{
+background:#141414;
+color:#fff;
+min-height:100vh;
+}
 
-    body{
-  background: #141414;
-  color: #fff;
-  min-height: 100vh;
+/* TOP NAV */
 
-    }
+.topnav{
+width:100%;
+display:flex;
+align-items:center;
+padding:18px 30px;
+background:rgba(0,0,0,0.9);
+position:sticky;
+top:0;
+z-index:1000;
+border-bottom:1px solid rgba(255,255,255,0.08);
+}
 
-    .topnav{
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 30px;
-  background-color:rgb(0, 0, 0,0.85) #333;
-    }
+.logo{
+font-size:28px;
+font-weight:bold;
+color:#e50914;
+letter-spacing:1px;
+}
 
-    .logo{
-  font-size: 28px;
-  font-weight: bold;
-  color: #e50914;
-  letter-spacing: 0.5px;
-    }
+/* SEARCH BAR */
 
-    .auth-buttons{
-  display: flex;
-  gap: 10px;
-    }
+.search-bar{
+flex:1;
+display:flex;
+justify-content:center;
+}
 
-    .auth-buttons button{
-  background-color: #e50914;
-  border: none;
-  color: #fff;
-  padding: 10px 18px;
-  font-size: 14px;
-  font-weight: bold;
+.search-bar input{
+width:60%;
+max-width:500px;
+padding:11px 15px;
+border-radius:6px;
+border:none;
+outline:none;
+font-size:14px;
+}
 
-  cursor: pointer;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.2s ease;
-    }
+.hero{
+padding:50px 30px 25px 30px;
+background:linear-gradient(to bottom, rgba(0,0,0,0.35), #141414),
+url('Theater.jpg') center/cover no-repeat;
+min-height:300px;
+display:flex;
+flex-direction:column;
+justify-content:flex-end;
+}
 
-    .auth-buttons button:hover{
-    background: #080808;
-    }
+.hero h1{
+font-size:42px;
+margin-bottom:10px;
+}
 
-    .hero{
-      padding:50px 30px 25px 30px;
-      background:linear-gradient(to bottom, rgba(0,0,0,0.35), #141414),
-                 url('Theater.jpg') center/cover no-repeat; /* Updated background image */
-      min-height:300px;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-    }
+.hero p{
+max-width:700px;
+color:#ddd;
+line-height:1.6;
+font-size:16px;
+}
 
-.hero h1 {
-  font-size: 42px;
-  margin-bottom: 10px;
-    }
-    .content{
-  padding: 25px 30px 40px 30px;
-    }
+.content{
+padding:25px 30px 40px 30px;
+}
 
-    .section-header{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-    }
-
-.Refresh-button{
-  background-color: #222;
-  color: #fff;
-  padding: 10px 18px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: 0.2s ease;
-    }
+.section-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
 .section-header h2{
-  font-size: 28px;
-  color: #e50914;
-    }
+font-size:28px;
+}
 
-.Refresh-button:hover{
-  background: #e50914;
-  color: #fff;}
+.refresh-btn{
+background:#222;
+color:#fff;
+border:1px solid #444;
+padding:10px 16px;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
 
-  </style>
+.refresh-btn:hover{
+background:#333;
+}
 
+
+#movieContainer{
+display:grid;
+grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+gap:22px;
+}
+
+
+
+.movie-card{
+background:#1b1b1b;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 4px 12px rgba(0,0,0,0.35);
+transition:transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.movie-card:hover{
+transform:translateY(-6px);
+box-shadow:0 10px 22px rgba(0,0,0,0.45);
+}
+
+.movie-poster{
+width:100%;
+height:320px;
+object-fit:cover;
+background:#2a2a2a;
+display:block;
+}
+
+.movie-info{
+padding:14px;
+}
+
+.movie-title{
+font-size:18px;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.movie-date{
+font-size:13px;
+color:#e50914;
+margin-bottom:10px;
+font-weight:bold;
+}
+
+.movie-overview{
+font-size:14px;
+color:#d0d0d0;
+line-height:1.5;
+}
+
+.status-box{
+grid-column:1/-1;
+background:#1b1b1b;
+padding:20px;
+border-radius:10px;
+text-align:center;
+color:#ddd;
+}
+
+
+
+/* /* RESPONSIVE */
+
+</style>
+</head>
+<body>
+<div class="topnav">
+
+<div class="logo">TeamCyber</div>
+
+<div class="search-bar">
+<input 
+type="text"
+id="searchInput"
+placeholder="Search movies..."
+onkeyup="searchMovies()"
+>
+</div>
+
+
+<div class="auth-buttons">
+
+      <a href="index.html#login" class="button-link">
+        <button>Sign In</button>
+      </a>
+      <a href="index.html#register" class="button-link">
+        <button>Register</button></a>
+    </div>
+  </div>
+      
+
+
+
+
+
+
+
+</div>
+
+<div class="hero">
+<h1>Welcome to the Movie Dashboard</h1>
+<p>
+Browse popular movies loaded from your
+<strong>movies.php</strong> endpoint.
+</p>
+</div>
+
+<div class="content">
+
+<div class="section-header">
+<h2>Popular Movies</h2>
+<button class="refresh-btn" onclick="loadMovies()">Refresh Movies</button>
+</div>
+
+<div id="movieContainer">
+<div class="status-box">Loading movies...</div>
+</div>
+
+</div>
 
 <script>
-    async function loadMovies(){
-     const movieContainer = document.getElementById("movieContainer");
-      movieContainer.innerHTML = '<div class="status-box">Loading movies...</div>';
-      try{
-        const response = await fetch("movies.php");
-        const data = await response.json();
-        if(!data.success){
-          movieContainer.innerHTML = '<div class="status-box">Could not load movies.</div>';
-          return;
-        }
-        const movies = data.movies || [];
+let allMovies = [];
+async function loadMovies(){
+const movieContainer = document.getElementById("movieContainer");
+movieContainer.innerHTML = '<div class="status-box">Loading movies...</div>';
 
-        if(movies.length === 0){
-          movieContainer.innerHTML = '<div class="status-box">No movies found.</div>';
-          return;
-        }
-        movieContainer.innerHTML = "";
+try{
+const response = await fetch("movies.php");
+const data = await response.json();
 
-        for(let i = 0; i < movies.length; i++){
-          const movie = movies[i];
+if(!data.success){
+movieContainer.innerHTML = '<div class="status-box">Could not load movies.</div>';
+return;
+}
 
-          const poster = movie.poster_path
-            ? "https://image.tmdb.org/t/p/w500" + movie.poster_path
-            : "https://via.placeholder.com/500x750?text=No+Image";
+allMovies = data.movies || [];
+displayMovies(allMovies);
+}catch(error){
+movieContainer.innerHTML =
+'<div class="status-box">Error fetching movies from movies.php</div>';
+}
 
-          const title = movie.title ? escapeHtml(movie.title) : "Untitled";
-          const releaseDate = movie.release_date ? escapeHtml(movie.release_date) : "N/A";
-          let overview = "No description available.";
-          if(movie.overview){
-            overview = movie.overview.length > 120
-              ? movie.overview.substring(0, 120) + "..."
-              : movie.overview;
-            overview = escapeHtml(overview);}
+}
 
-          const card = document.createElement("div");
-          card.className = "movie-card";
-          card.innerHTML = `
-            <img class="movie-poster" src="${poster}" alt="${title}">
-            <div class="movie-info">
-              <div class="movie-title">${title}</div>
-              <div class="movie-date">Release: ${releaseDate}</div>
-              <div class="movie-overview">${overview}</div>
-            </div>
-          `;
+/* DISPLAY MOVIES */
 
-          movieContainer.appendChild(card);
-      }
-      }catch(error){
-        document.getElementById("movieContainer").innerHTML =
-          '<div class="status-box">Error fetching movies from movies.php</div>';
-      }
-    }
+function displayMovies(movies){
 
-    function escapeHtml(text){
-      const div = document.createElement("div");
-      div.textContent = text;
-      return div.innerHTML;
-    }
+const movieContainer = document.getElementById("movieContainer");
+
+if(movies.length === 0){
+movieContainer.innerHTML =
+'<div class="status-box">No movies found.</div>';
+return;
+}
+
+movieContainer.innerHTML = "";
+
+movies.forEach(movie => {
+
+const poster = movie.poster_path
+? "https://image.tmdb.org/t/p/w500" + movie.poster_path
+: "https://via.placeholder.com/500x750?text=No+Image";
+
+const title = movie.title ? escapeHtml(movie.title) : "Untitled";
+
+const releaseDate = movie.release_date
+? escapeHtml(movie.release_date)
+: "N/A";
+let overview = "No description available.";
+
+
+
+
+if(movie.overview){
+
+overview = movie.overview.length > 120
+? movie.overview.substring(0,120) + "..."
+: movie.overview;
+
+overview = escapeHtml(overview);
+
+}
+
+const card = document.createElement("div");
+
+card.className = "movie-card";
+
+card.innerHTML = `
+<img class="movie-poster" src="${poster}" alt="${title}">
+<div class="movie-info">
+<div class="movie-title">${title}</div>
+<div class="movie-date">Release: ${releaseDate}</div>
+<div class="movie-overview">${overview}</div>
+</div>
+`;
+
+movieContainer.appendChild(card);
+
+});
+
+}
+
+/* SEARCH MOVIES */
+
+function searchMovies(){
+
+const input = document
+.getElementById("searchInput")
+.value
+.toLowerCase();
+
+const filtered = allMovies.filter(movie =>
+
+movie.title &&
+movie.title.toLowerCase().includes(input)
+
+);
+
+displayMovies(filtered);
+
+}
+
+/* SECURITY */
+
+function escapeHtml(text){
+
+const div = document.createElement("div");
+
+div.textContent = text;
+
+return div.innerHTML;
+
+}
 
 loadMovies();
 
-
-
-
-
-
 </script>
 
-
-
-
-
-
-
-
- </body>
-<html>
+</body>
+</html>

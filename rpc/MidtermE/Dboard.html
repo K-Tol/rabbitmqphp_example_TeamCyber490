@@ -2,325 +2,389 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Movie Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Dashboard</title>
 
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+background:#141414;
+color:#fff;
+min-height:100vh;
+}
+
+
+.topnav{
+width:100%;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:18px 30px;
+background:rgba(0,0,0,0.9);
+position:sticky;
+top:0;
+z-index:1000;
+border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+color:#e50914;
+letter-spacing:1px;
+}
+
+
+.search-bar{
+flex:1;
+display:flex;
+justify-content:center;
+}
+
+.search-bar input{
+width:60%;
+max-width:500px;
+padding:11px 15px;
+border-radius:6px;
+border:none;
+outline:none;
+font-size:14px;
+}
+
+
+.auth-buttons{
+display:flex;
+gap:10px;
+}
+
+.auth-buttons .button-link{
+text-decoration:none;
+}
+
+.auth-buttons button{
+background:#e50914;
+border:none;
+color:#fff;
+padding:10px 18px;
+font-size:14px;
+font-weight:bold;
+border-radius:6px;
+cursor:pointer;
+transition:0.2s ease;
+}
+
+.auth-buttons button:hover{
+background:#b20710;
+}
+
+
+
+.hello{
+padding:50px 30px 25px 30px;
+background:linear-gradient(to bottom, rgba(0,0,0,0.35), #141414),
+url('Theater.jpg') center/cover no-repeat;
+min-height:300px;
+display:flex;
+flex-direction:column;
+justify-content:flex-end;
+}
+
+.hello p{
+max-width:700px;
+color:#ddd;
+line-height:1.6;
+font-size:16px;
+}
+
+
+.content{
+padding:25px 30px 40px 30px;
+}
+
+.section-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
+
+.section-header h2{
+font-size:28px;
+}
+
+.hello h1{
+font-size:42px;
+margin-bottom:10px;
+}
+
+.refresh-btn{
+background:#222;
+color:#fff;
+border:1px solid #444;
+padding:10px 16px;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.refresh-btn:hover{
+background:#333;
+}
+/* MOVIE CARDS th  how the cardwill display*/
+#movieContainer{
+display:grid;
+grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+gap:22px;
+}
+
+.movie-card{
+background:#1b1b1b;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 4px 12px rgba(0,0,0,0.35);
+transition:transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.movie-card:hover{
+transform:translateY(-6px);
+box-shadow:0 10px 22px rgba(0,0,0,0.45);
+}
+
+.movie-poster{
+width:100%;
+height:320px;
+object-fit:cover;
+background:#2a2a2a;
+display:block;
+}
+
+.movie-info{
+padding:14px;
+}
+
+.movie-title{
+font-size:18px;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.movie-date{
+font-size:13px;
+color:#e50914;
+margin-bottom:10px;
+font-weight:bold;
+}
+
+.movie-overview{
+font-size:14px;
+color:#d0d0d0;
+line-height:1.5;
+}
+
+.status-box{
+grid-column:1/-1;
+background:#1b1b1b;
+padding:20px;
+border-radius:10px;
+text-align:center;
+color:#ddd;
+}
+
+</style>
 </head>
+
 <body>
 
-  <div class="topnav">
-    <div class="logo">MovieDB</div>
+<div class="topnav">
 
-    <div class="auth-buttons">
+<div class="logo">MovieDB</div>
 
-      <a href="index.html#login" class="button-link">
-        <button>Sign In</button>
-      </a>
-      <a href="index.html#register" class="button-link">
-        <button>Register</button></a>
-    </div>
-  </div>
+<div class="search-bar">
+<input 
+type="text"
+id="searchInput"
+placeholder="Search movies..."
+onkeyup="searchMovies()"
+>
+</div>
 
-  <div class="hero">
-    <h1>Welcome to the Movie Dashboard</h1>
-    <p>
-      Sign in from the top right corner and browse popular movies loaded from your
-      <strong>movies.php</strong> endpoint.
-    </p>
-  </div>
+<div class="auth-buttons">
+<a href="index.html#login" class="button-link">
+<button>Sign In</button>
+</a>
 
-  <div class="content">
-    <div class="section-header">
-      <h2>Popular Movies</h2>
-      <button class="refresh-btn" onclick="loadMovies()">Refresh Movies</button>
-    </div>
+<a href="index.html#register" class="button-link">
+<button>Register</button>
+</a>
+</div>
 
-    <div id="movieContainer">
-      <div class="status-box">Loading movies...</div>
-    </div>
-  </div>
-<style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:Arial, Helvetica, sans-serif;
-    }
+</div>
 
-    body{
-      background:#141414;
-      color:#fff;
-      min-height:100vh;
-    }
+<div class="hello">
+<h1>Welcome to the Movie Dashboard</h1>
+<p>
 
-    .topnav{
-      width:100%;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:18px 30px;
-      background:rgba(0,0,0,0.85);
-      position:sticky;
-      top:0;
-      z-index:1000;
-      border-bottom:1px solid rgba(255,255,255,0.08);
-    }
+<strong>movies.php</strong> endpoint.
+</p>
+</div>
 
-    .logo{
-      font-size:28px;
-      font-weight:bold;
-      color:#e50914;
-      letter-spacing:1px;
-    }
+<div class="content">
 
-    .auth-buttons{
-      display:flex;
-      gap:10px;
-    }
+<div class="section-header">
+<h2>Popular Movies</h2>
+<button class="refresh-btn" onclick="loadMovies()">Refresh Movies</button>
+</div>
 
-    .auth-buttons .button-link {
-      text-decoration: none;
-    }
+<div id="movieContainer">
+<div class="status-box">Loading movies...</div>
+</div>
 
-    .auth-buttons button{
-      background:#e50914;
-      border:none;
-      color:#fff;
-      padding:10px 18px;
-      font-size:14px;
-      font-weight:bold;
-      border-radius:6px;
-      cursor:pointer;
-      transition:0.2s ease;
-    }
-
-    .auth-buttons button:hover{
-      background:#b20710;
-    }
-
-    .hero{
-      padding:50px 30px 25px 30px;
-      background:linear-gradient(to bottom, rgba(0,0,0,0.35), #141414),
-                 url('Theater.jpg') center/cover no-repeat; 
-      min-height:300px;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-    }
-
-    .hero h1{
-      font-size:42px;
-      margin-bottom:10px;
-    }
-
-    .hero p{
-      max-width:700px;
-      color:#ddd;
-      line-height:1.6;
-      font-size:16px;
-    }
-
-    .content{
-      padding:25px 30px 40px 30px;
-    }
-
-    .section-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:20px;
-    }
-
-    .section-header h2{
-      font-size:28px;
-      color:#fff;
-    }
-
-    .refresh-btn{
-      background:#222;
-      color:#fff;
-      border:1px solid #444;
-      padding:10px 16px;
-      border-radius:6px;
-      cursor:pointer;
-      font-weight:bold;
-    }
-
-    .refresh-btn:hover{
-      background:#333;
-    }
-
-    #movieContainer{
-      display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
-      gap:22px;
-    }
-
-    .movie-card{
-      background:#1b1b1b;
-      border-radius:10px;
-      overflow:hidden;
-      box-shadow:0 4px 12px rgba(0,0,0,0.35);
-      transition:transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .movie-card:hover{
-      transform:translateY(-6px);
-      box-shadow:0 10px 22px rgba(0,0,0,0.45);
-    }
-
-    .movie-poster{
-      width:100%;
-      height:320px;
-      object-fit:cover;
-      background:#2a2a2a;
-      display:block;
-    }
-
-    .movie-info{
-      padding:14px;
-    }
-
-    .movie-title{
-      font-size:18px;
-      font-weight:bold;
-      margin-bottom:8px;
-      color:#fff;
-    }
-
-    .movie-date{
-      font-size:13px;
-      color:#e50914;
-      margin-bottom:10px;
-      font-weight:bold;
-    }
-
-    .movie-overview{
-      font-size:14px;
-      color:#d0d0d0;
-      line-height:1.5;
-    }
-
-    .status-box{
-      grid-column:1/-1;
-      background:#1b1b1b;
-      padding:20px;
-      border-radius:10px;
-      text-align:center;
-      color:#ddd;
-    }
-
-    @media(max-width:768px){
-      .topnav{
-        padding:15px 18px;
-      }
-
-      .logo{
-        font-size:22px;
-      }
-
-      .auth-buttons button{
-        padding:9px 14px;
-        font-size:13px;
-      }
-
-      .hero{
-        padding:35px 18px 20px 18px;
-        min-height:240px;
-      }
-
-      .hero h1{
-        font-size:30px;
-      }
-
-      .content{
-        padding:20px 18px 35px 18px;
-      }
-
-      .movie-poster{
-        height:280px;
-      }
-    }
-  </style>
+</div>
 
 <script>
-    async function loadMovies(){
-     const movieContainer = document.getElementById("movieContainer");
-      movieContainer.innerHTML = '<div class="status-box">Loading movies...</div>';
-      try{
-        const response = await fetch("movies.php");
-        const data = await response.json();
-        if(!data.success){
-          movieContainer.innerHTML = '<div class="status-box">Could not load movies.</div>';
-          return;
-        }
-        const movies = data.movies || [];
 
-        if(movies.length === 0){
-          movieContainer.innerHTML = '<div class="status-box">No movies found.</div>';
-          return;
-        }
-        movieContainer.innerHTML = "";
+let allMovies = [];
 
-        for(let i = 0; i < movies.length; i++){
-          const movie = movies[i];
 
-          const poster = movie.poster_path
-            ? "https://image.tmdb.org/t/p/w500" + movie.poster_path
-            : "https://via.placeholder.com/500x750?text=No+Image";
+async function loadMovies(){
 
-          const title = movie.title ? escapeHtml(movie.title) : "Untitled";
-          const releaseDate = movie.release_date ? escapeHtml(movie.release_date) : "N/A";
-          let overview = "No description available.";
-          if(movie.overview){
-            overview = movie.overview.length > 120
-              ? movie.overview.substring(0, 120) + "..."
-              : movie.overview;
-            overview = escapeHtml(overview);}
+const movieContainer = document.getElementById("movieContainer");
 
-          const card = document.createElement("div");
-          card.className = "movie-card";
-          card.innerHTML = `
-            <img class="movie-poster" src="${poster}" alt="${title}">
-            <div class="movie-info">
-              <div class="movie-title">${title}</div>
-              <div class="movie-date">Release: ${releaseDate}</div>
-              <div class="movie-overview">${overview}</div>
-            </div>
-          `;
+movieContainer.innerHTML =
+'<div class="status-box">Loading movies...</div>';
 
-          movieContainer.appendChild(card);
-      }
-      }catch(error){
-        document.getElementById("movieContainer").innerHTML =
-          '<div class="status-box">Error fetching movies from movies.php</div>';
-      }
-    }
+try{
 
-    function escapeHtml(text){
-      const div = document.createElement("div");
-      div.textContent = text;
-      return div.innerHTML;
-    }
+const response = await fetch("movies.php");
+const data = await response.json();
 
+if(!data.success){
+
+movieContainer.innerHTML =
+'<div class="status-box">Could not load movies.</div>';
+
+return;
+
+}
+
+allMovies = data.movies || [];
+
+displayMovies(allMovies);
+
+}catch(error){
+
+movieContainer.innerHTML =
+'<div class="status-box">Error fetching movies from movies.php</div>';
+
+}
+
+}
+
+/* DISPLAY MOVIES */
+
+function displayMovies(movies){
+
+const movieContainer =
+document.getElementById("movieContainer");
+
+if(movies.length === 0){
+
+movieContainer.innerHTML =
+'<div class="status-box">No movies found.</div>';
+
+return;
+
+}
+
+movieContainer.innerHTML = "";
+
+movies.forEach(movie => {
+
+const poster = movie.poster_path
+? "https://image.tmdb.org/t/p/w500" + movie.poster_path
+: "https://via.placeholder.com/500x750?text=No+Image";
+
+const title =
+movie.title ? escapeHtml(movie.title) : "Untitled";
+
+const releaseDate =
+movie.release_date ? escapeHtml(movie.release_date) : "N/A";
+
+let overview = "No description available.";
+
+if(movie.overview){
+
+overview =
+movie.overview.length > 120
+? movie.overview.substring(0,120) + "..."
+: movie.overview;
+
+overview = escapeHtml(overview);
+
+}
+
+const card = document.createElement("div");
+
+card.className = "movie-card";
+
+card.innerHTML = `
+<img class="movie-poster" src="${poster}" alt="${title}">
+<div class="movie-info">
+<div class="movie-title">${title}</div>
+<div class="movie-date">Release: ${releaseDate}</div>
+<div class="movie-overview">${overview}</div>
+</div>
+`;
+
+movieContainer.appendChild(card);
+
+});
+
+}
+ 
+/* SEARCH MOVIES */
+
+function searchMovies(){
+
+const input =
+document.getElementById("searchInput")
+.value
+.toLowerCase();
+
+const filtered = allMovies.filter(movie =>
+
+movie.title &&
+movie.title.toLowerCase().includes(input)
+
+);
+
+displayMovies(filtered);
+
+}
+
+/* SECURITY */
+
+function escapeHtml(text){
+
+const div = document.createElement("div");
+
+div.textContent = text;
+
+return div.innerHTML;
+
+}
 loadMovies();
 
-
-
-
-
-
 </script>
-
-
-
-
-
-
-
-
- </body>
-<html>
+</body>
+</html>
