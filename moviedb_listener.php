@@ -144,5 +144,26 @@ function storeMovie($movie, $genre_ids = []) {
     ];
 }
 
-// NEED A FUNCTION TO QUERY WHAT'S ALREADY IN OUR DB
+// function for matching movies to search query
+function localMovSearch($query) {
+    // query for search movies inside our movies table
+    $stmt = movieDB()->prepare(
+        "SELECT id, tmdb_id, title, release_date, poster_path
+         FROM movies
+         WHERE title LIKE CONCAT('%', ?, '%')
+         ORDER BY popularity DESC, title ASC
+         LIMIT 25"
+    );
+    // bind query to ? then execute it and get results back
+    $stmt->bind_param("s", $query);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $movies = [];
+    // looping through every movie returned from the db
+    while($row = $res->fetch_assoc()) {
+        $movies[] = $row;
+    }
+    return $movies;
+}
+
 ?>
