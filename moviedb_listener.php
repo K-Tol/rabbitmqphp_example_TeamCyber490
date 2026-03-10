@@ -84,5 +84,13 @@ function storeMovie($movie, $genre_ids = []) {
     $vote_count = isset($movie["vote_count"]) ? (int)$movie["vote_count"] : 0;
     $popularity = isset($movie["popularity"]) ? (float)$movie["popularity"] : 0.0;
     $adult = !empty($movie["adult"]) ? 1 : 0;
+
+    // binding the variables to their data types and then executing the insert
+    $stmt->bind_param("isssisssdddi", $tmdb_id, $title, $overview, $release_date, $runtime, $poster_path,
+    $backdrop_path, $original_language, $vote_average, $vote_count, $popularity, $adult);
+    $stmt->execute();
+    $stmt = movieDB()->prepare(
+        "SELECT id FROM movies WHERE tmdb_id = ? LIMIT 1"
+    );
 }
 ?>
