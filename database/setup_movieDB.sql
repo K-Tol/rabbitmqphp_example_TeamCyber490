@@ -9,7 +9,7 @@ CREATE DATABASE movie_db;
 USE movie_db;
 
 -- table for storing info about movies (referencing the TMDB api)
-CREATE TABLE movies(
+CREATE TABLE movies (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tmdb_id INT NOT NULL UNIQUE,
     title VARCHAR(255) NOT NULL,
@@ -30,3 +30,11 @@ CREATE TABLE movies(
 CREATE INDEX idx_movies_title ON movies(title);
 CREATE INDEX idx_movies_tmdb_id ON movies(tmdb_id);
 
+-- table for genres
+CREATE TABLE genres (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tmdb_genre_id INT NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL
+);
+
+-- make a table to connect movies to genres in a many to many format
