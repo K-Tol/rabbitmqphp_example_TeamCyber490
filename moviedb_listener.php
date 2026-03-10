@@ -181,4 +181,31 @@ function searchMovies($query) {
     ];
 }
 
+// function to get all the details about a movie
+function getFullDetails($movie_id) {
+    $stmt = movieDB()->prepare(
+        "SELECT * FROM  movies WHERE id = ?"
+    );
+    $stmt->bind_param("i", $movie_id);
+    $stmt->execute();
+    $movie = $stmt->get_result()->fetch_assoc();
+    // checks if movie even exists in the db
+    if(!$movie) {
+        return [
+            "success" => false,
+            "error" => "movie_not_found";
+        ];
+    }
+    // query to retrieve genres that the movie falls under
+    $stmt = moiveDB()->prepare(
+        "SELECT g.id, g.tmdb_genre_id, g.name
+         FROM genres g
+         JOIN movie_genres mg ON mg.genre_id = g.id
+         WHERE mg.movie_id = ?
+         ORDER BY g.name ASC"
+    );
+
+    // NEED A LOOP TO GO THRU GENRE RESULTS
+}
+
 ?>
