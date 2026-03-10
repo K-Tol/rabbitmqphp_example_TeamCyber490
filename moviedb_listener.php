@@ -72,7 +72,7 @@ function storeMovie($movie, $genre_ids = []) {
     );
 
     // this block will do the job of actually extracting movie data from the $movie array
-    $tmdb_id = isset(movie["tmdb_id"]) ? (int)$movie["tmdb_id"] : 0;
+    $tmdb_id = isset($movie["tmdb_id"]) ? (int)$movie["tmdb_id"] : 0;
     $title = isset($movie["title"]) ? (string)$movie["title"] : "";
     $overview = array_key_exists("overview", $movie) ? $movie["overview"] : null;
     $release_date = !empty($movie["release_date"]) ? $movie["release_date"] : null;
