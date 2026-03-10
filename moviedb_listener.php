@@ -89,8 +89,29 @@ function storeMovie($movie, $genre_ids = []) {
     $stmt->bind_param("isssisssdddi", $tmdb_id, $title, $overview, $release_date, $runtime, $poster_path,
     $backdrop_path, $original_language, $vote_average, $vote_count, $popularity, $adult);
     $stmt->execute();
+    // prepping query to find movie, binding the variable, then executing said query
     $stmt = movieDB()->prepare(
         "SELECT id FROM movies WHERE tmdb_id = ? LIMIT 1"
     );
+    $stmt->bind_param("i", $tmdb_id);
+    $stmt->execute();
+    // getting back results and then checking if the movie exists
+    $row = $stmt->get_result()->fetch_assoc();
+    if(!$row) {
+        return [
+            "success" => false,
+            "error" => "store_failed"
+        ];
+    }
+    $movie_id = (int)$row["id"]; // storing movie's db id
+    //prepping query to remove old genre links
+    $stmt = movieDB()->prepare(
+        "DELETE FROM movie_genres WHERE movie_id = ?"
+    );
+    // bind movie id then execute the delete
+    $stmt->bind_param("i", $movie_id);
+    $stmt->execute();
+
+    // NEED A FOREACH LOOP FOR GENRE IDS
 }
 ?>
