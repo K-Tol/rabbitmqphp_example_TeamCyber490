@@ -6,8 +6,6 @@ require_once('rabbitMQLib.inc');
 
 /*
 functions to make:
--datasource client function
--storing genres function
 -storing movies function
 -query for movie function
 -sum more
@@ -37,4 +35,18 @@ function datasourceClient() {
     $client = new rabbitMQClient("rabbitMQ.ini", "apiServer");
     return $client;
 }
+
+// will store genres from TMDB api into our movie database
+function storeGenre($tmdb_genre_id, $name) {
+    $stmt = movieDB()->prepare(
+        "INSERT INTO genres (tmdb_genre_id, name)
+         VALUES (?, ?)
+         ON DUPLICATE KEY UPDATE name = VALUES(name)" // prevents duplicate entries
+    );
+    $stmt->bind_param("is", $tmdb_genre_id, $name);
+    $stmt->execute();
+    return ["success" => true];
+}
+
+// work on a function for storing movies next
 ?>
