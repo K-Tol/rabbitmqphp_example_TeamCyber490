@@ -26,4 +26,15 @@ function movieDB() {
     }
     return $connect;
 }
+
+// rabbitMQ client for requesting TMDB syncs from the api handler script
+function datasourceClient() {
+    static $client = null;
+    if($client !== null) {
+        return $client;
+    }
+    // might not be called apiServer depending on what Ralph decides to name the queues
+    $client = new rabbitMQClient("rabbitMQ.ini", "apiServer");
+    return $client;
+}
 ?>
