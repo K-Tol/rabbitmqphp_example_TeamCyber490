@@ -70,5 +70,19 @@ function storeMovie($movie, $genre_ids = []) {
          adult = VALUES(adult),
          last_synced_at = UNIX_TIMESTAMP()" // making it epoch time
     );
+
+    // this block will do the job of actually extracting movie data from the $movie array
+    $tmdb_id = isset(movie["tmdb_id"]) ? (int)$movie["tmdb_id"] : 0;
+    $title = isset($movie["title"]) ? (string)$movie["title"] : "";
+    $overview = array_key_exists("overview", $movie) ? $movie["overview"] : null;
+    $release_date = !empty($movie["release_date"]) ? $movie["release_date"] : null;
+    $runtime = isset($movie["runtime"]) && $movie["runtime"] !== null ? (int)$movie["runtime"] : null;
+    $poster_path = array_key_exists("poster_path", $movie) ? $movie["poster_path"] : null;
+    $backdrop_path = array_key_exists("backdrop_path", $movie) ? $movie["backdrop_path"] : null;
+    $original_language = array_key_exists("original_language", $movie) ? $movie["original_language"] : null;
+    $vote_average = isset($movie["vote_average"]) ? (float)$movie["vote_average"] : 0.0;
+    $vote_count = isset($movie["vote_count"]) ? (int)$movie["vote_count"] : 0;
+    $popularity = isset($movie["popularity"]) ? (float)$movie["popularity"] : 0.0;
+    $adult = !empty($movie["adult"]) ? 1 : 0;
 }
 ?>
