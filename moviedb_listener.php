@@ -6,7 +6,6 @@ require_once('rabbitMQLib.inc');
 
 /*
 functions to make:
--storing movies function
 -query for movie function
 -sum more
 */
@@ -49,4 +48,27 @@ function storeGenre($tmdb_genre_id, $name) {
 }
 
 // work on a function for storing movies next
+function storeMovie($movie, $genre_ids = []) {
+    // this entire block will handle inserting a movie into the db
+    $stmt = $movieDB()->prepare(
+        "INSERT INTO movies
+         (tmdb_id, title, overview, release_date, runtime, poster_path,
+         backdrop_path, original_language, vote_average, vote_count, popularity,
+         adult, last_synced_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+         ON DUPLICATE KEY UPDATE
+         title = VALUES(title),
+         overview = VALUES(overview),
+         release_date = VALUES(release_date),
+         runtime = VALUES(runtime),
+         poster_path = VALUES(poster_path),
+         backdrop_path = VALUES(backdrop_path),
+         original_language = VALUES(original_language),
+         vote_average = VALUES(vote_average),
+         vote_count = VALUES(vote_count),
+         popularity = VALUES(popularity),
+         adult = VALUES(adult),
+         last_synced_at = UNIX_TIMESTAMP()" // making it epoch time
+    );
+}
 ?>
