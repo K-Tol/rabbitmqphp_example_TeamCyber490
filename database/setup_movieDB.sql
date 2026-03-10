@@ -26,7 +26,7 @@ CREATE TABLE movies (
     last_synced_at BIGINT
 );
 
--- adding some indexes to make searching for stuff in the database faster
+-- added some indexes to make searching for stuff in the database faster
 CREATE INDEX idx_movies_title ON movies(title);
 CREATE INDEX idx_movies_tmdb_id ON movies(tmdb_id);
 
@@ -37,4 +37,12 @@ CREATE TABLE genres (
     name VARCHAR(100) NOT NULL
 );
 
--- make a table to connect movies to genres in a many to many format
+-- table to connect movies to genres in a many to many format
+-- (multiple movies can belong to a single genre and a single movie could be under multiple genres)
+CREATE TABLE movie_genres (
+    movie_id INT NOT NULL,
+    genre_id INT NOT NULL,
+    PRIMARY KEY (moive_id, genre_id),
+    FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE,
+    FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE CASCADE
+);
