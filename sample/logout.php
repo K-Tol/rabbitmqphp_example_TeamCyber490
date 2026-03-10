@@ -10,5 +10,7 @@ $client -> send_request([
     "type" => "logout",
     "session_key" => $sessionKey
     ]);
+
+header("Location: /index.html");
 exit(0);
 ?>
