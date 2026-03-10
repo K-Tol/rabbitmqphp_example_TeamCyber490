@@ -112,6 +112,37 @@ function storeMovie($movie, $genre_ids = []) {
     $stmt->bind_param("i", $movie_id);
     $stmt->execute();
 
-    // NEED A FOREACH LOOP FOR GENRE IDS
+    // lopps through genre ids 
+    foreach($genre_ids as $tmdb_genre_id) {
+        // find genre in db then convert genre id to an int
+        $stmt = movieDB()->prepare(
+            "SELECT id FROM genres WHERE tmdb_genre_id = ? LIMIT 1"
+        );
+        $tmdb_genre_id = (int)$tmdb_genre_id;
+        $stmt->bind_param("i", $tmdb_genre_id);
+        $stmt->execute();
+        $genre_row = $stmt->get_result()->fetch_assoc();
+        // skip if genre doesnt exist
+        if(!$genre_row) {
+            continue;
+        }
+        //store internal genre id
+        $genre_id = (int)$genre_row["id"];
+        // prepping insert stmt into movie_genres to link movie with a genre
+        $stmt = movieDB()->prepare(
+            "INSERT IGNORE INTO movie_genres (movie_id, genre_id)
+             VALUES (?, ?)"
+        );
+
+        $stmt->bind_param("ii", $movie_id, $genre_id);
+        $stmt->execute();
+    }
+
+    return [
+        "success" => true,
+        "movie_id" => $movie_id
+    ];
 }
+
+// NEED A FUNCTION TO QUERY WHAT'S ALREADY IN OUR DB
 ?>
