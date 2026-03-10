@@ -166,4 +166,19 @@ function localMovSearch($query) {
     return $movies;
 }
 
+// function to wrap localMovSearch, falls back to triggering
+// a TMDB sync if nothing is found locally
+function searchMovies($query) {
+    $movies = localMovSearch($query);
+    // if no movies were found, sned a rabbitMQ request to api handler on the dmz 
+    if(count($movies) === 0) {
+        datasourceClient()->send_request(["type" => "sync_search", "query" => $query]);
+        $movies = localMovSearch($query);
+    }
+    return [
+        "success" => true,
+        "movies" => $movies
+    ];
+}
+
 ?>
