@@ -4,11 +4,6 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
-/*
-functions to make:
--query for movie function
--sum more
-*/
 
 // function for establishing connection with the movie database
 function movieDB() {
@@ -204,8 +199,21 @@ function getFullDetails($movie_id) {
          WHERE mg.movie_id = ?
          ORDER BY g.name ASC"
     );
-
-    // NEED A LOOP TO GO THRU GENRE RESULTS
+    $stmt->bind_param("i", $movie_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $genres = [];
+    // loop to go through genre results
+    while($row = $res->fetch_assoc()) {
+        $genres[] = $row;
+    }
+    // return everything
+    return [
+        "success" => true,
+        "movie" => $movie,
+        "genres" => $genres
+    ];
 }
 
+// MAKE FUNCTION TO ROUTE REQUESTS COMING FROM RABBITMQ TO THEIR RESPECTIVE FUNCTIONS
 ?>
