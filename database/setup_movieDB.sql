@@ -25,3 +25,8 @@ CREATE TABLE movies(
     adult BOOLEAN,
     last_synced_at BIGINT
 );
+
+-- adding some indexes to make searching for stuff in the database faster
+CREATE INDEX idx_movies_title ON movies(title);
+CREATE INDEX idx_movies_tmdb_id ON movies(tmdb_id);
+
