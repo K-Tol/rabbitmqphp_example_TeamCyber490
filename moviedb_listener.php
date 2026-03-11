@@ -188,7 +188,7 @@ function getFullDetails($movie_id) {
     if(!$movie) {
         return [
             "success" => false,
-            "error" => "movie_not_found";
+            "error" => "movie_not_found"
         ];
     }
     // query to retrieve genres that the movie falls under
