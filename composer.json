@@ -1,5 +1,6 @@
 {
   "require": {
-      "videlalvaro/php-amqplib": "2.5.*"
+      "videlalvaro/php-amqplib": "2.5.*",
+    "guzzlehttp/guzzle": "^7.10"
   }
 }

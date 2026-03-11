@@ -1,0 +1,5 @@
+# ignoring composer stuff
+
+vendor/
+composer.json
+composer.lock
