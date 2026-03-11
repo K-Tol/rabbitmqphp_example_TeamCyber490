@@ -25,4 +25,4 @@ CREATE TABLE sessions (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX (user_id),
     INDEX (end_time)
-)
+);
