@@ -5,7 +5,10 @@ require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
 
-// function for establishing connection with the movie database
+
+/*
+function for establishing connection with the movie database
+*/
 function movieDB() {
     static $connect = null;
     if($connect !== null) {
@@ -19,7 +22,11 @@ function movieDB() {
     return $connect;
 }
 
-// rabbitMQ client for requesting TMDB syncs from the api handler script
+
+
+/*
+rabbitMQ client for requesting TMDB syncs from the api handler script
+*/
 function datasourceClient() {
     static $client = null;
     if($client !== null) {
@@ -30,7 +37,11 @@ function datasourceClient() {
     return $client;
 }
 
-// will store genres from TMDB api into our movie database
+
+
+/*
+will store genres from TMDB api into our movie database
+*/
 function storeGenre($tmdb_genre_id, $name) {
     $stmt = movieDB()->prepare(
         "INSERT INTO genres (tmdb_genre_id, name)
@@ -42,7 +53,11 @@ function storeGenre($tmdb_genre_id, $name) {
     return ["ok" => true];
 }
 
-// work on a function for storing movies next
+
+
+/*
+work on a function for storing movies next
+*/
 function storeMovie($movie, $genre_ids = []) {
     // this entire block will handle inserting a movie into the db
     $stmt = movieDB()->prepare(
@@ -139,7 +154,11 @@ function storeMovie($movie, $genre_ids = []) {
     ];
 }
 
-// function for matching movies to search query
+
+
+/*
+function for matching movies to search query
+*/
 function localMovSearch($query) {
     // query for search movies inside our movies table
     $stmt = movieDB()->prepare(
@@ -161,8 +180,12 @@ function localMovSearch($query) {
     return $movies;
 }
 
-// function to wrap localMovSearch, falls back to triggering
-// a TMDB sync if nothing is found locally
+
+
+/*
+function to wrap localMovSearch, falls back to triggering
+a TMDB sync if nothing is found locally
+*/
 function searchMovies($query) {
     $movies = localMovSearch($query);
     // if no movies were found, sned a rabbitMQ request to api handler on the dmz 
@@ -176,7 +199,11 @@ function searchMovies($query) {
     ];
 }
 
-// function to get all the details about a movie
+
+
+/*
+function to get all the details about a movie
+*/
 function getFullDetails($movie_id) {
     $stmt = movieDB()->prepare(
         "SELECT * FROM  movies WHERE id = ?"
@@ -215,7 +242,11 @@ function getFullDetails($movie_id) {
     ];
 }
 
-// function for routing the requests that are coming through with their needed functions above
+
+
+/*
+function for routing the requests that are coming through with their needed functions above
+*/
 function requestProcessor($request) {
     echo "received request".PHP_EOL;
     var_dump($request);
