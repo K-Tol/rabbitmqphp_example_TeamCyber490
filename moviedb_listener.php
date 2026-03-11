@@ -243,7 +243,7 @@ function requestProcessor($request) {
     }
 }
 
-$server = new rabbitMQServer("rabbitMQ.ini", "movieServer");
-echo "Movie database listener is now running..." . PHP_EOl;
+$server = new rabbitMQServer("movieServer.ini", "movieServer");
+echo "Movie database listener is now running..." . PHP_EOL;
 $server->process_requests('requestProcessor');
 ?>
