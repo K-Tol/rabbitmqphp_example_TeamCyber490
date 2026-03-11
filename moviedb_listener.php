@@ -39,7 +39,7 @@ function storeGenre($tmdb_genre_id, $name) {
     );
     $stmt->bind_param("is", $tmdb_genre_id, $name);
     $stmt->execute();
-    return ["success" => true];
+    return ["ok" => true];
 }
 
 // work on a function for storing movies next
@@ -94,7 +94,7 @@ function storeMovie($movie, $genre_ids = []) {
     $row = $stmt->get_result()->fetch_assoc();
     if(!$row) {
         return [
-            "success" => false,
+            "ok" => false,
             "error" => "store_failed"
         ];
     }
@@ -134,7 +134,7 @@ function storeMovie($movie, $genre_ids = []) {
     }
 
     return [
-        "success" => true,
+        "ok" => true,
         "movie_id" => $movie_id
     ];
 }
@@ -171,7 +171,7 @@ function searchMovies($query) {
         $movies = localMovSearch($query);
     }
     return [
-        "success" => true,
+        "ok" => true,
         "movies" => $movies
     ];
 }
@@ -187,7 +187,7 @@ function getFullDetails($movie_id) {
     // checks if movie even exists in the db
     if(!$movie) {
         return [
-            "success" => false,
+            "ok" => false,
             "error" => "movie_not_found"
         ];
     }
@@ -209,7 +209,7 @@ function getFullDetails($movie_id) {
     }
     // return everything
     return [
-        "success" => true,
+        "ok" => true,
         "movie" => $movie,
         "genres" => $genres
     ];
@@ -221,7 +221,7 @@ function requestProcessor($request) {
     var_dump($request);
     if(!isset($request['type'])) {
         return [
-            "success" => false,
+            "ok" => false,
             "error" => "missing_type"
         ];
     }
@@ -237,7 +237,7 @@ function requestProcessor($request) {
             return storeMovie($request["movie"] ?? [], $request["genre_ids"] ?? []);
         default:
             return [
-                "success" => false,
+                "ok" => false,
                 "error" => "unknown_request"
             ];
     }
