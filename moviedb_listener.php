@@ -215,5 +215,20 @@ function getFullDetails($movie_id) {
     ];
 }
 
-// MAKE FUNCTION TO ROUTE REQUESTS COMING FROM RABBITMQ TO THEIR RESPECTIVE FUNCTIONS
+// function for routing the requests that are coming through with their needed functions above
+function requestProcessor($request) {
+    echo "received request".PHP_EOL;
+    var_dump($request);
+    if(!isset($request['type'])) {
+        return [
+            "success" => false,
+            "error" => "missing_type"
+        ];
+    }
+    // WORK ON SWITCH STATEMENTS
+    switch ($request["type"]) {
+        case "search_movies":
+            return searchMovies($request)
+    }
+}
 ?>
