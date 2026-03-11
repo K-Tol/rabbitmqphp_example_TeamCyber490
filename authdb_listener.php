@@ -38,7 +38,7 @@ function doRegister($username, $password) {
   // checking to see if the prepping went wrong
   if(!$stmt) {
     return [
-      "success" => false,
+      "ok" => false,
       "error" => "prep_failed"
       ];
   }
@@ -51,16 +51,16 @@ function doRegister($username, $password) {
   } catch(mysqli_sql_exception $e) {
       if((int)$e->getCode() === 1062) {
         return [
-          "success" => false,
+          "ok" => false,
           "error" => "username_exists"
         ];
       }
       return [
-        "success" => false,
+        "ok" => false,
         "error" => "db_insert_failed"
       ];
   }
-  return ["success" => true];
+  return ["ok" => true];
 }
 
 
@@ -75,7 +75,7 @@ function doLogin($username,$password)
       "SELECT id, pass_hash FROM users WHERE username = ? LIMIT 1"
     );
     if(!$stmt) {
-      return ["success" => false];
+      return ["ok" => false];
     }
     // binding the username and executing the query
     // then getting the result 
@@ -86,14 +86,14 @@ function doLogin($username,$password)
     // checking if the user even exists
     if(!$user) {
       return [
-        "success" => false,
+        "ok" => false,
         "error" => "invalid_credentials"
       ];
     }
     // verifying the password that's coming through
     if(!password_verify($password, $user["pass_hash"])) {
       return [
-        "success" => false,
+        "ok" => false,
         "error" => "invalid_credentials"
       ];
     }
@@ -108,7 +108,7 @@ function doLogin($username,$password)
     // checks if our query failed
     if(!$stmt2) {
       return [
-        "success" => false,
+        "ok" => false,
         "error" => "session_insert_failed"
       ];
     }
@@ -117,13 +117,13 @@ function doLogin($username,$password)
     // executing the session insert and if it fails then login fails
     if(!$stmt2->execute()) {
       return [
-        "success" => false,
+        "ok" => false,
         "error" => "session_insert_failed"
       ];
     }
     // returning a successful login
     return [
-      "success" => true,
+      "ok" => true,
       "session_key" => $sessionKey
     ];
 }
@@ -146,7 +146,7 @@ function doValidate($sessionKey) {
   );
   // checking if our query failed
   if(!$stmt) {
-    return ["success" => false];
+    return ["ok" => false];
   }
   // inserting session key into query then executing said query, and getting the result
   $stmt->bind_param("s", $sessionKey);
@@ -156,13 +156,13 @@ function doValidate($sessionKey) {
   // if a valid session is found, return the user's info
   if($row) {
     return [
-      "success" => true,
+      "ok" => true,
       "user_id" => (int)$row["id"],
       "username" => $row["username"]
     ];
   }
   // if no valid sesh was found
-  return ["success" => false];
+  return ["ok" => false];
 }
 
 
@@ -177,12 +177,12 @@ function doLogout($sessionKey) {
   );
   // logout will fail if our db fails to create the query
   if(!$stmt) {
-    return ["success" => false];
+    return ["ok" => false];
   }
-  // binding session key and executing query, then returns success when logout is complete
+  // binding session key and executing query, then returns true when logout is complete
   $stmt->bind_param("s", $sessionKey);
   $stmt->execute();
-  return ["success" => true];
+  return ["ok" => true];
 }
 
 
@@ -199,7 +199,7 @@ function requestProcessor($request)
   if(!isset($request['type']))
   {
     return [
-      "success" => false,
+      "ok" => false,
       "error" => "missing_type"
     ];
   }
@@ -229,7 +229,7 @@ function requestProcessor($request)
       );
     default:
       return [
-        "success" => false,
+        "ok" => false,
         "error" => "unsupported_type"
       ];
   }
