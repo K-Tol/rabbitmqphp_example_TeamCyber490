@@ -192,7 +192,7 @@ function getFullDetails($movie_id) {
         ];
     }
     // query to retrieve genres that the movie falls under
-    $stmt = moiveDB()->prepare(
+    $stmt = movieDB()->prepare(
         "SELECT g.id, g.tmdb_genre_id, g.name
          FROM genres g
          JOIN movie_genres mg ON mg.genre_id = g.id
