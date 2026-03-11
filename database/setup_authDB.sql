@@ -20,7 +20,7 @@ CREATE TABLE sessions (
     session_key CHAR(64) PRIMARY KEY,
     user_id INT NOT NULL,
     start_time BIGINT NOT NULL, -- epoch time
-    end_time BIGINT NOT NULL, --epoch time
+    end_time BIGINT NOT NULL, -- epoch time
     -- linking this table with the users table so if a user is deleted from that table, their sessiosn will be delted too
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX (user_id),
