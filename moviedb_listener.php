@@ -225,10 +225,22 @@ function requestProcessor($request) {
             "error" => "missing_type"
         ];
     }
-    // WORK ON SWITCH STATEMENTS
+    // swtich case stmts to direct the type of request that's coming through
     switch ($request["type"]) {
         case "search_movies":
-            return searchMovies($request)
+            return searchMovies($request["query"] ?? "");
+        case "get_movie_details":
+            return getFullDetails((int)($request["movie_id"] ?? 0));
+        case "store_genre":
+            return storeGenre((int)($request["tmdb_genre_id"] ?? 0), $request["name"] ?? "");
+        case "store_movie":
+            return storeMovie($request["movie"] ?? [], $request["genre_ids"] ?? []);
+        default:
+            return [
+                "success" => false,
+                "error" => "unknown_request"
+            ];
     }
 }
+
 ?>
