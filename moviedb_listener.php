@@ -45,7 +45,7 @@ function storeGenre($tmdb_genre_id, $name) {
 // work on a function for storing movies next
 function storeMovie($movie, $genre_ids = []) {
     // this entire block will handle inserting a movie into the db
-    $stmt = $movieDB()->prepare(
+    $stmt = movieDB()->prepare(
         "INSERT INTO movies
          (tmdb_id, title, overview, release_date, runtime, poster_path,
          backdrop_path, original_language, vote_average, vote_count, popularity,
