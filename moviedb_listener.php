@@ -25,8 +25,8 @@ function datasourceClient() {
     if($client !== null) {
         return $client;
     }
-    // might not be called apiServer depending on what Ralph decides to name the queues
-    $client = new rabbitMQClient("rabbitMQ.ini", "apiServer");
+    // updated queue name and file name
+    $client = new rabbitMQClient("datasource.ini", "datasourceServer");
     return $client;
 }
 
