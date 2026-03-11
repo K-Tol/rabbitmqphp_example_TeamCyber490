@@ -90,7 +90,7 @@ font-size:28px;
 
 .refresh-btn{
 background:#222;
-color:#fff;
+color:#f8f7f7;
 border:1px solid #444;
 padding:10px 16px;
 border-radius:6px;
@@ -113,6 +113,41 @@ profile-button{
     font-weight: bold;
     cursor: pointer;
     
+}
+
+profile-dropdown {
+    position: absolute;
+    display: none;
+    top: 45px;
+    right: 0;
+    width: 180px;
+    background: #222;
+    padding: 10px;
+    display: none;
+}
+
+.profile-dropdown :active {
+    display: block;
+}
+
+.profile-email {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.profile-dropdown a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 6px 0;
+}
+
+.profile-dropdown a:hover {
+    color: red;
+}
+
+.signout {
+    color: red;
 }
 
 

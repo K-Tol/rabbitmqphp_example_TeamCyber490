@@ -1,208 +1,88 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Movie Dashboard</title>
-
-
-<link rel="stylesheet" href="welcome.css">
+<link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
+
 <div class="topnav">
+    <div class="logo">TeamCyber</div>
+    <a href="../dashboard.html" class="refresh-btn" style="margin-left:20px;">Home</a>
 
-<div class="logo">TeamCyber</div>
-
-<div class="search-bar">
-<input 
-type="text"
-id="searchInput"
-placeholder="Search movies..."
-onkeyup="searchMovies()"
->
-</div>
-
-<!--<?php echo $initials; ?>-->
-<!--?php echo $fullName; ?>-->
-
-
-
-
-<div class = "pfrofile-wrapper">
-    <button class = "profile-button" id = "profileButton"> </button>
-
-    <div class = "profile-dropdown" id = "profileDropdown">
-        <p></p>
-        <a href = "dashboard.html">Dashboard</a>
-        <a href = "watchlist.php">Watchlist</a>
-        <a href = "history.php">History</a>
-        <a href = "favorites.php">Favorites</a>
-        <a href = "settings.php">Settings</a>
-        <a href = "logout.php">Logout</a>
-        </div>
-    
+  <div class="search-bar">
+  <input
+   type="text"
+  id="searchInput"
+  placeholder="Search movies..."
+  onkeyup="searchMovies()"
+        >
     </div>
 
+    <div class="profile-wrapper">
+        <button class="profile-button" id="profileButton">C</button>
 
-
-
-
-
-
-
-
+  <div class="profile-dropdown" id="profileDropdown">
+  <p class="profile-name"></p>
+    <a href="dashboard.php">Dashboard</a>
+      <a href="watchlist.php">Watchlist</a>
+      <a href="history.php">History</a>
+      <a href="favorites.php">Favorites</a>
+      <a href="settings.php">Settings</a>
+     <a href="logout.php" class="signout">Logout</a> </div>
+    </div>
 </div>
 
 <div class="hero">
-<h1>Welcome to the Movie Dashboard</h1>
-<p>
-Browse popular 
-<strong>Movies</strong> From TeamCyber.
-</p>
-</div>
+  <h1>Welcome to the Movie Dashboard</h1><p>Browse popular 
+  <strong>Movies</strong> from TeamCyber.</p></div>
 
 <div class="content">
-
 <div class="section-header">
 <h2>Popular Movies</h2>
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
 <button class="refresh-btn" onclick="loadMovies()">Refresh Movies</button>
+<button class="refresh-btn" id="favBtn" onclick="toggleShowFavorites()">Show Favorites (0)</button>
+<button class="refresh-btn" id="watchBtn" onclick="toggleShowWatchlist()">Show Watchlist (0)</button></div></div>
+
+ <div id="movieContainer">
+   <div class="status-box">Loading movies...</div></div>
 </div>
 
-<div id="movieContainer">
-<div class="status-box">Loading movies...</div>
+<!-- Movie Details Modal -->
+<div id="movieModal" style="display:none;position:fixed;z-index:2000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.8);overflow:auto;">
+    <div style="background-color:#1b1b1b;margin:3% auto;padding:30px;width:85%;max-width:700px;border-radius:10px;color:white;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <span style="color:#e50914;font-size:24px;font-weight:bold;cursor:pointer;" onclick="closeModal()">&larr; Back</span>
+            <span style="color:#e50914;font-size:28px;font-weight:bold;cursor:pointer;" onclick="closeModal()">&times;</span>
+    </div>
+        <img id="modalPoster" src="" style="width:100%;max-height:300px;object-fit:cover;border-radius:8px;margin-bottom:20px;">
+        <h2 id="modalTitle" style="margin:15px 0;font-size:28px;"></h2>
+        <p id="modalDate" style="color:#e50914;font-size:16px;margin:10px 0;"></p>
+        <p id="modalOverview" style="font-size:16px;line-height:1.6;color:#ddd;margin-bottom:20px;"></p>
+
+        <!-- Watchlist Button -->
+        <button id="watchlistBtn" onclick="toggleWatchlist(selectedMovie.title)" style="width:100%;padding:12px;margin-bottom:15px;background:#555;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;font-weight:bold;transition:background 0.3s;">+ Add to Watchlist</button>
+        
+        <!-- Rating Section -->
+        <div style="background:#222;padding:15px;border-radius:8px;margin-bottom:15px;">
+            <label style="display:block;margin-bottom:10px;font-weight:bold;color:#e50914;">Your Rating:</label>
+            <div id="ratingStars" style="margin-bottom:10px;"></div>
+        <input type="hidden" id="ratingInput" value="0">
+
+            <label style="display:block;margin-top:15px;margin-bottom:10px;font-weight:bold;color:#e50914;">Your Review:</label>
+            <textarea id="reviewInput" placeholder="Write your review here..." style="width:100%;padding:10px;border-radius:5px;border:1px solid #555;background:#333;color:white;font-family:Arial;font-size:14px;resize:vertical;min-height:80px;"></textarea>
+
+            <button onclick="submitRating()" style="margin-top:10px;padding:10px 20px;background:#e50914;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;font-weight:bold;">Save Rating & Review</button>
+        </div>
+
+        <button onclick="closeModal()" style="padding:10px 20px;background:#555;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">Close</button>
+</div>
 </div>
 
-</div>
-
-<script>
-let allMovies = [];
-async function loadMovies(){
-const movieContainer = document.getElementById("movieContainer");
-movieContainer.innerHTML = '<div class="status-box">Loading movies...</div>';
-
-try{
-const response = await fetch("movies.php");
-const data = await response.json();
-
-if(!data.success){
-movieContainer.innerHTML = '<div class="status-box">Could not load movies.</div>';
-return;
-}
-
-allMovies = data.movies || [];
-displayMovies(allMovies);
-}catch(error){
-movieContainer.innerHTML =
-'<div class="status-box">Error fetching movies from movies.php</div>';
-}
-
-}
-
-/* DISPLAY MOVIES */
-
-function displayMovies(movies){
-
-const movieContainer = document.getElementById("movieContainer");
-
-if(movies.length === 0){
-movieContainer.innerHTML =
-'<div class="status-box">No movies found.</div>';
-return;
-}
-
-movieContainer.innerHTML = "";
-
-movies.forEach(movie => {
-
-const poster = movie.poster_path
-? "https://image.tmdb.org/t/p/w500" + movie.poster_path
-: "https://via.placeholder.com/500x750?text=No+Image";
-
-const title = movie.title ? escapeHtml(movie.title) : "Untitled";
-
-const releaseDate = movie.release_date
-? escapeHtml(movie.release_date)
-: "N/A";
-let overview = "No description available.";
-
-
-
-
-if(movie.overview){
-
-overview = movie.overview.length > 120
-? movie.overview.substring(0,120) + "..."
-: movie.overview;
-
-overview = escapeHtml(overview);
-
-}
-
-const card = document.createElement("div");
-
-card.className = "movie-card";
-
-card.innerHTML = `
-<img class="movie-poster" src="${poster}" alt="${title}">
-<div class="movie-info">
-<div class="movie-title">${title}</div>
-<div class="movie-date">Release: ${releaseDate}</div>
-<div class="movie-overview">${overview}</div>
-</div>
-`;
-
-movieContainer.appendChild(card);
-
-});
-
-}
-
-/*<?php echo $initials; ?>*/
-/*?php echo $fullName; ?>*/
-
-
-
-
-
-
-
-
-
-/* SEARCH MOVIES */
-
-function searchMovies(){
-
-const input = document
-.getElementById("searchInput")
-.value
-.toLowerCase();
-
-const filtered = allMovies.filter(movie =>
-
-movie.title &&
-movie.title.toLowerCase().includes(input)
-
-);
-
-displayMovies(filtered);
-
-}
-
-/* SECURITY */
-
-function escapeHtml(text){
-
-const div = document.createElement("div");
-
-div.textContent = text;
-
-return div.innerHTML;
-
-}
-
-loadMovies();
-
-</script>
-
+<script src="welcome.js"></script>
 </body>
 </html>
