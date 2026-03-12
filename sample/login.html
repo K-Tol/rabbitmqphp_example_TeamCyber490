@@ -5,9 +5,10 @@
 function HandleLoginResponse(response)
 {
 	var text = JSON.parse(response);
+	check = text[1];
 	document.getElementById("textResponse").innerHTML = "response: "+text+"<p>";
 
-	if(text == "authorized"){
+	if(check == "authorized"){
 		window.location.href = "welcome.html";
 	}
 }
