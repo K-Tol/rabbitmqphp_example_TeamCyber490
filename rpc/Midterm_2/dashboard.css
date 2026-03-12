@@ -1,0 +1,277 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #141414;
+  color: #fff;
+    min-height: 100vh;
+}
+
+/* TOP NAV */
+.topnav {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 18px 30px;
+    background: rgba(0, 0, 0, 0.9);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #e50914;
+    letter-spacing: 1px;
+}
+
+/* SEARCH BAR */
+.search-bar {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.search-bar input {
+    width: 60%;
+    max-width: 500px;
+    padding: 11px 15px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+/* PROFILE */
+.profile-wrapper {
+    position: relative;
+}
+
+.profile-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: red;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    width: 180px;
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+    display: none;
+}
+
+.profile-dropdown.show {
+    display: block;
+}
+
+.profile-name {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.profile-dropdown a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 6px 0;
+}
+
+.profile-dropdown a:hover {
+    color: red;
+}
+
+.signout {
+    color: red;
+}
+
+/* HERO */
+.hero {
+    padding: 50px 30px 25px 30px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.35), #141414),
+    url('Theater.avif') center/cover no-repeat;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.hero h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    max-width: 700px;
+    color: #ddd;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+.content {
+    padding: 25px 30px 40px 30px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    font-size: 28px;
+}
+
+.refresh-btn {
+    background: #222;
+    color: #f8f7f7;
+    border: 1px solid #444;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.refresh-btn:hover {
+    background: #333;
+}
+
+#movieContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 22px;
+}
+
+.movie-card {
+    background: #1b1b1b;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+
+.movie-poster {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    background: #2a2a2a;
+    display: block;
+}
+
+.movie-info {
+    padding: 14px;
+}
+
+.movie-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.movie-date {
+    font-size: 13px;
+    color: #e50914;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.movie-overview {
+    font-size: 14px;
+    color: #d0d0d0;
+    line-height: 1.5;
+}
+
+.status-box {
+    grid-column: 1 / -1;
+    background: #1b1b1b;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: #ddd;
+}
+
+.recommendation-panel {
+    display: none;
+    margin-bottom: 20px;
+    background: #1b1b1b;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.recommendation-panel.visible {
+    display: block;
+}
+
+.recommendation-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.recommendation-item {
+    background: #242424;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.modal-scroll-list {
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background: #1a1a1a;
+    padding: 8px;
+}
+
+.review-item,
+.thread-item,
+.post-item {
+    border-bottom: 1px solid #333;
+    padding: 8px;
+}
+
+.review-item:last-child,
+.thread-item:last-child,
+.post-item:last-child {
+    border-bottom: none;
+}
+
+.thread-title {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.meta-text {
+    color: #aaa;
+    font-size: 12px;
+}
+
+.star-btn {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.star-btn.active {
+    color: #f1b400;
+}

@@ -44,9 +44,14 @@
     <div class="section-header">
         <h2>Popular Movies</h2>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <input id="userIdInput" type="number" min="1" value="1" placeholder="User ID" style="width:90px;padding:10px;border-radius:6px;border:none;">
             <button class="refresh-btn" onclick="loadMovies()">Refresh Movies</button>
+            <button class="refresh-btn" onclick="loadRecommendations()">Recommendations</button>
+            <button class="refresh-btn" onclick="triggerReleaseNotifications()">Send Release Emails</button>
             <button class="refresh-btn" id="favBtn" onclick="toggleShowFavorites()">Show Favorites (0)</button>
 <button class="refresh-btn" id="watchBtn" onclick="toggleShowWatchlist()">Show Watchlist (0)</button></div></div>
+
+    <div id="recommendationContainer" class="recommendation-panel"></div>
 
     <div id="movieContainer">
    <div class="status-box">Loading movies...</div></div>
@@ -65,7 +70,7 @@
         <p id="modalOverview" style="font-size:16px;line-height:1.6;color:#ddd;margin-bottom:20px;"></p>
 
         <!-- Watchlist Button -->
-        <button id="watchlistBtn" onclick="toggleWatchlist(selectedMovie.title)" style="width:100%;padding:12px;margin-bottom:15px;background:#555;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;font-weight:bold;transition:background 0.3s;">+ Add to Watchlist</button>
+        <button id="watchlistBtn" onclick="toggleWatchlist()" style="width:100%;padding:12px;margin-bottom:15px;background:#555;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;font-weight:bold;transition:background 0.3s;">+ Add to Watchlist</button>
 
         <!-- Rating Section -->
         <div style="background:#222;padding:15px;border-radius:8px;margin-bottom:15px;">
@@ -79,10 +84,24 @@
             <button onclick="submitRating()" style="margin-top:10px;padding:10px 20px;background:#e50914;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;font-weight:bold;">Save Rating & Review</button>
         </div>
 
+        <div style="background:#222;padding:15px;border-radius:8px;margin-bottom:15px;">
+            <h3 style="margin-bottom:10px;color:#e50914;">Recent Reviews</h3>
+            <div id="modalReviews" class="modal-scroll-list"></div>
+        </div>
+
+        <div style="background:#222;padding:15px;border-radius:8px;margin-bottom:15px;">
+            <h3 style="margin-bottom:10px;color:#e50914;">Movie Forum</h3>
+            <input id="threadTitleInput" placeholder="Thread title" style="width:100%;padding:10px;border-radius:5px;border:1px solid #555;background:#333;color:white;margin-bottom:8px;">
+            <textarea id="threadContentInput" placeholder="Start a discussion..." style="width:100%;padding:10px;border-radius:5px;border:1px solid #555;background:#333;color:white;min-height:70px;margin-bottom:8px;"></textarea>
+            <button onclick="createThread()" style="padding:10px 20px;background:#e50914;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px;font-weight:bold;">Create Thread</button>
+            <div id="threadList" class="modal-scroll-list" style="margin-top:10px;"></div>
+            <div id="threadPosts" class="modal-scroll-list" style="margin-top:10px;"></div>
+        </div>
+
         <button onclick="closeModal()" style="padding:10px 20px;background:#555;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">Close</button>
     </div>
 </div>
 
-<script src="welcome.php"></script>
+<script src="welcome.js"></script>
 </body>
 </html>

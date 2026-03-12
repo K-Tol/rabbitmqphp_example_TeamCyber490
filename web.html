@@ -73,10 +73,15 @@ function submitForm(action) {
     .then(data => {
         if (data.status === "success") {
             messageDiv.style.color = "green";
+            messageDiv.textContent = data.message;
+            if (action === 'login') {
+                localStorage.setItem('username', username);
+                setTimeout(() => { window.location.href = 'rpc/MidtermE/welcome.html'; }, 700);
+            }
         } else {
             messageDiv.style.color = "red";
+            messageDiv.textContent = data.message;
         }
-        messageDiv.textContent = data.message;
     })
     .catch(error => {
         messageDiv.style.color = "red";

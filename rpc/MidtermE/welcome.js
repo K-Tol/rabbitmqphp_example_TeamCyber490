@@ -1,6 +1,3 @@
-<?php
-header('Content-Type: application/javascript; charset=UTF-8');
-
 // ===== VARIABLES =====
 let allMovies = [];
 let selectedMovie = null;
@@ -93,7 +90,7 @@ function showMovieDetails(movie) {
     const watchBtn = document.getElementById("watchlistBtn");
 
     if (isInWatchlist(movie.title)) {
-        watchBtn.innerHTML = "&#10003; In Watchlist";
+        watchBtn.textContent = "In Watchlist";
         watchBtn.style.background = "#e50914";
     } else {
         watchBtn.textContent = "+ Add to Watchlist";
@@ -115,14 +112,11 @@ async function loadMovies() {
 
     try {
 
-        const res = await fetch("movies.php");
+        const apiKey = "c4272095443f1ac76fd5bc1f62cd5790";
+        const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`);
         const data = await res.json();
 
-        if (!data.success) {
-            throw new Error(data.message || "Could not load movies");
-        }
-
-        allMovies = data.movies || [];
+        allMovies = data.results || [];
         displayMovies(allMovies);
 
     } catch (e) {
@@ -151,7 +145,7 @@ function displayMovies(list) {
         const title = movie.title || "Untitled";
         const date = movie.release_date || "N/A";
 
-        const star = isFavorited(title) ? "&#9733;" : "&#9734;";
+        const star = isFavorited(title) ? "*" : "o";
 
         const card = document.createElement("div");
         card.className = "movie-card";
@@ -193,6 +187,23 @@ function searchMovies() {
     displayMovies(filtered);
 }
 
+function initProfile() {
+    const username = (localStorage.getItem("username") || "Guest").trim();
+    const safeName = username.length ? username : "Guest";
+
+    const profileNameEl = document.querySelector(".profile-name");
+    if (profileNameEl) {
+        profileNameEl.textContent = safeName;
+    }
+
+    const profileBtnEl = document.getElementById("profileButton");
+    if (profileBtnEl) {
+        profileBtnEl.textContent = safeName.charAt(0).toUpperCase();
+    }
+}
+
+initProfile();
+
 document
 .getElementById("profileButton")
 .onclick = () =>
@@ -201,5 +212,3 @@ document
 .classList.toggle("show");
 
 loadMovies();
-
-?>
