@@ -1,0 +1,41 @@
+sudo apt update
+sudo apt install -y ufw
+sudo ufw --force reset
+
+//UFW comes pre installed already, but use this if it is not on VM
+//or if any update, reset is needed 
+
+
+//default/deny outbound + inbound *
+
+
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+
+
+//allow SSH only over Tailscale *
+
+sudo ufw allow in on tailscale0 to any port 22 proto tcp
+
+
+//enable and status check
+
+
+sudo ufw --force enable
+sudo ufw status verbose
+
+// to delete
+
+sudo ufw status verbose
+
+// to disable
+
+sudo ufw disable
+
+Sources:
+
+
+https://www.digitalocean.com/community/tutorials/ufw-essentials-common-firewall-rules-and-commands
+
+https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu
