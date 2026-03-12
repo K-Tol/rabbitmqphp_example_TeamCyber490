@@ -8,16 +8,12 @@ require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/apikey.php');
 
 function tmdbClient() {
-
+  $client = require_once(__DIR__ . '/setup-client.php');
+  return $client;
 }
 
-function doLogin($username,$password)
-{
-    // lookup username in databas
-    // check password
-    $login = new loginDB();
-    return $login->validateLogin($username,$password);
-    //return false if not valid
+function syncMovie() {
+
 }
 
 function requestProcessor($request)
@@ -30,12 +26,12 @@ function requestProcessor($request)
   }
   switch ($request['type'])
   {
-    case "login":
-      return doLogin($request['username'],$request['password']);
-    case "validate_session":
-      return doValidate($request['sessionId']);
+    case "sync_movie":
+      // return syncMovie() function to get a movie info from tmdb
+      return;
+    default:
+      return "ERROR: unsupported message type";
   }
-  return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
 
 $server = new rabbitMQServer("testRabbitMQ.ini","testServer");
