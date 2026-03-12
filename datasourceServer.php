@@ -7,13 +7,18 @@ require_once('login.php.inc');
 require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/apikey.php');
 
+use Tmdb\Repository\MovieRepository;
+
 function tmdbClient() {
   $client = require_once(__DIR__ . '/setup-client.php');
   return $client;
 }
-
-function syncMovie() {
-
+// from php-tmdb/api/examples/movies/model/get.php
+function syncMovie(int $movieID) {
+  $client = require_once("setup-client.php");
+  $repository = new MovieRepository($client);
+  $movie = $repository -> load($movieID);
+  
 }
 
 function requestProcessor($request)
