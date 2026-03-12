@@ -33,9 +33,32 @@ sudo ufw status verbose
 
 sudo ufw disable
 
+WEB VM:
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+
+//Only allow HTTP/HTTPS on tailscale , port 80 and 443
+
+sudo ufw allow in on tailscale0 to any port 80 proto tcp
+
+sudo ufw allow in on tailscale0 to any port 443 proto tcp
+
+To Deny public HTTP/HTTPS traffic
+
+sudo ufw deny 80/tcp
+sudo ufw deny 443/tcp
+
+BROKER VM: 
+
+sudo ufw allow in on tailscale0 to any port 5672 proto tcp
+sudo ufw deny 5672/tcp
+
+
+
 Sources:
 
 
 https://www.digitalocean.com/community/tutorials/ufw-essentials-common-firewall-rules-and-commands
+
 
 https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu
