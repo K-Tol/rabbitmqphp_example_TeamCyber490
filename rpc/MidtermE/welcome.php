@@ -115,11 +115,14 @@ async function loadMovies() {
 
     try {
 
-        const apiKey = "c4272095443f1ac76fd5bc1f62cd5790";
-        const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`);
+        const res = await fetch("movies.php");
         const data = await res.json();
 
-        allMovies = data.results || [];
+        if (!data.success) {
+            throw new Error(data.message || "Could not load movies");
+        }
+
+        allMovies = data.movies || [];
         displayMovies(allMovies);
 
     } catch (e) {
