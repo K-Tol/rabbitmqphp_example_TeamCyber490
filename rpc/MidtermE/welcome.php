@@ -1,17 +1,17 @@
+<?php
+header('Content-Type: application/javascript; charset=UTF-8');
+?>
 // ===== VARIABLES =====
 let allMovies = [];
 let selectedMovie = null;
 let showingFavorites = false;
 let showingWatchlist = false;
 
-
-
 const getData = key => JSON.parse(localStorage.getItem(key) || "[]");
 const saveData = (key, data) => localStorage.setItem(key, JSON.stringify(data));
 
 const getFavorites = () => getData("favorites");
 const getWatchlist = () => getData("watchlist");
-
 
 function toggleFavorite(title) {
     let fav = getFavorites();
@@ -25,8 +25,6 @@ function toggleFavorite(title) {
 }
 
 const isFavorited = title => getFavorites().includes(title);
-
-
 
 function toggleWatchlist(title) {
     let watch = getWatchlist();
@@ -42,15 +40,11 @@ function toggleWatchlist(title) {
 
 const isInWatchlist = title => getWatchlist().includes(title);
 
-
-
 const getFavoriteMovies = () =>
     allMovies.filter(m => getFavorites().includes(m.title));
 
 const getWatchlistMovies = () =>
     allMovies.filter(m => getWatchlist().includes(m.title));
-
-
 
 function toggleShowFavorites() {
     showingFavorites = !showingFavorites;
@@ -80,8 +74,6 @@ function toggleShowWatchlist() {
     }
 }
 
-
-
 function showMovieDetails(movie) {
     selectedMovie = movie;
 
@@ -101,7 +93,7 @@ function showMovieDetails(movie) {
     const watchBtn = document.getElementById("watchlistBtn");
 
     if (isInWatchlist(movie.title)) {
-        watchBtn.textContent = "✓ In Watchlist";
+        watchBtn.innerHTML = "&#10003; In Watchlist";
         watchBtn.style.background = "#e50914";
     } else {
         watchBtn.textContent = "+ Add to Watchlist";
@@ -111,14 +103,10 @@ function showMovieDetails(movie) {
     document.getElementById("movieModal").style.display = "block";
 }
 
-
-
 function closeModal() {
     document.getElementById("movieModal").style.display = "none";
     selectedMovie = null;
 }
-
-
 
 async function loadMovies() {
 
@@ -126,22 +114,19 @@ async function loadMovies() {
     container.innerHTML = '<div class="status-box">Loading movies...</div>';
 
     try {
-        
-        const apiKey = 'c4272095443f1ac76fd5bc1f62cd5790';
+
+        const apiKey = "c4272095443f1ac76fd5bc1f62cd5790";
         const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`);
         const data = await res.json();
 
-       
         allMovies = data.results || [];
         displayMovies(allMovies);
 
     } catch (e) {
-        console.log('loadMovies error', e);
+        console.log("loadMovies error", e);
         container.innerHTML = '<div class="status-box">Network error</div>';
     }
 }
-
-
 
 function displayMovies(list) {
 
@@ -163,7 +148,7 @@ function displayMovies(list) {
         const title = movie.title || "Untitled";
         const date = movie.release_date || "N/A";
 
-        const star = isFavorited(title) ? "⭐" : "☆";
+        const star = isFavorited(title) ? "&#9733;" : "&#9734;";
 
         const card = document.createElement("div");
         card.className = "movie-card";
@@ -191,7 +176,6 @@ function displayMovies(list) {
     });
 }
 
-
 function searchMovies() {
 
     const q = document
@@ -206,15 +190,11 @@ function searchMovies() {
     displayMovies(filtered);
 }
 
-
-
 document
 .getElementById("profileButton")
 .onclick = () =>
 document
 .getElementById("profileDropdown")
 .classList.toggle("show");
-
-
 
 loadMovies();

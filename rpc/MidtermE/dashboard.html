@@ -32,12 +32,9 @@ onkeyup="searchMovies()"
 
 </div>
 
-<div class="hello">
+<div class="hero">
 <h1>Welcome to the Movie Dashboard</h1>
-<p>
-
-<strong>movies.php</strong> endpoint.
-</p>
+<p>Discover the latest movies from the <strong>TMDB API</strong>.</p>
 </div>
 
 <div class="content">
@@ -67,26 +64,20 @@ movieContainer.innerHTML =
 
 try{
 
-const response = await fetch("movies.php");
+const apiKey = "c4272095443f1ac76fd5bc1f62cd5790";
+const response = await fetch(
+`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`
+);
 const data = await response.json();
 
-if(!data.success){
-
-movieContainer.innerHTML =
-'<div class="status-box">Could not load movies.</div>';
-
-return;
-
-}
-
-allMovies = data.movies || [];
+allMovies = data.results || [];
 
 displayMovies(allMovies);
 
 }catch(error){
 
 movieContainer.innerHTML =
-'<div class="status-box">Error fetching movies from movies.php</div>';
+'<div class="status-box">Error fetching movies from API</div>';
 
 }
 
@@ -112,9 +103,7 @@ movieContainer.innerHTML = "";
 
 movies.forEach(movie => {
 
-const poster = movie.poster_path
-? "https://image.tmdb.org/t/p/w500" + movie.poster_path
-: "https://via.placeholder.com/500x750?text=No+Image";
+const poster = getPosterUrl(movie);
 
 const title =
 movie.title ? escapeHtml(movie.title) : "Untitled";
@@ -185,6 +174,31 @@ div.textContent = text;
 return div.innerHTML;
 
 }
+
+function getPosterUrl(movie){
+
+if(movie.poster_path){
+
+if(movie.poster_path.startsWith("http")){
+return movie.poster_path;
+}
+
+return "https://image.tmdb.org/t/p/w500" + movie.poster_path;
+
+}
+
+if(movie.poster){
+return movie.poster;
+}
+
+if(movie.image){
+return movie.image;
+}
+
+return "https://via.placeholder.com/500x750?text=No+Image";
+
+}
+
 loadMovies();
 
 </script>

@@ -103,7 +103,7 @@ body {
 .hero {
     padding: 50px 30px 25px 30px;
     background: linear-gradient(to bottom, rgba(0,0,0,0.35), #141414),
-    url('Theater.jpg') center/cover no-repeat;
+    url('Theater.avif') center/cover no-repeat;
     min-height: 300px;
     display: flex;
     flex-direction: column;
