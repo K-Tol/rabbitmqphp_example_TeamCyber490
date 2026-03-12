@@ -28,10 +28,6 @@ onkeyup="searchMovies()"
 <a href="index.html#login" class="button-link">
 <button>Sign/Register</button>
 </a>
-
-<a href="index.html#register" class="button-link">
-<button>Register</button>
-</a>
 </div>
 
 </div>
@@ -132,7 +128,7 @@ if(movie.overview){
 
 overview =
 movie.overview.length > 120
-? movie.overview.substring(0,120) + "..."
+? movie.overview.substring(0,120) + "..." 
 : movie.overview;
 
 overview = escapeHtml(overview);

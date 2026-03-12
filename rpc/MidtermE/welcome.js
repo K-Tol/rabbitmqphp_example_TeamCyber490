@@ -5,7 +5,7 @@ let showingFavorites = false;
 let showingWatchlist = false;
 
 
-// ===== LOCAL STORAGE HELPERS =====
+
 const getData = key => JSON.parse(localStorage.getItem(key) || "[]");
 const saveData = (key, data) => localStorage.setItem(key, JSON.stringify(data));
 
@@ -13,7 +13,6 @@ const getFavorites = () => getData("favorites");
 const getWatchlist = () => getData("watchlist");
 
 
-// ===== FAVORITES =====
 function toggleFavorite(title) {
     let fav = getFavorites();
 
@@ -28,7 +27,7 @@ function toggleFavorite(title) {
 const isFavorited = title => getFavorites().includes(title);
 
 
-// ===== WATCHLIST =====
+
 function toggleWatchlist(title) {
     let watch = getWatchlist();
 
@@ -44,7 +43,7 @@ function toggleWatchlist(title) {
 const isInWatchlist = title => getWatchlist().includes(title);
 
 
-// ===== FILTER MOVIES =====
+
 const getFavoriteMovies = () =>
     allMovies.filter(m => getFavorites().includes(m.title));
 
@@ -52,7 +51,7 @@ const getWatchlistMovies = () =>
     allMovies.filter(m => getWatchlist().includes(m.title));
 
 
-// ===== BUTTON TOGGLES =====
+
 function toggleShowFavorites() {
     showingFavorites = !showingFavorites;
 
@@ -82,7 +81,7 @@ function toggleShowWatchlist() {
 }
 
 
-// ===== MOVIE MODAL =====
+
 function showMovieDetails(movie) {
     selectedMovie = movie;
 
@@ -113,35 +112,37 @@ function showMovieDetails(movie) {
 }
 
 
-// ===== CLOSE MODAL =====
+
 function closeModal() {
     document.getElementById("movieModal").style.display = "none";
     selectedMovie = null;
 }
 
 
-// ===== LOAD MOVIES =====
+
 async function loadMovies() {
 
     const container = document.getElementById("movieContainer");
     container.innerHTML = '<div class="status-box">Loading movies...</div>';
 
     try {
-        const res = await fetch("movies.php");
+        
+        const apiKey = 'c4272095443f1ac76fd5bc1f62cd5790';
+        const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`);
         const data = await res.json();
 
-        if (!data.success) throw "error";
-
-        allMovies = data.movies || [];
+       
+        allMovies = data.results || [];
         displayMovies(allMovies);
 
-    } catch {
+    } catch (e) {
+        console.log('loadMovies error', e);
         container.innerHTML = '<div class="status-box">Network error</div>';
     }
 }
 
 
-// ===== DISPLAY MOVIES =====
+
 function displayMovies(list) {
 
     const container = document.getElementById("movieContainer");
@@ -191,7 +192,6 @@ function displayMovies(list) {
 }
 
 
-// ===== SEARCH =====
 function searchMovies() {
 
     const q = document
@@ -207,7 +207,7 @@ function searchMovies() {
 }
 
 
-// ===== PROFILE DROPDOWN =====
+
 document
 .getElementById("profileButton")
 .onclick = () =>
@@ -216,5 +216,5 @@ document
 .classList.toggle("show");
 
 
-// ===== START =====
+
 loadMovies();
