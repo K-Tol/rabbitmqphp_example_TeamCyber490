@@ -46,3 +46,12 @@ CREATE TABLE movie_genres (
     FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE CASCADE
 );
+
+-- should be able to handle users making watchlists
+CREATE TABLE watchlist (
+    user_id INT NOT NULL,
+    movie_id INT NOT NULL,
+    date_added BIGINT NOT NULL,
+    PRIMARY KEY (user_id, movie_id),
+    FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
+);
