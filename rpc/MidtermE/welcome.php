@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/javascript; charset=UTF-8');
-?>
+
 // ===== VARIABLES =====
 let allMovies = [];
 let selectedMovie = null;
@@ -201,3 +201,5 @@ document
 .classList.toggle("show");
 
 loadMovies();
+
+?>
