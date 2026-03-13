@@ -10,12 +10,17 @@ require_once(__DIR__ . '/apikey.php');
 use Tmdb\Repository\MovieRepository;
 
 function tmdbClient() {
+  $client = null;
+  if ($client !== null) {
+    return $client;
+  }
   $client = require_once(__DIR__ . '/setup-client.php');
   return $client;
 }
-// from php-tmdb/api/examples/movies/model/get.php
+
+// base from php-tmdb/api/examples/movies/model/get.php
 function syncMovie(int $movieID) {
-  $client = require_once("setup-client.php");
+  $client = tmdbClient();
   $repository = new MovieRepository($client);
   $movie = $repository -> load($movieID);
   
@@ -27,7 +32,7 @@ function requestProcessor($request)
   var_dump($request);
   if(!isset($request['type']))
   {
-    return "ERROR: unsupported message type";
+    return ["ok" => false, "error" => "unsupported message type"];
   }
   switch ($request['type'])
   {
@@ -35,11 +40,11 @@ function requestProcessor($request)
       // return syncMovie() function to get a movie info from tmdb
       return;
     default:
-      return "ERROR: unsupported message type";
+      return ["ok" => false, "error" => "unsupported message type"];
   }
 }
 
-$server = new rabbitMQServer("testRabbitMQ.ini","testServer");
+$server = new rabbitMQServer("datasource.ini","datasourceServer");
 
 $server->process_requests('requestProcessor');
 exit();
