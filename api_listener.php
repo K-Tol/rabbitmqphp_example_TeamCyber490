@@ -9,6 +9,7 @@ require_once(__DIR__ . '/apikey.php');
 
 use Tmdb\Repository\MovieRepository;
 use Tmdb\Repository\GenreRepository;
+use Tmdb\Exception\TmdbApiException;
 
 function tmdbClient() {
   $client = null;
@@ -51,6 +52,13 @@ function syncMovie(int $tmdb_id) {
       ]
     ]);
   }
+  catch (TmdbApiException $e) {
+    if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
+        // not found
+        echo $e->getMessage();
+        exit;
+    }
+  }
   catch (Exception $e) {
     echo $e->getMessage();
   }
@@ -76,6 +84,29 @@ function syncGenres() {
       "genres" => $genres_result
     ]);
   }
+  catch (TmdbApiException $e) {
+    if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
+        // not found
+        echo $e->getMessage();
+        exit;
+    }
+  }
+  catch (Exception $e) {
+    echo $e->getMessage();
+  }
+}
+
+function syncSearch() {
+  try {
+    
+  }
+  catch (TmdbApiException $e) {
+    if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
+        // not found
+        echo $e->getMessage();
+        exit;
+    }
+  }
   catch (Exception $e) {
     echo $e->getMessage();
   }
@@ -88,12 +119,14 @@ function requestProcessor($request) {
   if(!isset($request['type'])) {
     return ["ok" => false, "error" => "unsupported message type"];
   }
+
   switch ($request['type']) {
     case "sync_movie":
-      // return syncMovie() function to get a movie info from tmdb
-      return;
+      return syncMovie((int)($request['tmdb_id'] ?? 0));
     case "sync_genres":
-      // return syncGenres() function to get 
+      return syncGenres();
+    case "sync_search":
+      
     default:
       return ["ok" => false, "error" => "unsupported message type"];
   }
