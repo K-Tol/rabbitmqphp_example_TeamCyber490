@@ -20,23 +20,48 @@ function tmdbClient() {
 }
 
 // base from php-tmdb/api/examples/movies/model/get.php
-function syncMovie(int $movieID) {
+function syncMovie(int $tmdb_id) {
   try {
-  $client = tmdbClient();
-  $repository = new MovieRepository($client);
-  $movie = $repository -> load($movieID);
-  $genreRepository = new GenreRepository($client);
-  $genre_ids = $genreRepository -> loadMovieCollection($movieID); //???
-  
-  $result = new rabbitMQClient("movieServer.ini", "movieServer");
-  $result ->send_request([
-    "type" => "store_movie",
-    $genre_ids,
-    "movie" => [
-      "tmdb_id" => $movie -> getId(),
-      "title" => $movie -> getTitle()
-    ]
-  ]);
+    $client = tmdbClient();
+    $repository = new MovieRepository($client);
+    $movie = $repository -> load($$tmdb_id);
+
+
+    
+    $result = new rabbitMQClient("movieServer.ini", "movieServer");
+    $result ->send_request([
+      "type" => "store_movie",
+      $genre_ids,
+      "movie" => [
+        "tmdb_id" => $movie -> getId(),
+        "title" => $movie -> getTitle()
+      ]
+    ]);
+  }
+  catch (Exception $e) {
+    echo $e->getMessage();
+  }
+}
+
+function syncGenres() {
+  try {
+    $client = tmdbClient();
+    $genreRepository = new GenreRepository($client);
+    $genres = $genreRepository -> loadMovieCollection();
+
+    $genres_result = [];
+    foreach ($genres as $n) {
+      $genres_result[] = [
+        "tmdb_genre_id" => $n -> getId(),
+        "name" => $n -> getName()
+      ];
+    }
+
+    $result = new rabbitMQClient("movieServer.ini", "movieServer");
+    return $result -> send_request([
+      "type" => "store_genre",
+      "genres" => $genres_result
+    ]);
   }
   catch (Exception $e) {
     echo $e->getMessage();
@@ -54,6 +79,8 @@ function requestProcessor($request) {
     case "sync_movie":
       // return syncMovie() function to get a movie info from tmdb
       return;
+    case "sync_genres":
+      // return syncGenres() function to get 
     default:
       return ["ok" => false, "error" => "unsupported message type"];
   }
