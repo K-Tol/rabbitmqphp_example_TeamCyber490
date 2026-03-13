@@ -185,7 +185,22 @@ function doLogout($sessionKey) {
   return ["ok" => true];
 }
 
+// File up till this point only contains functions for supporting this feature:
+// Ability to browse and search for movies and see a profile page for them
+// OBJ RN: HANDLE WATCH LISTS FEATURE
 
+// NEED FUNCTIONS FOR ADDING AND REMOVING DATA TO WATCH LIST
+// ALSO NEED A GET FUNCTION TO RETRIVE THE WATCHLIST IF REQUESTED
+
+function addToWatch($user_id, $movie_id) {
+  $stmt = movieDB()->prepare(
+    "INSERT IGNORE INTO watchlist_movies (user_id, movie_id, date_added)
+     VALUES (?, ?, UNIX_TIMESTAMP())"
+  );
+  $stmt->bind_param("ii", $user_id, $movie_id);
+  $stmt->execute();
+  return ["ok" => true];
+}
 
 /*
 function for processing requests that are comming in from rabbitMQ 
@@ -227,6 +242,8 @@ function requestProcessor($request)
       return doLogout(
         $request['session_key'] ?? ""
       );
+    // STILL NEED TO ADD CASE STMTS FOR THE WATCHLIST FUNCTIONS
+    
     default:
       return [
         "ok" => false,
