@@ -10,6 +10,8 @@ require_once(__DIR__ . '/apikey.php');
 use Tmdb\Repository\MovieRepository;
 use Tmdb\Repository\GenreRepository;
 use Tmdb\Exception\TmdbApiException;
+use Tmdb\Model\Search\SearchQuery\MovieSearchQuery;
+use Tmdb\Repository\SearchRepository;
 
 function tmdbClient() {
   $client = null;
@@ -96,9 +98,18 @@ function syncGenres() {
   }
 }
 
-function syncSearch() {
+function syncSearch($query) {
   try {
-    
+    $client = tmdbClient();
+    $searchRepository = new SearchRepository($client);
+    $search_result = $searchRepository -> searchMovie($query, new MovieSearchQuery());
+
+    foreach ($search_result as $n) {
+      $tmdb_id = $n -> getId();
+
+      syncMovie($tmdb_id);
+    }
+
   }
   catch (TmdbApiException $e) {
     if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
