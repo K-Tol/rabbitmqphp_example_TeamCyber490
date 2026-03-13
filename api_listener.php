@@ -106,10 +106,13 @@ function syncSearch($query) {
 
     foreach ($search_result as $n) {
       $tmdb_id = $n -> getId();
-
+      if (($tmdb_id ?? "") === "" || ($tmdb_id ?? "") === 0) {
+        continue;
+      }
       syncMovie($tmdb_id);
     }
 
+    return ["ok" => true];
   }
   catch (TmdbApiException $e) {
     if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
@@ -137,7 +140,7 @@ function requestProcessor($request) {
     case "sync_genres":
       return syncGenres();
     case "sync_search":
-      
+      return syncSearch($request['query'] ?? "");
     default:
       return ["ok" => false, "error" => "unsupported message type"];
   }
