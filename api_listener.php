@@ -65,7 +65,7 @@ function syncMovie(int $tmdb_id) {
     if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
         // not found
         echo $e->getMessage();
-        exit;
+        return ["ok" => false, "error" => "not_found"];
     }
   }
   catch (Exception $e) {
@@ -94,7 +94,7 @@ function syncGenres() {
     if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
         // not found
         echo $e->getMessage();
-        exit;
+        return ["ok" => false, "error" => "not_found"];
     }
   }
   catch (Exception $e) {
@@ -122,7 +122,7 @@ function syncSearch($query) {
     if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
         // not found
         echo $e->getMessage();
-        exit;
+        return ["ok" => false, "error" => "not_found"];
     }
   }
   catch (Exception $e) {
@@ -152,6 +152,5 @@ function requestProcessor($request) {
 
 $server = new rabbitMQServer("datasource.ini","datasourceServer");
 $server->process_requests('requestProcessor');
-exit();
 ?>
 
