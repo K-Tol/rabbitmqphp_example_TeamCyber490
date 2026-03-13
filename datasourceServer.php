@@ -8,6 +8,7 @@ require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/apikey.php');
 
 use Tmdb\Repository\MovieRepository;
+use Tmdb\Repository\GenreRepository;
 
 function tmdbClient() {
   $client = null;
@@ -24,12 +25,13 @@ function syncMovie(int $movieID) {
   $client = tmdbClient();
   $repository = new MovieRepository($client);
   $movie = $repository -> load($movieID);
-  $genre_ids = $movie -> getGenres();
+  $genreRepository = new GenreRepository($client);
+  $genres = $genreRepository -> load($movieID);
   
   $result = new rabbitMQClient("movieServer.ini", "movieServer");
   $result ->send_request([
     "type" => "store_movie",
-    $genre_ids,
+    $genres,
     "movie" => [
       "tmdb_id" => $movie -> getId(),
       "title" => $movie-> getTitle()
@@ -41,8 +43,7 @@ function syncMovie(int $movieID) {
   }
 }
 
-function requestProcessor($request)
-{
+function requestProcessor($request) {
   echo "received request".PHP_EOL;
   var_dump($request);
   if(!isset($request['type']))
