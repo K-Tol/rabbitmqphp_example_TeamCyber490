@@ -20,10 +20,25 @@ function tmdbClient() {
 
 // base from php-tmdb/api/examples/movies/model/get.php
 function syncMovie(int $movieID) {
+  try {
   $client = tmdbClient();
   $repository = new MovieRepository($client);
   $movie = $repository -> load($movieID);
+  $genre_ids = $movie -> getGenres();
   
+  $result = new rabbitMQClient("movieServer.ini", "movieServer");
+  $result ->send_request([
+    "type" => "store_movie",
+    $genre_ids,
+    "movie" => [
+      "tmdb_id" => $movie -> getId(),
+      "title" => $movie-> getTitle()
+    ]
+  ]);
+  }
+  catch (Exception $e) {
+    echo $e->getMessage();
+  }
 }
 
 function requestProcessor($request)
