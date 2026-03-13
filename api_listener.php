@@ -24,17 +24,30 @@ function syncMovie(int $tmdb_id) {
   try {
     $client = tmdbClient();
     $repository = new MovieRepository($client);
-    $movie = $repository -> load($$tmdb_id);
+    $movie = $repository -> load($tmdb_id);
 
-
+    $genre_ids = [];
+    foreach ($movie -> getGenres() as $n) {
+      $genre_ids[] = $n -> getId();
+    }
     
     $result = new rabbitMQClient("movieServer.ini", "movieServer");
     $result ->send_request([
       "type" => "store_movie",
-      $genre_ids,
+      "genre_ids" => $genre_ids,
       "movie" => [
         "tmdb_id" => $movie -> getId(),
-        "title" => $movie -> getTitle()
+        "title" => $movie -> getTitle(),
+        "overview" => $movie -> getOverview(),
+        "release_date" => $movie -> getReleaseDate(),
+        "runtime" => $movie -> getRuntime(),
+        "poster_path" => $movie -> getPosterPath(),
+        "backdrop_path" => $movie -> getBackdropPath(),
+        "original_language" => $movie -> getOriginalLanguage(),
+        "vote_average" => $movie -> getVoteAverage(),
+        "vote_count" => $movie -> getVoteCount(),
+        "popularity" => $movie -> getPopularity(),
+        "adult" => $movie -> getAdult()
       ]
     ]);
   }
