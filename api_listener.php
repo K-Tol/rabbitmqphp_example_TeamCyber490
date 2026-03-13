@@ -14,7 +14,7 @@ use Tmdb\Model\Search\SearchQuery\MovieSearchQuery;
 use Tmdb\Repository\SearchRepository;
 
 function tmdbClient() {
-  $client = null;
+  static $client = null;
   if ($client !== null) {
     return $client;
   }
@@ -35,6 +35,12 @@ function syncMovie(int $tmdb_id) {
     }
     
     $result = new rabbitMQClient("movieServer.ini", "movieServer");
+
+    $release_date = $movie -> getReleaseDate();
+    if ($release_date !== null) {
+      $release_date = $release_date -> format("Y-m-d");
+    }
+
     $result ->send_request([
       "type" => "store_movie",
       "genre_ids" => $genre_ids,
@@ -42,7 +48,7 @@ function syncMovie(int $tmdb_id) {
         "tmdb_id" => $movie -> getId(),
         "title" => $movie -> getTitle(),
         "overview" => $movie -> getOverview(),
-        "release_date" => $movie -> getReleaseDate(),
+        "release_date" => $release_date,
         "runtime" => $movie -> getRuntime(),
         "poster_path" => $movie -> getPosterPath(),
         "backdrop_path" => $movie -> getBackdropPath(),
@@ -53,6 +59,7 @@ function syncMovie(int $tmdb_id) {
         "adult" => $movie -> getAdult()
       ]
     ]);
+    return ["ok" => true];
   }
   catch (TmdbApiException $e) {
     if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
@@ -72,19 +79,16 @@ function syncGenres() {
     $genreRepository = new GenreRepository($client);
     $genres = $genreRepository -> loadMovieCollection();
 
-    $genres_result = [];
+    $rClient = new rabbitMQClient("movieServer.ini", "movieServer");
+
     foreach ($genres as $n) {
-      $genres_result[] = [
+      $rClient -> send_request([
+        "type" => "store_genre",
         "tmdb_genre_id" => $n -> getId(),
         "name" => $n -> getName()
-      ];
+      ]);
     }
-
-    $result = new rabbitMQClient("movieServer.ini", "movieServer");
-    return $result -> send_request([
-      "type" => "store_genre",
-      "genres" => $genres_result
-    ]);
+    return ["ok" => true];
   }
   catch (TmdbApiException $e) {
     if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
