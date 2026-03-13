@@ -26,15 +26,15 @@ function syncMovie(int $movieID) {
   $repository = new MovieRepository($client);
   $movie = $repository -> load($movieID);
   $genreRepository = new GenreRepository($client);
-  $genres = $genreRepository -> load($movieID);
+  $genre_ids = $genreRepository -> loadMovieCollection($movieID); //???
   
   $result = new rabbitMQClient("movieServer.ini", "movieServer");
   $result ->send_request([
     "type" => "store_movie",
-    $genres,
+    $genre_ids,
     "movie" => [
       "tmdb_id" => $movie -> getId(),
-      "title" => $movie-> getTitle()
+      "title" => $movie -> getTitle()
     ]
   ]);
   }
@@ -46,12 +46,11 @@ function syncMovie(int $movieID) {
 function requestProcessor($request) {
   echo "received request".PHP_EOL;
   var_dump($request);
-  if(!isset($request['type']))
-  {
+
+  if(!isset($request['type'])) {
     return ["ok" => false, "error" => "unsupported message type"];
   }
-  switch ($request['type'])
-  {
+  switch ($request['type']) {
     case "sync_movie":
       // return syncMovie() function to get a movie info from tmdb
       return;
@@ -61,7 +60,6 @@ function requestProcessor($request) {
 }
 
 $server = new rabbitMQServer("datasource.ini","datasourceServer");
-
 $server->process_requests('requestProcessor');
 exit();
 ?>
