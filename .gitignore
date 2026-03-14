@@ -3,3 +3,7 @@
 vendor/
 composer.json
 composer.lock
+
+# ignoring testing file for the api
+
+errorApiTesting.php
