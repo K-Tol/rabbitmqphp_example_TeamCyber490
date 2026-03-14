@@ -282,7 +282,8 @@ function requestProcessor($request) {
         case "store_movie":
             return storeMovie($request["movie"] ?? [], $request["genre_ids"] ?? []);
         // STILL NEED TO ADD CASE STMTS FOR THE WATCHLIST FUNCTIONS
-
+        case "add_to_watch":
+            return addToWatch((int)$request["user_id"] ?? 0, (int)($request["movie_id"] ?? 0));
         default:
             return [
                 "ok" => false,
