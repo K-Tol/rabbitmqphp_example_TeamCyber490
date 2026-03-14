@@ -27,6 +27,9 @@ function syncMovie(int $tmdb_id) {
   try {
     $client = tmdbClient();
     $repository = new MovieRepository($client);
+
+    // this fixes some visual errors with the php-tmdb wrapper
+    /** @var \Tmdb\Model\Movie $movie */
     $movie = $repository -> load($tmdb_id);
 
     $genre_ids = [];
