@@ -259,6 +259,16 @@ function addToWatch($user_id, $movie_id) {
   return ["ok" => true];
 }
 
+function removeFromWatch($user_id, $movie_id) {
+    $stmt = movieDB()->prepare(
+        "DELETE FROM watchlist_movies
+         WHERE user_id = ? AND movie_id = ?"
+    );
+    $stmt->bind_param("ii" $user_id, $movie_id);
+    $stmt->execute();
+    return ["ok" = true];
+}
+
 /*
 function for routing the requests that are coming through with their needed functions above
 */
