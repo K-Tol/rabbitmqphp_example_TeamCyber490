@@ -251,7 +251,7 @@ function getFullDetails($movie_id) {
 
 function addToWatch($user_id, $movie_id) {
   $stmt = movieDB()->prepare(
-    "INSERT IGNORE INTO watchlist_movies (user_id, movie_id, date_added)
+    "INSERT IGNORE INTO watchlist (user_id, movie_id, date_added)
      VALUES (?, ?, UNIX_TIMESTAMP())"
   );
   $stmt->bind_param("ii", $user_id, $movie_id);
@@ -261,7 +261,7 @@ function addToWatch($user_id, $movie_id) {
 
 function removeFromWatch($user_id, $movie_id) {
     $stmt = movieDB()->prepare(
-        "DELETE FROM watchlist_movies
+        "DELETE FROM watchlist
          WHERE user_id = ? AND movie_id = ?"
     );
     $stmt->bind_param("ii", $user_id, $movie_id);
@@ -271,11 +271,11 @@ function removeFromWatch($user_id, $movie_id) {
 
 function getWatchlist($user_id) {
     $stmt = movieDB()->prepare(
-        "SELECT m.id, m.tmdb_id, m.title, m.release_date, m.poster_path, wm.date_added
-         FROM watchlist_moveis wm
-         JOIN movies m ON m.id = wm.movie_id
-         WHERE wm.user_id = ?
-         ORDER BY wm.date_added DESC"
+        "SELECT m.id, m.tmdb_id, m.title, m.release_date, m.poster_path, w.date_added
+         FROM watchlist w
+         JOIN movies m ON m.id = w.movie_id
+         WHERE w.user_id = ?
+         ORDER BY w.date_added DESC"
     );
 
     $stmt->bind_param("i", $user_id);
