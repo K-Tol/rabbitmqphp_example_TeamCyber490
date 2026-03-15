@@ -321,6 +321,9 @@ function requestProcessor($request) {
             return removeFromWatch((int)($request["user_id"] ?? 0), (int)($request["movie_id"] ?? 0));
         case "get_watchlist":
             return getWatchlist((int)($request["user_id"] ?? 0));
+        // ADDING CASE STMTS FOR CRON
+        case "sync_popular":
+            return datasourceClient()->send_request(["type" => "sync_popular"]);
         default:
             return [
                 "ok" => false,
