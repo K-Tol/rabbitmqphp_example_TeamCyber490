@@ -39,11 +39,10 @@
                 request.send("type=search_movies&query="+movieName);
             }
 
-            function MoviePage(){
-                var text = JSON.parse(response);
-	            document.getElementById("textResponse").innerHTML = "response: "+text+"<p>";
-                
-                if(text.status != " "){
+            function MoviePage(response){
+                var text = response;
+                if(text != " "){
+                    sessionStorage.setItem('movieDetails', text);
                     window.location.href = "movieInfo.html";
                 }
             }
