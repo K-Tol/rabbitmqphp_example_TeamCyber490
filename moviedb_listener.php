@@ -162,7 +162,7 @@ function for matching movies to search query
 function localMovSearch($query) {
     // query for search movies inside our movies table
     $stmt = movieDB()->prepare(
-        "SELECT id, tmdb_id, title, release_date, poster_path
+        "SELECT id, tmdb_id, title, overview, release_date, poster_path
          FROM movies
          WHERE title LIKE CONCAT('%', ?, '%')
          ORDER BY popularity DESC, title ASC
