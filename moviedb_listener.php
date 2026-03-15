@@ -190,8 +190,8 @@ function searchMovies($query) {
     $movies = localMovSearch($query);
     // if no movies were found, sned a rabbitMQ request to api handler on the dmz 
     if(count($movies) === 0) {
-        datasourceClient()->send_request(["type" => "sync_search", "query" => $query]);
-        $movies = localMovSearch($query);
+        datasourceClient()->publish(["type" => "sync_search", "query" => $query]);
+        return ["ok" => true, "movies" => []];
     }
     return [
         "ok" => true,
