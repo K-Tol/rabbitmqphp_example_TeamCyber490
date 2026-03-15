@@ -30,6 +30,7 @@
                 "type" => "search_movies",
                 "query" => $query
                 ]);
+            $movies = $response['movies'];
             echo json_encode(["ok" => true, "movies" => $movies]);
 			exit(0);
 			break;
