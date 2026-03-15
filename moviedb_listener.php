@@ -266,7 +266,7 @@ function removeFromWatch($user_id, $movie_id) {
     );
     $stmt->bind_param("ii", $user_id, $movie_id);
     $stmt->execute();
-    return ["ok" = true];
+    return ["ok" => true];
 }
 
 function getWatchlist($user_id) {
