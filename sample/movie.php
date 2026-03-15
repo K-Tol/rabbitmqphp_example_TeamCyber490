@@ -30,19 +30,13 @@
                 "type" => "search_movies",
                 "query" => $query
                 ]);
-            break;
-            case "get_movie_details":
-                $response = $client->send_request([
-                "type" => "getFullDetails",
-                "query" => $response["movies"]
-                ]);
-            break;
+            echo json_encode(["ok" => true, "movies" => $movies]);
+			exit(0);
+			break;
             default:
                 echo json_encode(["ok" => false, "message" => "unsupported request type, politely FUCK OFF"]);
                 exit(0);
         }
-
-        $response["movies"];
 
     } catch (Exception $e) {
         echo $e->getMessage();
