@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../lib/Http.php';
-require_once __DIR__ . '/../rabbitmq/path.inc';
-require_once __DIR__ . '/../rabbitmq/get_host_info.inc';
-require_once __DIR__ . '/../rabbitmq/rabbitMQLib.inc';
+require_once __DIR__ . '/../../../path.inc';
+require_once __DIR__ . '/../../../get_host_info.inc';
+require_once __DIR__ . '/../../../rabbitMQLib.inc';
 
 Http::requireMethod('GET');
 
 try {
-    $client = new rabbitMQClient("testRabbitMQ.ini", "testServer");
+    $client = new rabbitMQClient("movieServer.ini", "movieServer");
 
     $id = (int) ($_GET['id'] ?? 0);
 
