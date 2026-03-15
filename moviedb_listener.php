@@ -264,7 +264,7 @@ function removeFromWatch($user_id, $movie_id) {
         "DELETE FROM watchlist_movies
          WHERE user_id = ? AND movie_id = ?"
     );
-    $stmt->bind_param("ii" $user_id, $movie_id);
+    $stmt->bind_param("ii", $user_id, $movie_id);
     $stmt->execute();
     return ["ok" = true];
 }
