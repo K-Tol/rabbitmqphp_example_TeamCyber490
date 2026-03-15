@@ -5,9 +5,13 @@
             infoJSON = sessionStorage.getItem('movieDetails');
             movieArray = JSON.parse(infoJSON);
             
+            movieName = movieArray["Title"];
+            movieDate = movieArray["release_date"];
+            moviePoster = movieArray["poster_path"];
         </script>
     </head>
     <body>
-
+        <h1 id="movieTitle">Movie Title</h1>
+        
     </body>
 </html>

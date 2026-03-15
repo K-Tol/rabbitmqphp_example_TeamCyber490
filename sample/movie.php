@@ -22,12 +22,28 @@
             exit(0);
         }
 
-        $response = $client->send_request([
-            "type" => "search_movies",
-            "query" => $query
-        ]);
+        //This switch block needs work
+
+        switch($request) {
+            case "search_movies":
+                $response = $client->send_request([
+                "type" => "search_movies",
+                "query" => $query
+                ]);
+            break;
+            case "get_movie_details":
+                $response = $client->send_request([
+                "type" => "getFullDetails",
+                "query" => $response["movies"]
+                ]);
+            break;
+            default:
+                echo json_encode(["ok" => false, "message" => "unsupported request type, politely FUCK OFF"]);
+                exit(0);
+        }
 
         $response["movies"];
+
 
         switch ($request) {
             case "login":

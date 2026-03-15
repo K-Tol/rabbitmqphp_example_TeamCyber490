@@ -33,10 +33,27 @@
                     
                     if ((this.readyState == 4)&&(this.status == 200))
                     {
+                        SendDetailsRequest(this.responseText);
+                    }		
+                }
+                request.send("type=search_movies&query="+movieName);
+
+            }
+
+            function SendDetailsRequest(movieId){
+                var request = new XMLHttpRequest();
+                request.open("POST","movie.php",true);
+                request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                request.onreadystatechange= function ()
+                {
+                    
+                    if ((this.readyState == 4)&&(this.status == 200))
+                    {
                         MoviePage(this.responseText);
                     }		
                 }
                 request.send("type=search_movies&query="+movieName);
+                
             }
 
             function MoviePage(response){
