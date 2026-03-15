@@ -314,9 +314,13 @@ function requestProcessor($request) {
             return storeGenre((int)($request["tmdb_genre_id"] ?? 0), $request["name"] ?? "");
         case "store_movie":
             return storeMovie($request["movie"] ?? [], $request["genre_ids"] ?? []);
-        // STILL NEED TO ADD CASE STMTS FOR THE WATCHLIST FUNCTIONS
+        // CASE STMTS FOR WATCHLIST FUNCTIONS BELOW
         case "add_to_watch":
             return addToWatch((int)$request["user_id"] ?? 0, (int)($request["movie_id"] ?? 0));
+        case "remove_from_watch":
+            return removeFromWatch((int)($request["user_id"] ?? 0), (int)($request["movie_id"] ?? 0));
+        case "get_watchlist":
+            return getWatchlist((int)($request["user_id"] ?? 0))
         default:
             return [
                 "ok" => false,
