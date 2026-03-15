@@ -278,6 +278,18 @@ function getWatchlist($user_id) {
          ORDER BY wm.date_added DESC"
     );
 
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $movies = [];
+
+    while($row = $res->fetch_assoc()) {
+        $movies[] = $row;
+    }
+    return [
+        "ok" => true,
+        "movies" => $movies
+    ];
 }
 
 /*
