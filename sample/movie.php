@@ -4,5 +4,7 @@
     require_once('rabbitMQLib.inc');
 
     $client = new rabbitMQClient("movieServer.ini", "movieServer");
+
+    
 ?>
 

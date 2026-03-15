@@ -36,8 +36,7 @@
                         MoviePage(this.responseText);
                     }		
                 }
-                //Change this to comply with the database vm
-                request.send("type=register&uname="+username+"&pword="+password);
+                request.send("type=search_movies&query="+movieName);
             }
 
             function MoviePage(){
