@@ -5,13 +5,27 @@
             infoJSON = sessionStorage.getItem('movieDetails');
             movieArray = JSON.parse(infoJSON);
             
-            movieName = movieArray["Title"];
+            movieName = movieArray["title"];
             movieDate = movieArray["release_date"];
             moviePoster = movieArray["poster_path"];
+            movieSummary = movieArray["overview"];
         </script>
     </head>
     <body>
-        <h1 id="movieTitle">Movie Title</h1>
+        <h1 id="title">Movie Title</h1>
+        <br>
+        <p id="poster"></p>
+        <br>
+        <p id="date">01/02/2003</p>
+        <br>
+        <p id="overview">Default text</p>
+        <script>
+            document.getElementById("title").innerHTML = movieName;
+            document.getElementById("poster").innerHTML = `<img src="https://image.tmdb.org/t/p/w200${moviePoster}" alt="${movieName}">`;
+            document.getElementById("date").innerHTML = movieDate;
+            document.getElementById("overview").innerHTML = movieSummary;
+        </script>
         
     </body>
 </html>
+
