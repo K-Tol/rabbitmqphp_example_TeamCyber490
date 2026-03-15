@@ -324,6 +324,8 @@ function requestProcessor($request) {
         // ADDING CASE STMTS FOR CRON
         case "sync_popular":
             return datasourceClient()->send_request(["type" => "sync_popular"]);
+        case "sync_now_playing":
+            return datasourceClient()->send_request(["type" => "sync_now_playing"]);
         default:
             return [
                 "ok" => false,
