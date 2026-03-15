@@ -269,6 +269,17 @@ function removeFromWatch($user_id, $movie_id) {
     return ["ok" = true];
 }
 
+function getWatchlist($user_id) {
+    $stmt = movieDB()->prepare(
+        "SELECT m.id, m.tmdb_id, m.title, m.release_date, m.poster_path, wm.date_added
+         FROM watchlist_moveis wm
+         JOIN movies m ON m.id = wm.movie_id
+         WHERE wm.user_id = ?
+         ORDER BY wm.date_added DESC"
+    );
+
+}
+
 /*
 function for routing the requests that are coming through with their needed functions above
 */
