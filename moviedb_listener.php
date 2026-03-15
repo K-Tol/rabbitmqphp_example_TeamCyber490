@@ -320,7 +320,7 @@ function requestProcessor($request) {
         case "remove_from_watch":
             return removeFromWatch((int)($request["user_id"] ?? 0), (int)($request["movie_id"] ?? 0));
         case "get_watchlist":
-            return getWatchlist((int)($request["user_id"] ?? 0))
+            return getWatchlist((int)($request["user_id"] ?? 0));
         default:
             return [
                 "ok" => false,
