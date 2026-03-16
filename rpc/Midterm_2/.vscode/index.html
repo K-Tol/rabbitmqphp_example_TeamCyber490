@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+
+<h1>Welcome to TeamCyber Movie Site</h1>
+
+<div class="navbar">
+    <a class="default" href="index.html">Home</a>
+    <a href="movie.html">Movies</a>
+    <a href="forum.html">Forum</a>
+
+    <div class="searchbar_top">
+        <input type="text" id="searchbar" placeholder="Search...">
+        <button type="button" id="search_btn">
+            <i class="fa fa-search"></i>
+        </button>
+    </div>
+</div>
+
+<p id="status"></p>
+
+<script>
+
+let retryCount = 0;
+let maxRetries = 5;
+
+document.getElementById("search_btn").addEventListener("click", GetMovie);
+
+document.getElementById("searchbar").addEventListener("keypress", function(e){
+    if(e.key === "Enter"){
+        GetMovie();
+    }
+});
+
+function GetMovie(){
+
+    let movieName = document.getElementById("searchbar").value.trim();
+
+    if(movieName === ""){
+        alert("Please enter a movie name.");
+        return;
+    }
+
+    retryCount = 0;
+
+    document.getElementById("status").innerHTML =
+        "Searching for movie...";
+
+    SendMovieRequest(movieName);
+}
+
+function SendMovieRequest(movieName){
+
+    let request = new XMLHttpRequest();
+
+    request.open("POST","movie.php",true);
+    request.setRequestHeader("Content-Type",
+        "application/x-www-form-urlencoded");
+
+    request.onreadystatechange = function(){
+
+        if(this.readyState === 4 && this.status === 200){
+            HandleResponse(this.responseText, movieName);
+        }
+
+    };
+
+    request.send("type=search_movies&query=" +
+        encodeURIComponent(movieName));
+}
+
+function HandleResponse(response, movieName){
+
+    try {
+
+        let data = JSON.parse(response);
+
+        if(data.ok && data.movies && data.movies.length > 0){
+
+            // Movie found
+            sessionStorage.setItem(
+                "movieDetails",
+                JSON.stringify(data.movies[0])
+            );
+
+            window.location.href = "movieInfo.html";
+            return;
+        }
+
+        // If no results yet → retry (because backend may still be syncing)
+        if(retryCount < maxRetries){
+
+            retryCount++;
+
+            document.getElementById("status").innerHTML =
+                "Movie not ready yet... retrying (" +
+                retryCount + "/" + maxRetries + ")";
+
+            setTimeout(function(){
+                SendMovieRequest(movieName);
+            },2000);
+
+        } else {
+
+            document.getElementById("status").innerHTML =
+                "Movie not found.";
+
+        }
+
+    } catch (error) {
+
+        console.error("Invalid server response:", response);
+
+        document.getElementById("status").innerHTML =
+            "Server error.";
+
+    }
+}
+
+</script>
+
+</body>
+</html>

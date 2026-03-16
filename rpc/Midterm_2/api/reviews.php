@@ -1,69 +1,73 @@
 <?php
+require_once('path.inc');
+require_once('get_host_info.inc');
+require_once('rabbitMQLib.inc');
 
-declare(strict_types=1);
+header("Content-Type: application/json");
 
-require_once __DIR__ . '/../lib/Database.php';
-require_once __DIR__ . '/../lib/Http.php';
-require_once __DIR__ . '/../lib/EventBridge.php';
-require_once __DIR__ . '/../lib/RecommendationEngine.php';
+try {
 
-$pdo = Database::get();
-$method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
-
-if ($method === 'GET') {
-    $movieId = (int) ($_GET['movie_id'] ?? 0);
-    if ($movieId <= 0) {
-        Http::json(['error' => 'movie_id is required.'], 422);
+    if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+        echo json_encode(["ok" => false, "message" => "POST only"]);
+        exit;
     }
 
-    $stmt = $pdo->prepare(
-        'SELECT r.id, r.movie_id, r.user_id, u.display_name, r.rating, r.review_text, r.created_at
-         FROM reviews r
-         JOIN users u ON u.id = r.user_id
-         WHERE r.movie_id = :movie_id
-         ORDER BY r.created_at DESC'
-    );
-    $stmt->execute(['movie_id' => $movieId]);
+    $type = strtolower(trim($_POST['type'] ?? ""));
 
-    Http::json(['reviews' => $stmt->fetchAll()]);
-}
-
-if ($method === 'POST') {
-    $body = Http::body();
-
-    $movieId = (int) ($body['movie_id'] ?? 0);
-    $userId = (int) ($body['user_id'] ?? 0);
-    $rating = (int) ($body['rating'] ?? 0);
-    $review = trim((string) ($body['review'] ?? ''));
-
-    if ($movieId <= 0 || $userId <= 0 || $rating < 1 || $rating > 5) {
-        Http::json(['error' => 'movie_id, user_id, and rating (1-5) are required.'], 422);
+    if ($type == "") {
+        echo json_encode(["ok" => false, "message" => "Missing type"]);
+        exit;
     }
 
-    $stmt = $pdo->prepare(
-        'INSERT INTO reviews (movie_id, user_id, rating, review_text)
-         VALUES (:movie_id, :user_id, :rating, :review)
-         ON DUPLICATE KEY UPDATE
-           rating = VALUES(rating),
-           review_text = VALUES(review_text),
-           updated_at = CURRENT_TIMESTAMP'
-    );
-    $stmt->execute([
-        'movie_id' => $movieId,
-        'user_id' => $userId,
-        'rating' => $rating,
-        'review' => $review,
-    ]);
+    $client = new rabbitMQClient("movieServer.ini", "movieServer");
 
-    RecommendationEngine::applyReviewWeight($pdo, $userId, $movieId, $rating);
+    switch($type) {
 
-    EventBridge::publish('reviews.saved', [
-        'movie_id' => $movieId,
-        'user_id' => $userId,
-        'rating' => $rating,
-    ]);
+        case "add_review":
 
-    Http::json(['message' => 'Review saved.'], 201);
+            $user_id = (int)($_POST['user_id'] ?? 0);
+            $movie_id = (int)($_POST['movie_id'] ?? 0);
+            $rating = (int)($_POST['rating'] ?? 0);
+            $review = trim($_POST['review'] ?? "");
+
+            if ($user_id == 0 || $movie_id == 0) {
+                echo json_encode(["ok" => false, "message" => "Missing IDs"]);
+                exit;
+            }
+
+            $response = $client->send_request([
+                "type" => "add_review",
+                "user_id" => $user_id,
+                "movie_id" => $movie_id,
+                "rating" => $rating,
+                "review" => $review
+            ]);
+
+            echo json_encode($response);
+            exit;
+
+        case "get_reviews":
+
+            $movie_id = (int)($_POST['movie_id'] ?? 0);
+
+            $response = $client->send_request([
+                "type" => "get_reviews",
+                "movie_id" => $movie_id
+            ]);
+
+            echo json_encode($response);
+            exit;
+
+        default:
+            echo json_encode(["ok" => false, "message" => "Invalid request"]);
+            exit;
+    }
+
 }
-
-Http::json(['error' => 'Method not allowed.'], 405);
+catch(Exception $e) {
+    echo json_encode([
+        "ok" => false,
+        "error" => $e->getMessage()
+    ]);
+}
+?>
