@@ -1,0 +1,91 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    color: white;
+    background: linear-gradient(rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.82)), url("../../MidtermE/Theater.jpg") center/cover no-repeat fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 24px;
+}
+
+h1 {
+    color: red;
+    letter-spacing: 1px;
+    text-align: center;
+    font-size: 2rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+#textResponse {
+    min-height: 24px;
+    color: white;
+    text-align: center;
+    font-weight: 600;
+}
+
+.container {
+    width: min(92vw, 420px);
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 1px solid red;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    width: 100%;
+}
+
+input {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #5a5a5a;
+    border-radius: 8px;
+    background-color: #111111;
+    color: white;
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: red;
+    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
+}
+
+button {
+    padding: 11px 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#login {
+    background-color: red;
+    color: white;
+}
+
+#register {
+    background-color: #1c1c1c;
+    color: white;
+    border: 1px solid red;
+}
+
+button:hover {
+    filter: brightness(1);
+}
