@@ -236,7 +236,7 @@ function requestProcessor($request)
 
 
 $server = new rabbitMQServer("testRabbitMQ.ini","testServer");
-echo "The database listener is now running and waiting for requests..." . PHP_EOL;
+echo "Auth database listener is now running and waiting for requests..." . PHP_EOL;
 $server->process_requests('requestProcessor');
 exit();
 ?>
