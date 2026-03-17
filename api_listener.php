@@ -141,8 +141,8 @@ function syncSearch($query) {
 }
 
 function syncPopular() {
-// copied this layout from syncMovie
-error_log("syncPopular started");
+// copied this layout from syncMovie, should've used syncSearch smh
+  error_log("syncPopular started");
   try {
     $client = tmdbClient();
     $repository = new MovieRepository($client);
@@ -152,7 +152,7 @@ error_log("syncPopular started");
 
     foreach ($popular as $x) {
       $tmdb_id = $x -> getId();
-      if ($tmdb_id === NULL || $tmdb_id === "") {
+      if (($tmdb_id ?? "") === "" || ($tmdb_id ?? "") === 0) {
         continue;
       }
       error_log("syncing movie with tmdb_id: $tmdb_id" );
@@ -176,7 +176,38 @@ error_log("syncPopular started");
 }
 
 function syncNowPlaying() {
+// copied this layout from syncPopular
+  error_log("syncNowPlaying started");
+  try {
+    $client = tmdbClient();
+    $repository = new MovieRepository($client);
 
+    $nowPlaying = $repository -> getNowPlaying();
+    error_log("Got now playing from tmdb, how many movies?: " . count($nowPlaying));
+
+    foreach ($nowPlaying as $x) {
+      $tmdb_id = $x -> getId();
+      if (($tmdb_id ?? "") === "" || ($tmdb_id ?? "") === 0) {
+        continue;
+      }
+      error_log("syncing movie with tmdb_id: $tmdb_id" );
+      syncMovie($tmdb_id);
+      error_log("finished syncing movie with tmdb_id: $tmdb_id" );
+    }
+    
+    error_log("syncNowPlaying() finished");
+    return ["ok" => true];
+  }
+  catch (TmdbApiException $e) {
+    if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
+        // not found
+        echo $e->getMessage();
+        return ["ok" => false, "error" => "not_found"];
+    }
+  }
+  catch (Exception $e) {
+    echo $e->getMessage();
+  }
 }
 
 function requestProcessor($request) {
@@ -194,11 +225,11 @@ function requestProcessor($request) {
       return syncGenres();
     case "sync_search":
       return syncSearch($request['query'] ?? "");
-    // Cron requests from moviedb_listener
+    // Cron requests from moviedb_listener/frontend
     case "sync_popular":
-      return;
+      return syncPopular();
     case "sync_now_playing":
-      return;
+      return syncNowPlaying();
     default:
       return ["ok" => false, "error" => "unsupported message type"];
   }
