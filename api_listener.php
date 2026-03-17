@@ -24,6 +24,7 @@ function tmdbClient() {
 
 // base from php-tmdb/api/examples/movies/model/get.php
 function syncMovie(int $tmdb_id) {
+  error_log("syncMovie started for tmdb_id: $tmdb_id");
   try {
     $client = tmdbClient();
     $repository = new MovieRepository($client);
@@ -37,6 +38,7 @@ function syncMovie(int $tmdb_id) {
       $genre_ids[] = $n -> getId();
     }
     
+    error_log("syncMovie sending store_movie for tmdb_id: $tmdb_id");
     $result = new rabbitMQClient("movieServer.ini", "movieServer");
 
     $release_date = $movie -> getReleaseDate();
@@ -44,7 +46,7 @@ function syncMovie(int $tmdb_id) {
       $release_date = $release_date -> format("Y-m-d");
     }
 
-    $result ->send_request([
+    $result ->publish([
       "type" => "store_movie",
       "genre_ids" => $genre_ids,
       "movie" => [
@@ -62,6 +64,7 @@ function syncMovie(int $tmdb_id) {
         "adult" => $movie -> getAdult()
       ]
     ]);
+    error_log("syncMovie store_movie response received for tmdb_id: $tmdb_id");
     return ["ok" => true];
   }
   catch (TmdbApiException $e) {
@@ -106,19 +109,23 @@ function syncGenres() {
 }
 
 function syncSearch($query) {
+  error_log("syncSearch started for query: $query");
   try {
     $client = tmdbClient();
     $searchRepository = new SearchRepository($client);
     $search_result = $searchRepository -> searchMovie($query, new MovieSearchQuery());
+    error_log("syncSearch got results from TMDB");
 
     foreach ($search_result as $n) {
       $tmdb_id = $n -> getId();
       if (($tmdb_id ?? "") === "" || ($tmdb_id ?? "") === 0) {
         continue;
       }
+      error_log("syncSearch syncing tmdb_id: $tmdb_id");
       syncMovie($tmdb_id);
+      error_log("syncSearch finished syncing tmdb_id: $tmdb_id");
     }
-
+    error_log("syncSearch complete");
     return ["ok" => true];
   }
   catch (TmdbApiException $e) {
@@ -153,7 +160,13 @@ function requestProcessor($request) {
   }
 }
 
+
+error_log("Syncing genres on startup");
+$result = syncGenres();
+error_log("Genres array message: $result");
+
 $server = new rabbitMQServer("datasource.ini","datasourceServer");
+error_log("API listener is now running");
 $server->process_requests('requestProcessor');
 ?>
 
