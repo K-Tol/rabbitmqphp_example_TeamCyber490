@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" href="website.css">
+        <link rel="stylesheet" href="index.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </head>
     <body>
@@ -33,18 +33,22 @@
                     
                     if ((this.readyState == 4)&&(this.status == 200))
                     {
-                        MoviePage(this.responseText);
+                        MoviePage(this.responseText, movieName);
                     }		
                 }
                 request.send("type=search_movies&query="+movieName);
 
             }
 
-            function MoviePage(response){
-                var text = response;
-                if(text != " "){
+            function MoviePage(response, movieName){
+                var text = JSON.parse(response);
+                if(text.ok === true && text.movies && text.movies.length > 0){
+                    text = JSON.stringify(text.movies[0]);
                     sessionStorage.setItem('movieDetails', text);
                     window.location.href = "movieInfo.html";
+                }
+                else{
+                    alert("Either Movie '" + movieName + "' not found or you need to re-search. Please try again");
                 }
             }
 

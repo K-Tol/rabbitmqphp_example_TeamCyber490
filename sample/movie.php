@@ -30,8 +30,12 @@
                 "type" => "search_movies",
                 "query" => $query
                 ]);
+            if (!is_array($response) || empty($response["ok"])) {
+				echo json_encode(["ok" => false, "message" => "couldn't find anything"]);
+				exit(0);
+			}
             $movies = $response['movies'];
-            echo json_encode(["ok" => true, "movies" => $movies]);
+            echo json_encode(["ok" => true, "movies" => $movies, "message" => "Search successful"]);
 			exit(0);
 			break;
             default:
