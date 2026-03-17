@@ -42,7 +42,7 @@ function syncMovie(int $tmdb_id) {
     $result = new rabbitMQClient("movieServer.ini", "movieServer");
 
     $release_date = $movie -> getReleaseDate();
-    if ($release_date !== null) {
+    if ($release_date !== null && $release_date instanceof DateTime) {
       $release_date = $release_date -> format("Y-m-d");
     }
 
@@ -163,7 +163,7 @@ function requestProcessor($request) {
 
 error_log("Syncing genres on startup");
 $result = syncGenres();
-error_log("Genres array message: $result");
+print_r($result);
 
 $server = new rabbitMQServer("datasource.ini","datasourceServer");
 error_log("API listener is now running");
