@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            infoJSON = sessionStorage.getItem('movieDetails');
+            movieArray = JSON.parse(infoJSON);
+            
+            movieName = movieArray["title"];
+            movieDate = movieArray["release_date"];
+            moviePoster = movieArray["poster_path"];
+            movieSummary = movieArray["overview"];
+        </script>
+        <link rel="stylesheet" href="movieInfo.css">
+    </head>
+    <body>
+        <nav class="top-nav">Teamcyber Movies</nav>
+        <div class="page-content">
+        <div class="movie-card">
+        <h1 id="title">Movie Title</h1>
+        <br>
+        <p id="poster"></p>
+        <br>
+        <p id="date">01/02/2003</p>
+        <br>
+        <p id="overview">Default text</p>
+        <script>
+            document.getElementById("title").innerHTML = movieName;
+            document.getElementById("poster").innerHTML = `<img src="https://image.tmdb.org/t/p/w200${moviePoster}" alt="${movieName}">`;
+            document.getElementById("date").innerHTML = movieDate;
+            document.getElementById("overview").innerHTML = movieSummary;
+        </script>
+        </div>
+        </div>
+    </body>
+</html>
