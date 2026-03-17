@@ -64,7 +64,7 @@ function syncMovie(int $tmdb_id) {
         "adult" => $movie -> getAdult()
       ]
     ]);
-    error_log("syncMovie store_movie response received for tmdb_id: $tmdb_id");
+    error_log("syncMovie store_movie message published for tmdb_id: $tmdb_id");
     return ["ok" => true];
   }
   catch (TmdbApiException $e) {
