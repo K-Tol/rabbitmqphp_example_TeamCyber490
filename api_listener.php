@@ -140,6 +140,14 @@ function syncSearch($query) {
   }
 }
 
+function syncPopular() {
+
+}
+
+function syncNowPlaying() {
+
+}
+
 function requestProcessor($request) {
   echo "received request".PHP_EOL;
   var_dump($request);
@@ -155,6 +163,11 @@ function requestProcessor($request) {
       return syncGenres();
     case "sync_search":
       return syncSearch($request['query'] ?? "");
+    // Cron requests from moviedb_listener
+    case "sync_popular":
+      return;
+    case "sync_now_playing":
+      return;
     default:
       return ["ok" => false, "error" => "unsupported message type"];
   }
