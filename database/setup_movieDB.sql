@@ -55,3 +55,17 @@ CREATE TABLE watchlist (
     PRIMARY KEY (user_id, movie_id),
     FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
 );
+
+-- table for reviews
+-- we decided to make ratings 1-10 and comment is optional
+-- also, one user can only have one review per movie
+CREATE TABLE reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    movie_id INT NOT NULL,
+    rating INT NOT NULL,
+    comment TEXT,
+    created_at BIGINT NOT NULL,
+    UNIQUE (user_id, movie_id),           
+    FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
+);
