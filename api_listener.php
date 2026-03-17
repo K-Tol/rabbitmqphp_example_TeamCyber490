@@ -86,9 +86,11 @@ function syncGenres() {
     $genres = $genreRepository -> loadMovieCollection();
 
     $rClient = new rabbitMQClient("movieServer.ini", "movieServer");
+    error_log("number of genres: " . count($genres));
 
     foreach ($genres as $n) {
-      $rClient -> send_request([
+      error_log("publishing genre: " . $n -> getName());
+      $rClient -> publish([
         "type" => "store_genre",
         "tmdb_genre_id" => $n -> getId(),
         "name" => $n -> getName()
