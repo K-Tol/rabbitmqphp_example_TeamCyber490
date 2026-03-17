@@ -38,7 +38,6 @@ function syncMovie(int $tmdb_id) {
       $genre_ids[] = $n -> getId();
     }
     
-    error_log("syncMovie sending store_movie for tmdb_id: $tmdb_id");
     $result = new rabbitMQClient("movieServer.ini", "movieServer");
 
     $release_date = $movie -> getReleaseDate();
@@ -46,6 +45,7 @@ function syncMovie(int $tmdb_id) {
       $release_date = $release_date -> format("Y-m-d");
     }
 
+    error_log("syncMovie sending store_movie for tmdb_id: $tmdb_id");
     $result ->publish([
       "type" => "store_movie",
       "genre_ids" => $genre_ids,
@@ -141,7 +141,38 @@ function syncSearch($query) {
 }
 
 function syncPopular() {
+// copied this layout from syncMovie
+error_log("syncPopular started");
+  try {
+    $client = tmdbClient();
+    $repository = new MovieRepository($client);
 
+    $popular = $repository -> getPopular();
+    error_log("Got popular from tmdb, how many movies?: " . count($popular));
+
+    foreach ($popular as $x) {
+      $tmdb_id = $x -> getId();
+      if ($tmdb_id === NULL || $tmdb_id === "") {
+        continue;
+      }
+      error_log("syncing movie with tmdb_id: $tmdb_id" );
+      syncMovie($tmdb_id);
+      error_log("finished syncing movie with tmdb_id: $tmdb_id" );
+    }
+    
+    error_log("syncPopular() finished");
+    return ["ok" => true];
+  }
+  catch (TmdbApiException $e) {
+    if (TmdbApiException::STATUS_RESOURCE_NOT_FOUND == $e->getCode()) {
+        // not found
+        echo $e->getMessage();
+        return ["ok" => false, "error" => "not_found"];
+    }
+  }
+  catch (Exception $e) {
+    echo $e->getMessage();
+  }
 }
 
 function syncNowPlaying() {
