@@ -49,24 +49,76 @@ function SendRegisterRequest(username,password)
 </script>
 </head>
 <body>
+<div class="top-auth-actions">
+	<button type="button" id="openLogin">Login</button>
+	<button type="button" id="openRegister">Register</button>
+</div>
+
 <h1>Welcome to Team Cyber's Site</h1>
 <div id="textResponse">
 </div>
-<div class="container">
+
+<div class="container" id="authContainer">
+	<div class="card-header">
+		<h2 id="formTitle">Login</h2>
+		<button type="button" id="closeForm" class="close-btn">X</button>
+	</div>
 
 	<input type="text" id="username" placeholder="Username" required>
 
 	<input type="password" id="password" placeholder="Password" required>
 
-	<br>
 	<div class="actions">
-		<button type="button" id="login">Login</button>
-		<button type="button" id="register">Register</button>
+		<button type="button" id="submitAuth">Login</button>
 	</div>
 
+	<p id="formHint">Enter your username and password to login.</p>
+
+</div>
+
 <script>
-document.getElementById("login").addEventListener("click", GetLogInfo);
-document.getElementById("register").addEventListener("click", GetRegInfo);
+var authMode = "login";
+
+document.getElementById("openLogin").addEventListener("click", function(){
+	showAuthForm("login");
+});
+
+document.getElementById("openRegister").addEventListener("click", function(){
+	showAuthForm("register");
+});
+
+document.getElementById("closeForm").addEventListener("click", function(){
+	document.getElementById("authContainer").classList.remove("show");
+});
+
+document.getElementById("submitAuth").addEventListener("click", SubmitAuth);
+
+function showAuthForm(mode){
+	authMode = mode;
+	document.getElementById("authContainer").classList.add("show");
+
+	if(mode === "register"){
+		document.getElementById("formTitle").innerHTML = "Register";
+		document.getElementById("submitAuth").innerHTML = "Register";
+		document.getElementById("formHint").innerHTML = "Create an account with username and password.";
+	} else {
+		document.getElementById("formTitle").innerHTML = "Login";
+		document.getElementById("submitAuth").innerHTML = "Login";
+		document.getElementById("formHint").innerHTML = "Enter your username and password to login.";
+	}
+}
+
+function SubmitAuth(){
+	username = document.getElementById("username").value;
+	password = document.getElementById("password").value;
+
+	if(authMode === "register"){
+		SendRegisterRequest(username, password);
+		return;
+	}
+
+	SendLoginRequest(username, password);
+}
 
 function GetLogInfo(){
 	username = document.getElementById("username").value;
@@ -81,6 +133,5 @@ function GetRegInfo(){
 }
 
 </script>
-</div>
 </body>
 </html>
