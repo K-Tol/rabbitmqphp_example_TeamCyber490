@@ -294,7 +294,7 @@ function getWatchlist($user_id) {
 
 // WORK ON FUNCTIONS FOR SUBMITTING AND GETTING REVIEWS
 
-function submutReview($user_id, $movie_id, $rating, $comment) {
+function submitReview($user_id, $movie_id, $rating, $comment) {
     $stmt = movieDB()->prepare(
         "INSERT INTO reviews (user_id, movie_id, rating, comment, created_at)
         VALUES (?, ?, ?, ?, UNIX_TIMESTAMP())
@@ -321,7 +321,7 @@ function getReview($movie_id) {
     $stmt->execute();
     $res = $stmt->get_result();
     $reviews = [];
-    
+
     while($row = $res->fetch_assoc()) {
         $reviews[] = $row;
     }
@@ -369,6 +369,7 @@ function requestProcessor($request) {
         case "sync_now_playing":
             datasourceClient()->publish(["type" => "sync_now_playing"]);
             return ["ok" => true];
+        // NEED CASE STMTS FOR REVIEWS 
         default:
             return [
                 "ok" => false,
