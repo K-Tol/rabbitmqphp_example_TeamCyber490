@@ -1,0 +1,86 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.82)), url("../../MidtermE/Theater.jpg") center/cover no-repeat fixed;
+    color: white;
+    min-height: 100vh;
+    margin: 0;
+}
+.top-nav {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    border-bottom: 2px solid red;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 16px 20px;}
+
+.page-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;}
+
+    
+
+.movie-card {
+    background-color: rgba(0, 0, 0, 0.86);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+#title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: red;
+    margin-bottom: 20px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+#poster {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#poster img {
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(255, 43, 43, 0.35);
+    max-width: 200px;
+    display: block;
+    margin: 0 auto;
+}
+
+#date {
+    font-size: 0.95rem;
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+}
+
+#date::before {
+    content: "Released: ";
+    font-weight: 600;
+    color: red;
+}
+
+#overview {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: white;
+    background-color: black;
+    border-left: 4px solid red;
+    padding: 15px 18px;
+    border-radius: 6px;
+}

@@ -1,0 +1,105 @@
+
+body {
+	margin: 0;
+	min-height: 100%;
+	font-family: Verdana, Geneva, sans-serif;
+}
+
+body {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 18px;
+	padding: 52px 24px 24px;
+	box-sizing: border-box;
+	background:
+		linear-gradient(rgba(10, 0, 0, 0.9), rgba(0, 0, 0, 0.94)),
+		url("Theater.jpg") center center / cover no-repeat fixed;
+	color: red;
+}
+
+h1 {
+	margin: 0;
+	font-size: clamp(2.3rem, 4vw, 3.4rem);
+	text-align: center;
+	letter-spacing: 0.02em;
+	font-weight: 700;
+	text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+}
+
+#textResponse {
+	min-height: 16px;
+	font-size: 0.75rem;
+	color: red;
+	text-align: center;
+	text-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
+}
+
+.container {
+	width: min(100%, 280px);
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 16px 14px 14px;
+	border: 1px solid rgba(255, 0, 0, 0.7);
+	border-radius: 8px;
+	background: rgba(0, 0, 0, 0.58);
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+	backdrop-filter: blur(2px);
+}
+
+input {
+	width: 100%;
+	padding: 8px 10px;
+	box-sizing: border-box;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 5px;
+	background: rgba(28, 28, 28, 0.92);
+	color: white;
+	font-size: 0.9rem;
+	outline: none;
+}
+
+input::placeholder {
+	color: rgba(180, 180, 180, 0.72);
+}
+
+input:focus {
+	border-color: rgba(255, 60, 60, 0.85);
+	box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.16);
+}
+
+button {
+	padding: 7px 11px;
+	border: none;
+	border-radius: 4px;
+	background: linear-gradient(180deg, red, red);
+	color: white;
+	font-size: 0.8rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	box-shadow: 0 6px 14px rgba(248, 247, 247, 0.979);
+	text-transform: uppercase;
+}
+
+button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 8px 16px rgba(255, 254, 254, 0.28);
+}
+
+button:active {
+	transform: translateY(0);
+}
+
+@media (max-width: 480px) {
+	body {
+		padding: 32px 18px 18px;
+	}
+
+	.container {
+		width: min(100%, 280px);
+	}
+}
