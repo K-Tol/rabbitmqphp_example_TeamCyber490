@@ -244,10 +244,10 @@ function getFullDetails($movie_id) {
 
 // File up till this point only contains functions for supporting this feature:
 // Ability to browse and search for movies and see a profile page for them
-// OBJ RN: HANDLE WATCH LISTS FEATURE
+// OBJ COMPLETED: HANDLE WATCH LISTS FEATURE
 
-// NEED FUNCTIONS FOR ADDING AND REMOVING DATA TO WATCH LIST
-// ALSO NEED A GET FUNCTION TO RETRIVE THE WATCHLIST IF REQUESTED
+// NEED FUNCTIONS FOR ADDING AND REMOVING DATA TO WATCH LIST (DONE)
+// ALSO NEED A GET FUNCTION TO RETRIVE THE WATCHLIST IF REQUESTED (DONE)
 
 function addToWatch($user_id, $movie_id) {
   $stmt = movieDB()->prepare(
@@ -291,6 +291,21 @@ function getWatchlist($user_id) {
         "movies" => $movies
     ];
 }
+
+// WORK ON FUNCTIONS FOR SUBMITTING AND GETTING REVIEWS
+
+function submutReview($user_id, $movie_id, $rating, $comment) {
+    $stmt = movieDB()->prepare(
+        "INSERT INTO reviews (user_id, movie_id, rating, comment, created_at)
+        VALUES (?, ?, ?, ?, UNIX_TIMESTAMP())
+        ON DUPLICATE KEY UPDATE
+        rating = VALUES(rating),
+        comment = VALUES(comment),
+        created_at = UNIX_TIMESTAMP()"
+    );
+}
+
+
 
 /*
 function for routing the requests that are coming through with their needed functions above
