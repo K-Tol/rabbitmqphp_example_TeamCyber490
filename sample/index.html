@@ -43,7 +43,7 @@
             function MoviePage(response, movieName){
                 var text = JSON.parse(response);
                 if(text.ok === true && text.movies && text.movies.length > 0){
-                    text = JSON.stringify(text.movies[0]);
+                    text = JSON.stringify(text.movies);
                     sessionStorage.setItem('movieDetails', text);
                     window.location.href = "movieInfo.html";
                 }

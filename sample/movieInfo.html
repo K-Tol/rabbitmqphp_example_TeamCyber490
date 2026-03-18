@@ -1,14 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script>
-            infoJSON = sessionStorage.getItem('movieDetails');
-            movieArray = JSON.parse(infoJSON);
-            
-            movieName = movieArray["title"];
-            movieDate = movieArray["release_date"];
-            moviePoster = movieArray["poster_path"];
-            movieSummary = movieArray["overview"];
+        <script>            
         </script>
     </head>
     <body>
@@ -19,11 +12,37 @@
         <p id="date">01/02/2003</p>
         <br>
         <p id="overview">Default text</p>
+
+        <div id="test"></div>
+
         <script>
-            document.getElementById("title").innerHTML = movieName;
-            document.getElementById("poster").innerHTML = `<img src="https://image.tmdb.org/t/p/w200${moviePoster}" alt="${movieName}">`;
-            document.getElementById("date").innerHTML = movieDate;
-            document.getElementById("overview").innerHTML = movieSummary;
+            //takes the search query from the database
+            infoJSON = sessionStorage.getItem('movieDetails');
+
+            //turns back from a string into an object
+            movieArray = JSON.parse(infoJSON);
+
+            //checks to see if the query went through properly
+            console.log("Movie Array:", movieArray);
+
+            testing = document.getElementById("test")
+
+            //string template to insert into webpage with entries
+            for (let i = 0; i < movieArray.length; i++) {
+                movieOptions = 
+                `
+                <div class="movie">
+                <h3>${movieArray[i].title}</h3>
+                <img src="https://image.tmdb.org/t/p/w200${movieArray[i].poster_path}" alt="${movieArray[i]}.title">
+                <p>${movieArray[i].release_date}</p>
+                </div>`;
+                testing.innerHTML += movieOptions; 
+            }
+
+            //document.getElementById("title").innerHTML = movieName;
+            //document.getElementById("poster").innerHTML = `<img src="https://image.tmdb.org/t/p/w200${moviePoster}" alt="${movieName}">`;
+            //document.getElementById("date").innerHTML = movieDate;
+            //document.getElementById("overview").innerHTML = movieSummary;
         </script>
         
     </body>
