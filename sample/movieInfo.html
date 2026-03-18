@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script>            
-        </script>
+        <link rel="stylesheet" href="movieInfo.css">
     </head>
     <body>
-        <h1 id="title">Movie Title</h1>
-        <br>
-        <p id="poster"></p>
-        <br>
-        <p id="date">01/02/2003</p>
-        <br>
-        <p id="overview">Default text</p>
+
+        <label for="options">Choose one of the movies here</label>
+        <select name="options" id="options">
+            
+        </select>
 
         <div id="test"></div>
+
 
         <script>
             //takes the search query from the database
@@ -37,26 +35,32 @@
                 <p>${movieArray[i].release_date}</p>
                 </div>`;
                 testing.innerHTML += movieOptions; 
-                
 
-                //Let's the user click on one of the posters to let them see its info
-            document.getElementById(`moviePoster${i}`).addEventListener("click", function() {
+
+                //Let's the user click on one of the posters to let them see its info (DOESN"T WORK)
+                //document.getElementById(`moviePoster${i}`).addEventListener("click", function() {
+                //    userChoice(i);
+                //})
+                
+            }
+            
+            //does not work, fix later
+            function userChoice(index){
                 document.getElementById("test").innerHTML = "";
 
                 //String template for the selected movie
                 movieSelectedOption = 
                 `
                 <div class="movie">
-                <h3>${movieArray[i].title}</h3>
-                <img id="moviePoster${i}" src="https://image.tmdb.org/t/p/w200${movieArray[i].poster_path}" alt="${movieArray[i]}.title">
-                <p>${movieArray[i].release_date}</p>
-                <p>${movieArray[i].overview}</p>
+                <h3>${movieArray[index].title}</h3>
+                <img id="moviePoster${index}" src="https://image.tmdb.org/t/p/w200${movieArray[index].poster_path}" alt="${movieArray[index]}.title">
+                <p>${movieArray[index].release_date}</p>
+                <p>${movieArray[index].overview}</p>
                 <button type="button" id="addWatchList">Add To Watch List</button>
                 <input type="text" id="review" placeholder="Enter Review Here" required>
                 <button type="button" id="submitReview">Submit Review/Rating</button>
                 </div>`;
                 testing.innerHTML += movieSelectedOption; 
-            })
             }
 
         </script>
