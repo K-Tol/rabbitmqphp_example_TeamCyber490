@@ -1,15 +1,36 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <link rel="stylesheet" href="login.css">
+</head>
+<h1>Welcome to Team Cyber's Site</h1>
+<body>
+<div id="textResponse">
+</div>
+<div class="container">
+
+	<input type="text" id="username" placeholder="Username" required>
+
+	<input type="text" id="password" placeholder="Password" required>
+
+	<br>
+	<button type="button" id="login">Login</button>
+	<button type="button" id="register">Register</button>
+
 <script>
+document.getElementById("login").addEventListener("click", GetLogInfo);
+document.getElementById("register").addEventListener("click", GetRegInfo);
 
-function HandleLoginResponse(response)
-{
-	var text = JSON.parse(response);
-	document.getElementById("textResponse").innerHTML = "response: "+text+"<p>";
+function GetLogInfo(){
+	username = document.getElementById("username").value;
+	password = document.getElementById("password").value;
+	SendLoginRequest(username, password);
+}
 
-	if(text.status == "authorized"){
-		window.location.href = "welcome.html";
-	}
+function GetRegInfo(){
+	username = document.getElementById("username").value;
+	password = document.getElementById("password").value;
+	SendRegisterRequest(username, password);
 }
 
 function SendLoginRequest(username,password)
@@ -44,37 +65,16 @@ function SendRegisterRequest(username,password)
 	request.send("type=register&uname="+username+"&pword="+password);
 }
 
-</script>
+function HandleLoginResponse(response)
+{
+	var text = JSON.parse(response);
+	document.getElementById("textResponse").innerHTML = "response: "+text+"<p>";
 
-<h1>Welcome to Team Cyber's Site</h1>
-<body>
-<div id="textResponse">
-</div>
-<div class="container">
-
-	<input type="text" id="username" placeholder="Username" required>
-
-	<input type="text" id="password" placeholder="Password" required>
-
-	<br>
-	<button type="button" id="login">Login</button>
-	<button type="button" id="register">Register</button>
-
-<script>
-document.getElementById("login").addEventListener("click", GetLogInfo);
-document.getElementById("register").addEventListener("click", GetRegInfo);
-
-function GetLogInfo(){
-	username = document.getElementById("username").value;
-	password = document.getElementById("password").value;
-	SendLoginRequest(username, password);
+	if(text.status == "authorized"){
+		window.location.href = "index.html";
+	}
 }
 
-function GetRegInfo(){
-	username = document.getElementById("username").value;
-	password = document.getElementById("password").value;
-	SendRegisterRequest(username, password);
-}
 
 </script>
 </body>
