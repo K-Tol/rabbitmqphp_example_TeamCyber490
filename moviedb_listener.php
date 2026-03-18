@@ -303,6 +303,10 @@ function submutReview($user_id, $movie_id, $rating, $comment) {
         comment = VALUES(comment),
         created_at = UNIX_TIMESTAMP()"
     );
+
+    $stmt->bind_param("iiis", $user_id, $movie_id, $rating, $comment);
+    $stmt->execute();
+    return ["ok" => true];
 }
 
 
