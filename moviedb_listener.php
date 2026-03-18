@@ -374,7 +374,7 @@ function requestProcessor($request) {
             return submitReview((int)($request["user_id"] ?? 0), (int)($request["movie_id"] ?? 0),
                 (int)($request["rating"] ?? 0), $request["comment"] ?? "");
         case "get_reviews":
-            return getReviews((int)($request["movie_id"] ?? 0));
+            return getReview((int)($request["movie_id"] ?? 0));
         default:
             return [
                 "ok" => false,
