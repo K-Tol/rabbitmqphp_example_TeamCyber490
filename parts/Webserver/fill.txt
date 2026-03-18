@@ -1,3 +1,0 @@
-This is just to fill the folder, does nothing with the actual project
-
-Please delete once you fill the folder with actual files
