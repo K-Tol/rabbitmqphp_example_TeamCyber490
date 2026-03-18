@@ -33,7 +33,10 @@ $hello = "hello";
 
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title>Watch List</title></head>
+<head>
+    <link rel="stylesheet" href="movieInfo.css">
+    <meta charset="utf-8"><title>Watch List</title>
+</head>
 <body>
   <h1>Welcome, <?php echo htmlspecialchars($username); ?>, here's your watchlist:</h1>
     
