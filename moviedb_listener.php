@@ -315,7 +315,20 @@ function getReview($movie_id) {
          FROM reviews
          WHERE movie_id = ?
          ORDER BY created_at DESC"
-    )
+    );
+
+    $stmt->bind_param("i", $movie_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $reviews = [];
+    
+    while($row = $res->fetch_assoc()) {
+        $reviews[] = $row;
+    }
+    return [
+        "ok" => true,
+        "reviews" => $reviews
+    ];
 }
 
 
