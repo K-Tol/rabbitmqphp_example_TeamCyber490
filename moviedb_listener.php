@@ -369,7 +369,12 @@ function requestProcessor($request) {
         case "sync_now_playing":
             datasourceClient()->publish(["type" => "sync_now_playing"]);
             return ["ok" => true];
-        // NEED CASE STMTS FOR REVIEWS 
+        // CASE STMTS FOR REVIEWS 
+        case "submit_review":
+            return submitReview((int)($request["user_id"] ?? 0), (int)($request["movie_id"] ?? 0),
+                (int)($request["rating"] ?? 0), $request["comment"] ?? "");
+        case "get_reviews":
+            return getReviews((int)($request["movie_id"] ?? 0));
         default:
             return [
                 "ok" => false,
