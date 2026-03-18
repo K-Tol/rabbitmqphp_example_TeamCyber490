@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <h1>Welcome to TeamCyber Movie Site</h1>
+
+        <div class="navbar">
+            <a class="default" href="index.html">Home</a>
+            <a href="watch_list.php">Watch List</a>
+            <a href="forum.html">Forum</a>
+            <div class="searchbar_top">
+                <input type="text" id="searchbar" placeholder="Search...">
+                <button type="button" id="search_btn"><i class="fa fa-search"></i></button>
+            </div>
+            <a href="login.html">Login</a>
+        </div>
+        <script>
+            document.getElementById("search_btn").addEventListener("click", GetMovie);
+
+            function GetMovie(){
+                movieName = document.getElementById("searchbar").value;
+                SendMovieRequest(movieName);
+            }
+
+            function SendMovieRequest(movieName){
+                var request = new XMLHttpRequest();
+                request.open("POST","movie.php",true);
+                request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                request.onreadystatechange= function ()
+                {
+                    
+                    if ((this.readyState == 4)&&(this.status == 200))
+                    {
+                        MoviePage(this.responseText, movieName);
+                    }		
+                }
+                request.send("type=search_movies&query="+movieName);
+
+            }
+
+            function MoviePage(response, movieName){
+                var text = JSON.parse(response);
+                if(text.ok === true && text.movies && text.movies.length > 0){
+                    text = JSON.stringify(text.movies);
+                    sessionStorage.setItem('movieDetails', text);
+                    window.location.href = "movieInfo.html";
+                }
+                else{
+                    alert("Either Movie '" + movieName + "' not found or you need to re-search. Please try again");
+                }
+            }
+
+        </script>
+    </body>
+</html>

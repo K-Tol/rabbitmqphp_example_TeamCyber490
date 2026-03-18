@@ -1,0 +1,11 @@
+.navbar {
+    overflow: hidden;
+    background-color: black;
+}
+
+.navbar a{
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+}
