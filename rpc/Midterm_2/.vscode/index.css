@@ -54,7 +54,7 @@ h1 {
 #searchbar {
     width: min(58vw, 320px);
     padding: 9px 11px;
-    border: 1px solid #666;
+    border: 1px solid #1a0d0d;
     border-radius: 7px;
     background-color: #111;
     color: white;

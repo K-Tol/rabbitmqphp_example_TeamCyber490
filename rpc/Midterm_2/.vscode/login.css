@@ -1,130 +1,105 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+
+body {
+	margin: 0;
+	min-height: 100%;
+	font-family: Verdana, Geneva, sans-serif;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    min-height: 100vh;
-    color: white;
-    background: linear-gradient(rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.82)), url("../../MidtermE/Theater.jpg") center/cover no-repeat fixed;
-    padding: 24px;
-    position: relative;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 18px;
+	padding: 52px 24px 24px;
+	box-sizing: border-box;
+	background:
+		linear-gradient(rgba(10, 0, 0, 0.9), rgba(0, 0, 0, 0.94)),
+		url("Theater.jpg") center center / cover no-repeat fixed;
+	color: red;
 }
 
 h1 {
-    color: red;
-    letter-spacing: 1px;
-    text-align: center;
-    font-size: 2rem;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
-    margin-top: 140px;
-    margin-bottom: 16px;
-}
-
-.top-auth-actions {
-    position: fixed;
-    top: 20px;
-    right: 24px;
-    display: flex;
-    gap: 10px;
-    z-index: 1000;
+	margin: 0;
+	font-size: clamp(2.3rem, 4vw, 3.4rem);
+	text-align: center;
+	letter-spacing: 0.02em;
+	font-weight: 700;
+	text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
 }
 
 #textResponse {
-    min-height: 24px;
-    color: white;
-    text-align: center;
-    font-weight: 600;
-    margin-bottom: 16px;
+	min-height: 16px;
+	font-size: 0.75rem;
+	color: red;
+	text-align: center;
+	text-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
 }
 
 .container {
-    width: min(92vw, 420px);
-    background-color: rgba(0, 0, 0, 0.8);
-    border: 1px solid red;
-    border-radius: 12px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
-    margin: 0 auto;
-    display: none;
-}
-
-.container.show {
-    display: flex;
-}
-
-.actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    width: 100%;
+	width: min(100%, 280px);
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 16px 14px 14px;
+	border: 1px solid rgba(255, 0, 0, 0.7);
+	border-radius: 8px;
+	background: rgba(0, 0, 0, 0.58);
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+	backdrop-filter: blur(2px);
 }
 
 input {
-    width: 100%;
-    padding: 11px 12px;
-    border: 1px solid #5a5a5a;
-    border-radius: 8px;
-    background-color: #111111;
-    color: white;
-    font-size: 1rem;
+	width: 100%;
+	padding: 8px 10px;
+	box-sizing: border-box;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 5px;
+	background: rgba(28, 28, 28, 0.92);
+	color: white;
+	font-size: 0.9rem;
+	outline: none;
+}
+
+input::placeholder {
+	color: rgba(180, 180, 180, 0.72);
 }
 
 input:focus {
-    outline: none;
-    border-color: red;
-    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
+	border-color: rgba(255, 60, 60, 0.85);
+	box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.16);
 }
 
 button {
-    padding: 11px 12px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-#openLogin,
-#submitAuth {
-    background-color: red;
-    color: white;
-}
-
-#openRegister {
-    background-color: #1c1c1c;
-    color: white;
-    border: 1px solid red;
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-#formTitle {
-    color: red;
-    font-size: 1.2rem;
-}
-
-.close-btn {
-    background-color: transparent;
-    color: white;
-    border: 1px solid #777;
-    padding: 4px 8px;
-    border-radius: 6px;
-}
-
-#formHint {
-    font-size: 0.9rem;
-    color: #d1d1d1;
+	padding: 7px 11px;
+	border: none;
+	border-radius: 4px;
+	background: linear-gradient(180deg, red, red);
+	color: white;
+	font-size: 0.8rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	box-shadow: 0 6px 14px rgba(248, 247, 247, 0.979);
+	text-transform: uppercase;
 }
 
 button:hover {
-    filter: brightness(1);
+	transform: translateY(-1px);
+	box-shadow: 0 8px 16px rgba(255, 254, 254, 0.28);
+}
+
+button:active {
+	transform: translateY(0);
+}
+
+@media (max-width: 480px) {
+	body {
+		padding: 32px 18px 18px;
+	}
+
+	.container {
+		width: min(100%, 280px);
+	}
 }
