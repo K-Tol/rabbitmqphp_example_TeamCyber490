@@ -309,6 +309,15 @@ function submutReview($user_id, $movie_id, $rating, $comment) {
     return ["ok" => true];
 }
 
+function getReview($movie_id) {
+    $stmt = movieDB()->prepare(
+        "SELECT user_id, rating, comment, created_at
+         FROM reviews
+         WHERE movie_id = ?
+         ORDER BY created_at DESC"
+    )
+}
+
 
 
 /*
