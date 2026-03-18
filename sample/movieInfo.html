@@ -33,16 +33,32 @@
                 `
                 <div class="movie">
                 <h3>${movieArray[i].title}</h3>
-                <img src="https://image.tmdb.org/t/p/w200${movieArray[i].poster_path}" alt="${movieArray[i]}.title">
+                <img id="moviePoster${i}" src="https://image.tmdb.org/t/p/w200${movieArray[i].poster_path}" alt="${movieArray[i]}.title">
                 <p>${movieArray[i].release_date}</p>
                 </div>`;
                 testing.innerHTML += movieOptions; 
+                
+
+                //Let's the user click on one of the posters to let them see its info
+            document.getElementById(`moviePoster${i}`).addEventListener("click", function() {
+                document.getElementById("test").innerHTML = "";
+
+                //String template for the selected movie
+                movieSelectedOption = 
+                `
+                <div class="movie">
+                <h3>${movieArray[i].title}</h3>
+                <img id="moviePoster${i}" src="https://image.tmdb.org/t/p/w200${movieArray[i].poster_path}" alt="${movieArray[i]}.title">
+                <p>${movieArray[i].release_date}</p>
+                <p>${movieArray[i].overview}</p>
+                <button type="button" id="addWatchList">Add To Watch List</button>
+                <input type="text" id="review" placeholder="Enter Review Here" required>
+                <button type="button" id="submitReview">Submit Review/Rating</button>
+                </div>`;
+                testing.innerHTML += movieSelectedOption; 
+            })
             }
 
-            //document.getElementById("title").innerHTML = movieName;
-            //document.getElementById("poster").innerHTML = `<img src="https://image.tmdb.org/t/p/w200${moviePoster}" alt="${movieName}">`;
-            //document.getElementById("date").innerHTML = movieDate;
-            //document.getElementById("overview").innerHTML = movieSummary;
         </script>
         
     </body>
