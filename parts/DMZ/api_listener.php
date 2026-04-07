@@ -3,7 +3,7 @@
 require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
-require_once('login.php.inc');
+require_once('login.php.inc'); // - [ ] needed?
 require_once(__DIR__ . '/vendor/autoload.php');
 require_once(__DIR__ . '/apikey.php');
 
