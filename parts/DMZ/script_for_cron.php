@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
-require_once('path.inc');
-require_once('get_host_info.inc');
-require_once('rabbitMQLib.inc');
+require_once(__DIR__ . '/parts/DMZ/path.inc');
+require_once(__DIR__ . '/parts/DMZ/get_host_info.inc');
+require_once(__DIR__ . '/parts/DMZ/rabbitMQLib.inc');
 
 $client = new rabbitMQClient("datasource.ini","datasourceServer");
 

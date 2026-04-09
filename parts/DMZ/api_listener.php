@@ -18,7 +18,7 @@ function tmdbClient() {
   if ($client !== null) {
     return $client;
   }
-  $client = require_once(__DIR__ . '/setup-client.php');
+  $client = require_once(__DIR__ . '/parts/DMZ/setup-client.php');
   return $client;
 }
 
