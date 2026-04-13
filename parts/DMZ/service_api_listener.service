@@ -1,0 +1,11 @@
+[Unit]
+Description=Service for the DMZ api_listener
+After=network.target
+ 
+[Service]
+ExecStart=/usr/bin/php /home/cyber/git/rabbitmqphp_example_TeamCyber490/parts/DMZ/api_listener.php
+Restart=on-failure
+RestartSec=5
+ 
+[Install]
+WantedBy=multi-user.target
