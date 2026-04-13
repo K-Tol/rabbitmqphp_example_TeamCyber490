@@ -3,9 +3,15 @@ Description=Service for the DMZ api_listener
 After=network.target
  
 [Service]
+Type=simple
 ExecStart=/usr/bin/php /home/cyber/git/rabbitmqphp_example_TeamCyber490/parts/DMZ/api_listener.php
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=api_listener
 Restart=on-failure
 RestartSec=5
- 
+StartLimitInterval=60
+StartLimitBurst=3
+
 [Install]
 WantedBy=multi-user.target
