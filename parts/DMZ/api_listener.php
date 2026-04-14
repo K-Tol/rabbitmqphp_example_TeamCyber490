@@ -1,11 +1,11 @@
 #!/usr/bin/php
 <?php
-require_once(__DIR__ . '/parts/DMZ/path.inc');
-require_once(__DIR__ . '/parts/DMZ/get_host_info.inc');
-require_once(__DIR__ . '/parts/DMZ/rabbitMQLib.inc');
-require_once('login.php.inc'); // - [ ] needed?
-require_once(__DIR__ . '/vendor/autoload.php');
-require_once(__DIR__ . '/parts/DMZ/apikey.php');
+require_once(__DIR__ . '/path.inc');
+require_once(__DIR__ . '/get_host_info.inc');
+require_once(__DIR__ . '/rabbitMQLib.inc');
+//require_once('/login.php.inc'); // - [ ] needed?
+require_once('../../vendor/autoload.php');
+require_once(__DIR__ . '/apikey.php');
 
 use Tmdb\Repository\MovieRepository;
 use Tmdb\Repository\GenreRepository;
@@ -18,7 +18,7 @@ function tmdbClient() {
   if ($client !== null) {
     return $client;
   }
-  $client = require_once(__DIR__ . '/parts/DMZ/setup-client.php');
+  $client = require_once(__DIR__ . '/setup-client.php');
   return $client;
 }
 
