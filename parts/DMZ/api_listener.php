@@ -4,7 +4,7 @@ require_once(__DIR__ . '/path.inc');
 require_once(__DIR__ . '/get_host_info.inc');
 require_once(__DIR__ . '/rabbitMQLib.inc');
 //require_once('/login.php.inc'); // - [ ] needed?
-require_once('../../vendor/autoload.php');
+require_once(__DIR__ . '/../../vendor/autoload.php');
 require_once(__DIR__ . '/apikey.php');
 
 use Tmdb\Repository\MovieRepository;
