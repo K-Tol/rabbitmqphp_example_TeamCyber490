@@ -12,6 +12,7 @@ Restart=on-failure
 RestartSec=5
 StartLimitInterval=60
 StartLimitBurst=3
+ExecStartPre=/bin/sleep 30
 
 [Install]
 WantedBy=multi-user.target
