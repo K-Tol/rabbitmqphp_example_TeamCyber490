@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-<html>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,15 +9,15 @@
     </head>
     <body>
 
-        <label for="options">Choose one of the movies here</label>
-        <select name="options" id="options">
-            
-        </select>
-
-        <div id="test"></div>
-
+        <div class="container ">
+            <div id="selectedMovie"></div>
+            <div id="movieGrid"></div>
+        </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+        </script>
+
+        <script>
             //takes the search query from the database
             infoJSON = sessionStorage.getItem('movieDetails');
 
@@ -28,48 +27,47 @@
             //checks to see if the query went through properly
             console.log("Movie Array:", movieArray);
 
-            testing = document.getElementById("test")
+            movieGrid = document.getElementById("movieGrid");
+            selectedMovie = document.getElementById("selectedMovie");
 
             //string template to insert into webpage with entries
-            for (let i = 0; i < movieArray.length; i++) {
+            movieArray.forEach((movie, index) => {
                 movieOptions = 
                 `
-                <div class="movie">
-                <h3>${movieArray[i].title}</h3>
-                <img id="moviePoster${i}" src="https://image.tmdb.org/t/p/w200${movieArray[i].poster_path}" alt="${movieArray[i]}.title">
-                <p>${movieArray[i].release_date}</p>
+                <div class="card">
+                <img src="https://image.tmdb.org/t/p/w200${movie.poster_path}" class="card-img-top" alt="${movie.title}">
+                <div class="card-body">
+                    <h3 class="card-title">${movie.title}</h3>
+                    <p class="card-text">${movie.release_date}</p>
+                    <button class="btn btn-primary" onclick="userChoice(${index})">Select Movie</button>
+                </div>
                 </div>`;
-                testing.innerHTML += movieOptions; 
-
-
-                //Let's the user click on one of the posters to let them see its info (DOESN"T WORK)
-                //document.getElementById(`moviePoster${i}`).addEventListener("click", function() {
-                //    userChoice(i);
-                //})
-                
-            }
+                movieGrid.innerHTML += movieOptions; 
+            });
             
-            //does not work, fix later
+            //Shows the user's chosen movie with all details necessary
             function userChoice(index){
-                document.getElementById("test").innerHTML = "";
+                //Selects the specifc movie from the array of movies
+                movie = movieArray[index];
 
                 //String template for the selected movie
                 movieSelectedOption = 
                 `
-                <div class="movie">
-                <h3>${movieArray[index].title}</h3>
-                <img id="moviePoster${index}" src="https://image.tmdb.org/t/p/w200${movieArray[index].poster_path}" alt="${movieArray[index]}.title">
-                <p>${movieArray[index].release_date}</p>
-                <p>${movieArray[index].overview}</p>
-                <button type="button" id="addWatchList">Add To Watch List</button>
-                <input type="text" id="review" placeholder="Enter Review Here" required>
-                <button type="button" id="submitReview">Submit Review/Rating</button>
+                <div class="card">
+                <img src="https://image.tmdb.org/t/p/w200${movie.poster_path}" class="card-img-top" alt="${movie.title}">
+                <div class="card-body">
+                    <h3 class="card-title">${movie.title}</h3>
+                    <p class="card-text">${movie.release_date}</p>
+                    <p class="card-text">${movie.overview}</p>
+                    <button type="button" id="addWatchList">Add To Watch List</button>
+                    <input type="text" id="review" placeholder="Enter Review Here" required>
+                    <button type="button" id="submitReview">Submit Review/Rating</button>
+                </div>
                 </div>`;
-                testing.innerHTML += movieSelectedOption; 
+                selectedMovie.innerHTML = movieSelectedOption; 
             }
 
         </script>
         
     </body>
 </html>
-
