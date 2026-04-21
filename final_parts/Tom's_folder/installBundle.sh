@@ -18,6 +18,6 @@ fi
 
 mkdir -p "$targetPath"
 rm -rf "${targetPath:?}/"*
-tar -xf "$bundlePath" -C "$targetPath"
+tar -xf "$bundlePath" -C "$targetPath" --strip-components=1
 
 systemctl restart "$serviceName"
