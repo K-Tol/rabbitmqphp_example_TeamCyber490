@@ -1,0 +1,23 @@
+[Unit]
+Description=TeamCyber SendDelpoy
+After=network.target
+
+[Service]
+Type=Simple
+Environment=
+EnvironmentFile=
+User=www-data
+Group=www-data
+SyslogIdentifier=send_Deploy
+WorkingDirectory=${APP_ROOT}/Structure/deployment/scripts
+Execstart=/usr/bin/php ${APP_ROOT}/Structure/deployment/scripts
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+Wantedby=multi-user.target
