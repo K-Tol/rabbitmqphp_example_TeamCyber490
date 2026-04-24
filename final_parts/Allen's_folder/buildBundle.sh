@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-name="first"
-version="second"
-sourceDir="third"
-deployDir="fourth"
+name="$first"
+version="$second"
+sourceDir="$third"
+deployDir="$fourth"
 
 if [-z "$name"] || [-z "$version"] || [-z "$sourceDir"] || [-z "$deployDir"]; then
     echo "Usage: ./buildBundle.sh <name> <version> <sourceDir> <deployDir>"
