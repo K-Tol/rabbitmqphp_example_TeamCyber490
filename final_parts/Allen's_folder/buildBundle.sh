@@ -6,12 +6,12 @@ version="$second"
 sourceDir="$third"
 deployDir="$fourth"
 
-if [-z "$name"] || [-z "$version"] || [-z "$sourceDir"] || [-z "$deployDir"]; then
+if [ -z "$name" ] || [ -z "$version" ] || [ -z "$sourceDir" ] || [ -z "$deployDir" ]; then
     echo "Usage: ./buildBundle.sh <name> <version> <sourceDir> <deployDir>"
     exit 1
 fi
 
-if [! -d "$sourceDir"]; then
+if [ ! -d "$sourceDir" ]; then
     echo "The source directory is not found: $sourceDir"
     exit 1
 fi
