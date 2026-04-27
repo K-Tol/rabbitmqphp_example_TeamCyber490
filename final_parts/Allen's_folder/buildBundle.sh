@@ -6,6 +6,10 @@ version="$second"
 sourceDir="$third"
 deployDir="$fourth"
 
+#deployment vm details
+deployment_user="it-490"
+deployment_host="100.78.109.70"
+
 if [ -z "$name" ] || [ -z "$version" ] || [ -z "$sourceDir" ] || [ -z "$deployDir" ]; then
     echo "Usage: ./buildBundle.sh <name> <version> <sourceDir> <deployDir>"
     exit 1
@@ -16,16 +20,15 @@ if [ ! -d "$sourceDir" ]; then
     exit 1
 fi
 
-versionDir="$deployDir/$name/$version"
 stagingDir=$(mktemp -d)
 trap 'rm -rf "$stagingDir"' EXIT
 
-mkdir -p "$versionDir"
 mkdir -p "$stagingDir/package"
 cp -r "$sourceDir"/* "$stagingDir/package"/
 
 echo "$version" > "$stagingDir/version.txt"
-echo "new" > "$versionDir/status.txt"
+echo "new" > "$stagingDir/status.txt"
 
-tar -czf "$versionDir/bundle.tar.gz" -C "$stagingDir" .
-echo "Bundle has been created at $versionDir/bundle.tar.gz"
+localBundle="$stagingDir/bundle.tar.gz"
+tar -czf "$localBundle" -C "stagingDir" .
+echo "Bundle created locally. Pushing to deployment VM via SCP..."
