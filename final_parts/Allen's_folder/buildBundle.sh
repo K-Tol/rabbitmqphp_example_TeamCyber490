@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-name="$first"
-version="$second"
-sourceDir="$third"
-deployDir="$fourth"
+name="$1"
+version="$2"
+sourceDir="$3"
+deployDir="$4"
 
 #deployment vm details
 deployment_user="it-490"
@@ -30,7 +30,7 @@ echo "$version" > "$stagingDir/version.txt"
 echo "new" > "$stagingDir/status.txt"
 
 localBundle="$stagingDir/bundle.tar.gz"
-tar -czf "$localBundle" -C "stagingDir" .
+tar -czf "$localBundle" -C "$stagingDir" .
 echo "Bundle created locally. Pushing to deployment VM via SCP..."
 
 versionDir="$deployDir/$name/$version"
