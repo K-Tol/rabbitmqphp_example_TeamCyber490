@@ -1,23 +1,29 @@
 #!/usr/bin/env bash
 set -e
 
-bundlePath="$1"
+remoteBundlePath="$1"
 targetPath="$2"
 serviceName="$3"
 
-if [ "$bundlePath" = "h" ] || [ "$bundlePath" = "-h" ] || [ "$bundlePath" = "help" ] || [ "$bundlePath" = "-help" ]; then
-    echo "./installBundle.sh <bundlePath> <targetPath> <serviceName>"
+if [ "$remoteBundlePath" = "h" ] || [ "$remoteBundlePath" = "-h" ] || [ "$remoteBundlePath" = "help" ] || [ "$remoteBundlePath" = "-help" ]; then
+    echo "./installBundle.sh <remoteBundlePath> <targetPath> <serviceName>"
     exit 0
 fi
 
-if [ -z "$bundlePath" ] || [ -z "$targetPath" ] || [ -z "$serviceName" ]; then
+if [ -z "$remoteBundlePath" ] || [ -z "$targetPath" ] || [ -z "$serviceName" ]; then
     echo "Missing variable"
-    echo "Use: ./installBundle.sh <bundlePath> <targetPath> <serviceName>"
+    echo "Use: ./installBundle.sh <remoteBundlePath> <targetPath> <serviceName>"
     exit 1
 fi
 
+localTmpBundle="/tmp/${remoteBundlePath}"
+
+# change the private ssh key path to the key you generated
+# to connect to deploy
+scp -i /path/to/private/key it-490@100.78.109.70:"${remoteBundlePath}" "$localTmpBundle"
 mkdir -p "$targetPath"
 rm -rf "${targetPath:?}/"*
-tar -xf "$bundlePath" -C "$targetPath" --strip-components=1
+tar -xf "$localTmpBundle" -C "$targetPath" --strip-components=1
 
 systemctl restart "$serviceName"
+rm -f "$localTmpBundle"
