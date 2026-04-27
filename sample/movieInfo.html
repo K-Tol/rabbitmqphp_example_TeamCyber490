@@ -36,6 +36,8 @@
                     window.location.href = "login.html";
             }
 
+            validateUser();
+
             //takes the search query from the database
             infoJSON = sessionStorage.getItem('movieDetails');
 
@@ -66,7 +68,7 @@
             //Shows the user's chosen movie with all details necessary
             function userChoice(index){
                 //Selects the specifc movie from the array of movies
-                movie = movieArray[index];
+                let movie = movieArray[index];
 
                 //String template for the selected movie
                 movieSelectedOption = 
@@ -77,7 +79,7 @@
                     <h3 class="card-title">${movie.title}</h3>
                     <p class="card-text">${movie.release_date}</p>
                     <p class="card-text">${movie.overview}</p>
-                    <button type="button" class="addWatchList" onclick="addWatchList(${index}, $)">Add To Watch List</button>
+                    <button type="button" class="addWatchList" onclick="addWatchList(${index}, '${user_id}')">Add To Watch List</button>
                     <input type="text" id="review" placeholder="Enter Review Here" required>
                     <button type="button" id="submitReview">Submit Review/Rating</button>
                 </div>
@@ -86,12 +88,13 @@
             }
 
 
-            function addWatchList(index, username, user_id){
+            function addWatchList(index, user_id){
                 if(userValidated == false){
-                    window.href.location = "login.html";
+                    window.location.href = "login.html";
                 }
 
-                movie = movieArray[index];
+                let movie = movieArray[index];
+                let movie_id = movie.movie_id
 
                 
                 var request = new XMLHttpRequest();
@@ -102,11 +105,20 @@
                     
                     if ((this.readyState == 4)&&(this.status == 200))
                     {
-                        HandleLoginResponse(this.responseText);
-                    }		
+                        text = JSON.parse(this.responseText);
+
+                        if(text.status == "added"){
+                            alert("Movie Added to watchlist");
+                        }
+                        else{
+                            alert("Movie not added, something went wrong");
+                        }
+	                }
+
+                    }
+                    request.send("type=addToWatchList&user_id="+user_id+"&movie_id="+movie_id);
+		
                 }
-                request.send("type=addToWatchList&username="+username+"&user_id="+user_id+"&movie"+movie);
-            }
 
         </script>
         

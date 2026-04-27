@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="movieInfo.css">
+    <meta charset="utf-8"><title>Watch List</title>
+</head>
+<body>
+  <h1>Welcome, <?php echo htmlspecialchars($username); ?>, here's your watchlist:</h1>
+    
+  <div id="div_watchlist"></div>
+
+  <script>
+    // this is from movieInfo.html
+    //var movieArray = <?php echo json_encode($watchList); ?>;
+    div_watchlist = document.getElementById("div_watchlist");
+
+    for (let i = 0; i < movieArray.length; i++) {
+        movieOptions = 
+        `
+        <div class="movie">
+        <h3>${movieArray[i].title}</h3>
+        <img src="https://image.tmdb.org/t/p/w200${movieArray[i].poster_path}" alt="${movieArray[i].title}">
+        <p>${movieArray[i].release_date}</p>
+        </div>`;
+        div_watchlist.innerHTML += movieOptions;
+    }
+
+  </script>
+
+  <p><a href="/logout.php">Logout</a></p>
+</body>
+</html>

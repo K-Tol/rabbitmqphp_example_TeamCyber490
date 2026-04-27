@@ -5,61 +5,37 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
-$sessionKey = $_COOKIE['session_key'] ?? '';
-if ($sessionKey === '' || strlen($sessionKey) !== 64) {
-  header("Location: /index.html");
-  exit;
+try {
+
+	$client = new rabbitMQClient("movieServer.ini", "movieServer");
+	$request = strtolower(trim($_POST['type'] ?? ""));
+	$user_id = trim($_POST['user_id'] ?? "");
+	$movie_id = (string)($_POST['movie_id'] ?? "");
+
+	if ($request == "" || $user_id == "" || $movie_id == "") {
+		echo json_encode(["ok" => false, "message" => "Missing type, username, or password"]);
+		exit(0);
+	}
+
+	switch ($request) {
+		case "addToWatchList":
+			$response = $client->send_request([
+				"type" => "add_to_watch",
+				"user_id" => $user_id,
+				"movie_id" => $movie_id
+			]);
+			if (!is_array($response) || empty($response["ok"])) {
+				echo json_encode(["ok" => false, "message" => "login failed"]);
+				exit(0);
+			}
+			echo json_encode(["ok" => true, "status" => "added", "message" => "movie added to watchlist"]);
+			exit(0);
+			break;
+		default:
+			echo json_encode(["ok" => false, "status" => "not added", "message" => "movie was not added to watchlist, something went wrong"]);
+			exit(0);
+	}
+} catch (Exception $e) {
+	echo $e->getMessage();
 }
-
-$authClient = new rabbitMQClient("testRabbitMQ.ini","testServer");
-$resp = $authClient->send_request([
-    "type"=>"validate_session","session_key"=>$sessionKey]);
-
-if (!is_array($resp) || empty($resp["ok"])) {
-  header("Location: /index.html");
-  exit;
-}
-
-$username = $resp["username"] ?? "empty username";
-$user_id = $resp["user_id"] ?? "empty user_id";
-
-$movieClient = new rabbitMQClient("movieServer.ini","movieServer");
-$watchListResponse = $movieClient->send_request([
-    "type"=>"get_watchlist", "user_id"=>$user_id]);
-
-$watchList = $watchListResponse["movies"] ?? [];
-$hello = "hello";
 ?>
-
-<!doctype html>
-<html>
-<head>
-    <link rel="stylesheet" href="movieInfo.css">
-    <meta charset="utf-8"><title>Watch List</title>
-</head>
-<body>
-  <h1>Welcome, <?php echo htmlspecialchars($username); ?>, here's your watchlist:</h1>
-    
-  <div id="div_watchlist"></div>
-
-  <script>
-    // this is from movieInfo.html
-    var movieArray = <?php echo json_encode($watchList); ?>;
-    div_watchlist = document.getElementById("div_watchlist");
-
-    for (let i = 0; i < movieArray.length; i++) {
-        movieOptions = 
-        `
-        <div class="movie">
-        <h3>${movieArray[i].title}</h3>
-        <img src="https://image.tmdb.org/t/p/w200${movieArray[i].poster_path}" alt="${movieArray[i].title}">
-        <p>${movieArray[i].release_date}</p>
-        </div>`;
-        div_watchlist.innerHTML += movieOptions;
-    }
-
-  </script>
-
-  <p><a href="/logout.php">Logout</a></p>
-</body>
-</html>
