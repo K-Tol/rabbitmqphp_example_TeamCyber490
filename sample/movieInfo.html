@@ -36,34 +36,41 @@
                     window.location.href = "login.html";
             }
 
-            validateUser();
+            validateUser().then(() => {
+            if(userValidated == true){
+                showMovies(user_id);
+            }
+            })
 
-            //takes the search query from the database
-            infoJSON = sessionStorage.getItem('movieDetails');
 
-            //turns back from a string into an object
-            movieArray = JSON.parse(infoJSON);
+            function showMovies(){
+                //takes the search query from the database
+                infoJSON = sessionStorage.getItem('movieDetails');
 
-            //checks to see if the query went through properly
-            console.log("Movie Array:", movieArray);
+                //turns back from a string into an object
+                movieArray = JSON.parse(infoJSON);
 
-            movieGrid = document.getElementById("movieGrid");
-            selectedMovie = document.getElementById("selectedMovie");
+                //checks to see if the query went through properly
+                console.log("Movie Array:", movieArray);
 
-            //string template to insert into webpage with entries
-            movieArray.forEach((movie, index) => {
-                movieOptions = 
-                `
-                <div class="card">
-                <img src="https://image.tmdb.org/t/p/w200${movie.poster_path}" class="card-img-top" alt="${movie.title}">
-                <div class="card-body">
-                    <h3 class="card-title">${movie.title}</h3>
-                    <p class="card-text">${movie.release_date}</p>
-                    <button class="btn btn-primary" onclick="userChoice(${index})">Select Movie</button>
-                </div>
-                </div>`;
-                movieGrid.innerHTML += movieOptions; 
-            });
+                movieGrid = document.getElementById("movieGrid");
+                selectedMovie = document.getElementById("selectedMovie");
+
+                //string template to insert into webpage with entries
+                movieArray.forEach((movie, index) => {
+                    movieOptions = 
+                    `
+                    <div class="card">
+                    <img src="https://image.tmdb.org/t/p/w200${movie.poster_path}" class="card-img-top" alt="${movie.title}">
+                    <div class="card-body">
+                        <h3 class="card-title">${movie.title}</h3>
+                        <p class="card-text">${movie.release_date}</p>
+                        <button class="btn btn-primary" onclick="userChoice(${index})">Select Movie</button>
+                    </div>
+                    </div>`;
+                    movieGrid.innerHTML += movieOptions; 
+                });
+            }
             
             //Shows the user's chosen movie with all details necessary
             function userChoice(index){

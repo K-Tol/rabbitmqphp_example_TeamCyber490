@@ -31,8 +31,20 @@ try {
 			echo json_encode(["ok" => true, "status" => "added", "message" => "movie added to watchlist"]);
 			exit(0);
 			break;
+		case "getWatchList":
+			$response = $client->send_request([
+				"type" => "get_watchlist",
+				"user_id" => $user_id,
+			]);
+			if (!is_array($response) || empty($response["ok"])) {
+				echo json_encode(["ok" => false, "message" => "login failed"]);
+				exit(0);
+			}
+			echo json_encode(["ok" => true, "status" => "recieved", "message" => "got the user's watchlist"]);
+			exit(0);
+			break;
 		default:
-			echo json_encode(["ok" => false, "status" => "not added", "message" => "movie was not added to watchlist, something went wrong"]);
+			echo json_encode(["ok" => false, "status" => "error", "message" => "something went wrong"]);
 			exit(0);
 	}
 } catch (Exception $e) {
