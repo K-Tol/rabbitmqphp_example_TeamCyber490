@@ -12,35 +12,39 @@ try {
 	$user_id = trim($_POST['user_id'] ?? "");
 	$movie_id = (string)($_POST['movie_id'] ?? "");
 
-	if ($request == "" || $user_id == "" || $movie_id == "") {
-		echo json_encode(["ok" => false, "message" => "Missing type, username, or password"]);
+	if ($request == "" || $user_id == "") {
+		echo json_encode(["ok" => false, "message" => "Missing type, or user_id"]);
 		exit(0);
 	}
 
 	switch ($request) {
-		case "addToWatchList":
+		case "addtowatchlist":
+			if ($movie_id == "") {
+				echo json_encode(["ok" => false, "message" => "Missing movie_id"]);
+				exit(0);
+			}
 			$response = $client->send_request([
 				"type" => "add_to_watch",
 				"user_id" => $user_id,
 				"movie_id" => $movie_id
 			]);
 			if (!is_array($response) || empty($response["ok"])) {
-				echo json_encode(["ok" => false, "message" => "login failed"]);
+				echo json_encode(["ok" => false, "message" => "failed"]);
 				exit(0);
 			}
 			echo json_encode(["ok" => true, "status" => "added", "message" => "movie added to watchlist"]);
 			exit(0);
 			break;
-		case "getWatchList":
+		case "getwatchlist":
 			$response = $client->send_request([
 				"type" => "get_watchlist",
 				"user_id" => $user_id,
 			]);
 			if (!is_array($response) || empty($response["ok"])) {
-				echo json_encode(["ok" => false, "message" => "login failed"]);
+				echo json_encode(["ok" => false, "message" => "failed"]);
 				exit(0);
 			}
-			echo json_encode(["ok" => true, "status" => "recieved", "message" => "got the user's watchlist"]);
+			echo json_encode($response["movies" ?? []]);
 			exit(0);
 			break;
 		default:

@@ -28,7 +28,7 @@
                 response = await fetch('checkLogin.php');
                 result = await response.json();
                 if(result.status == 'authorized'){
-                    userValidated = result.status;
+                    userValidated = true;
                     username = result.username;
                     user_id = result.user_id;
                 }
@@ -101,7 +101,7 @@
                 }
 
                 let movie = movieArray[index];
-                let movie_id = movie.movie_id
+                let movie_id = movie.id
 
                 
                 var request = new XMLHttpRequest();
@@ -123,7 +123,7 @@
 	                }
 
                     }
-                    request.send("type=addToWatchList&user_id="+user_id+"&movie_id="+movie_id);
+                    request.send("type=addtowatchlist&user_id="+user_id+"&movie_id="+movie_id);
 		
                 }
 
