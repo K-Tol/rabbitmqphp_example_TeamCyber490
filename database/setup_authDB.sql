@@ -4,11 +4,11 @@ IF YOU WANT TO RUN THE AUTH DB ON YOUR VM FOR TESTING, MAKE SURE TO EXECUTE THIS
 */
 
 -- making the db
-CREATE DATABASE auth_db;
+CREATE DATABASE IF NOT EXISTS auth_db;
 USE auth_db;
 
 -- making a table to store our users' information
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     pass_hash VARCHAR(255) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE users (
 );
 
 -- making a table to keep track of all the sessions
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
     session_key CHAR(64) PRIMARY KEY,
     user_id INT NOT NULL,
     start_time BIGINT NOT NULL, -- epoch time
