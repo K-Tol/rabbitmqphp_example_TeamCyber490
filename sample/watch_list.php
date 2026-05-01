@@ -35,6 +35,19 @@ try {
 			echo json_encode(["ok" => true, "status" => "added", "message" => "movie added to watchlist"]);
 			exit(0);
 			break;
+		case "removefromwatchlist":
+			$response = $client->send_request([
+				"type" => "remove_from_watch",
+				"user_id" => $user_id,
+				"movie_id" => $movie_id
+			]);
+			if (!is_array($response) || empty($response["ok"])) {
+				echo json_encode(["ok" => false, "message" => "failed"]);
+				exit(0);
+			}
+			echo json_encode(["ok" => true, "status" => "removed", "message" => "movie removed from watchlist"]);
+			exit(0);
+			break;
 		case "getwatchlist":
 			$response = $client->send_request([
 				"type" => "get_watchlist",
@@ -44,7 +57,8 @@ try {
 				echo json_encode(["ok" => false, "message" => "failed"]);
 				exit(0);
 			}
-			echo json_encode($response["movies" ?? []]);
+			$movies = $response['movies'];
+			echo json_encode(["ok" => true, "movies" => $movies, "message" => "Success"]);
 			exit(0);
 			break;
 		default:

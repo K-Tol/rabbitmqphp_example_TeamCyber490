@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="movieInfo.css">
 </head>
 <body>
-  <h1>Welcome, <?php echo htmlspecialchars($username); ?>, here's your watchlist:</h1>
+  <h1>Welcome, <span id="name"></span>, here's your watchlist:</h1>
     
   <div id="div_watchlist"></div>
 
@@ -34,6 +34,7 @@
             userValidated = true;
             username = result.username;
             user_id = result.user_id;
+            document.getElementById("name").innerHTML = username;
         }
         else
             window.location.href = "login.html";
@@ -64,6 +65,7 @@
     function displayWatchlist(response){
 
       text = JSON.parse(response);
+      text = text.movies;
 
       //string template to display user's watchlist
       text.forEach((movie, index) => {
@@ -73,13 +75,44 @@
           <div class="card-body">
               <h3 class="card-title">${movie.title}</h3>
               <p class="card-text">${movie.release_date}</p>
-              <button class="btn btn-primary" onclick="movieDetails(${index})">Show Movie Details</button>
-              <button class="btn btn-primary" onclick="removeWatchList(${index})">Remove From Watchlist</button>            
+              <button class="btn btn-primary" onclick="removeWatchList(${index}, '${user_id}')">Remove From Watchlist</button>            
           </div>
           </div>`;
           div_watchlist.innerHTML += movieOptions; 
       });
     }
+
+    function removeWatchList(index, user_id){
+
+        let movie = text[index];
+        let movie_id = movie.id
+
+        
+        var request = new XMLHttpRequest();
+        request.open("POST","watch_list.php",true);
+        request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        request.onreadystatechange= function ()
+        {
+            
+            if ((this.readyState == 4)&&(this.status == 200))
+            {
+                text = JSON.parse(this.responseText);
+
+                if(text.status == "removed"){
+                    alert("Movie removed from watchlist");
+                    location.reload();
+                }
+                else{
+                    alert("Movie not removed, something went wrong");
+                }
+          }
+
+            }
+            request.send("type=removefromwatchlist&user_id="+user_id+"&movie_id="+movie_id);
+
+        }
+
+
 
   </script>
 
