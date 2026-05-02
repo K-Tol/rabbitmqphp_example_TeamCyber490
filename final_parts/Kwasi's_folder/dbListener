@@ -1,0 +1,92 @@
+#!/usr/bin/php
+<?php
+
+require_once(__DIR__ . '/path.inc');
+require_once(__DIR__ . '/get_host_info.inc');
+require_once(__DIR__ . '/rabbitMQLib.inc');
+
+function getDBConnection() {
+    $host = "localhost";
+    $user = "db_user";
+    $pass = "passwd123";
+    $db   = "deploy";
+
+    $mysqli = new mysqli($host, $user, $pass, $db);
+
+    if ($mysqli->connect_error) {
+        echo "[DB ERROR] Connection failed: " . $mysqli->connect_error . PHP_EOL;
+        return null;
+    }
+
+    return $mysqli;
+}
+
+function processStatus($request) {
+    echo "[INFO] Received message:" . PHP_EOL;
+    print_r($request);
+
+    if (!isset($request['type']) || $request['type'] !== 'status_update') {
+        echo "[INFO] Ignored non-status message" . PHP_EOL;
+        return false;
+    }
+
+    if (!isset($request['app'], $request['version'], $request['status'])) {
+        echo "[ERROR] Missing required fields: app, version, or status" . PHP_EOL;
+        return false;
+    }
+
+    $app     = trim($request['app']);
+    $version = trim($request['version']);
+    $status  = trim($request['status']);
+
+    if ($app === '' || $version === '' || $status === '') {
+        echo "[ERROR] Empty app, version, or status value" . PHP_EOL;
+        return false;
+    }
+
+    $mysqli = getDBConnection();
+
+    if (!$mysqli) {
+        return false;
+    }
+
+    $query = "
+        INSERT INTO deployment_history (app_name, version, status, timestamp)
+        VALUES (?, ?, ?, NOW())
+        ON DUPLICATE KEY UPDATE
+            status = VALUES(status),
+            timestamp = NOW()
+    ";
+
+    $stmt = $mysqli->prepare($query);
+
+    if (!$stmt) {
+        echo "[DB ERROR] Prepare failed: " . $mysqli->error . PHP_EOL;
+        $mysqli->close();
+        return false;
+    }
+
+    $stmt->bind_param("sss", $app, $version, $status);
+
+    if ($stmt->execute()) {
+        echo "[SUCCESS] Logged {$app} v{$version} as: {$status}" . PHP_EOL;
+        $success = true;
+    } else {
+        echo "[DB ERROR] Execute failed: " . $stmt->error . PHP_EOL;
+        $success = false;
+    }
+
+    $stmt->close();
+    $mysqli->close();
+
+    return $success;
+}
+
+$server = new rabbitMQServer(__DIR__ . '/deploy.ini', 'statusServer');
+
+echo "[*] Database Record Keeper waiting for status updates..." . PHP_EOL;
+
+$server->process_requests('processStatus');
+
+exit();
+?>
