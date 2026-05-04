@@ -25,5 +25,9 @@ mkdir -p "$targetPath"
 rm -rf "${targetPath:?}/"*
 tar -xf "$localTmpBundle" -C "$targetPath" --strip-components=1
 
-systemctl restart "$serviceName"
+# change from www-data for environments other than web
+chown -R www-data:www-data "$targetPath"
+
+/usr/bin/systemctl daemon-reload
+/usr/bin/systemctl reload-or-restart "$serviceName"
 rm -f "$localTmpBundle"
