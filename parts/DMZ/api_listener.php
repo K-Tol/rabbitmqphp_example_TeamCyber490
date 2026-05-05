@@ -1,5 +1,8 @@
 #!/usr/bin/php
 <?php
+
+// hello, this is a deploy test
+
 require_once(__DIR__ . '/path.inc');
 require_once(__DIR__ . '/get_host_info.inc');
 require_once(__DIR__ . '/rabbitMQLib.inc');
@@ -20,6 +23,21 @@ function tmdbClient() {
   }
   $client = require_once(__DIR__ . '/setup-client.php');
   return $client;
+}
+
+function distribute_log(string $log) {
+  $ClusterVmName = gethostname();
+  $nameAndLog = "[$ClusterVmName]" . $log;
+
+  //get ini
+  $rabbitClient = new rabbitMQClient();
+  $rabbitClient -> publish([
+    "type" => "cluster_log",
+    "source" => $ClusterVmName,
+    "message" => $log,
+    "timestamp" => time()
+  ]);
+
 }
 
 // base from php-tmdb/api/examples/movies/model/get.php
@@ -110,7 +128,7 @@ function syncGenres() {
   }
 }
 
-function syncSearch($query) {
+function syncSearch(string $query) {
   error_log("syncSearch started for query: $query");
   try {
     $client = tmdbClient();
