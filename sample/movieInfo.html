@@ -87,11 +87,49 @@
                     <p class="card-text">${movie.release_date}</p>
                     <p class="card-text">${movie.overview}</p>
                     <button type="button" class="addWatchList" onclick="addWatchList(${index}, '${user_id}')">Add To Watch List</button>
-                    <input type="text" id="review" placeholder="Enter Review Here" required>
-                    <button type="button" id="submitReview">Submit Review/Rating</button>
+
+                    <div class="rating&review">
+                        <input type="number" id="rating" min="1" max="10" placeholder="1-10" required>
+                        <input type="text" id="review" placeholder="Enter Review Here" required>
+                        <button type="button" class="submitReview" onclick="addReviewRating(${index}, '${user_id}')">Submit Review/Rating</button>
+                    <div>
                 </div>
                 </div>`;
                 selectedMovie.innerHTML = movieSelectedOption; 
+            }
+
+            function addReviewRating(index, user_id){
+                if(userValidated == false){
+                    window.location.href = "login.html";
+                }
+
+                let movie = movieArray[index];
+                let movie_id = movie.id
+                let rating = document.getElementById("rating").value
+                let review = document.getElementById("review").value
+
+                var request = new XMLHttpRequest();
+                request.open("POST","watch_list.php",true);
+                request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                request.onreadystatechange= function ()
+                {
+                    
+                    if ((this.readyState == 4)&&(this.status == 200))
+                    {
+                        text = JSON.parse(this.responseText);
+                        console.log(text);
+
+                        if(text.status == "added"){
+                            alert("Review and Rating submited");
+                        }
+                        else{
+                            alert("Review and Rating not submited, something went wrong");
+                        }
+	                }
+
+                    }
+                    request.send("type=addreview&user_id="+user_id+"&movie_id="+movie_id+"&rating="+rating+"&review="+review);
+                
             }
 
 

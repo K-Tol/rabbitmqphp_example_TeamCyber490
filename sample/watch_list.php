@@ -11,6 +11,8 @@ try {
 	$request = strtolower(trim($_POST['type'] ?? ""));
 	$user_id = trim($_POST['user_id'] ?? "");
 	$movie_id = (string)($_POST['movie_id'] ?? "");
+	$rating = (string)($_POST['rating'] ?? "");
+	$comment = (string)($_POST['review'] ?? "");
 
 	if ($request == "" || $user_id == "") {
 		echo json_encode(["ok" => false, "message" => "Missing type, or user_id"]);
@@ -59,6 +61,21 @@ try {
 			}
 			$movies = $response['movies'];
 			echo json_encode(["ok" => true, "movies" => $movies, "message" => "Success"]);
+			exit(0);
+			break;
+		case "addreview":
+			$response = $client->send_request([
+				"type" => "submit_review",
+				"user_id" => $user_id,
+				"movie_id" => $movie_id,
+				"rating" => $rating,
+				"comment" => $comment
+			]);
+			if (!is_array($response) || empty($response["ok"])) {
+				echo json_encode(["ok" => false, "message" => "failed"]);
+				exit(0);
+			}
+			echo json_encode(["ok" => true, "status" => "added", "message" => "rating and review added"]);
 			exit(0);
 			break;
 		default:
