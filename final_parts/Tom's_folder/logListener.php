@@ -8,15 +8,15 @@ require_once('rabbitMQLib.inc');
 $logFile = "/home/cyber/deploy/app_logs/cluster.log";
 
 function processLogs($log) {
-
+    global $logFile;
 
 }
 
-$server = new rabbitMQServer("testRabbitMQ.ini","testServer");
+$server = new rabbitMQServer("logging.ini","dev_dmz_log");
 
-echo "testRabbitMQServer BEGIN".PHP_EOL;
-$server->process_requests('requestProcessor');
-echo "testRabbitMQServer END".PHP_EOL;
+echo "logListener BEGIN".PHP_EOL;
+$server->process_requests('processLogs');
+echo "logListener END".PHP_EOL;
 exit();
 ?>
 
