@@ -14,8 +14,8 @@ try {
 	$rating = (string)($_POST['rating'] ?? "");
 	$comment = (string)($_POST['review'] ?? "");
 
-	if ($request == "" || $user_id == "") {
-		echo json_encode(["ok" => false, "message" => "Missing type, or user_id"]);
+	if ($request == "") {
+		echo json_encode(["ok" => false, "message" => "Missing type"]);
 		exit(0);
 	}
 
@@ -23,6 +23,10 @@ try {
 		case "addtowatchlist":
 			if ($movie_id == "") {
 				echo json_encode(["ok" => false, "message" => "Missing movie_id"]);
+				exit(0);
+			}
+			if ($user_id == "") {
+				echo json_encode(["ok" => false, "message" => "Missing user_id"]);
 				exit(0);
 			}
 			$response = $client->send_request([
@@ -38,6 +42,14 @@ try {
 			exit(0);
 			break;
 		case "removefromwatchlist":
+			if ($movie_id == "") {
+				echo json_encode(["ok" => false, "message" => "Missing movie_id"]);
+				exit(0);
+			}
+			if ($user_id == "") {
+				echo json_encode(["ok" => false, "message" => "Missing user_id"]);
+				exit(0);
+			}
 			$response = $client->send_request([
 				"type" => "remove_from_watch",
 				"user_id" => $user_id,
@@ -51,6 +63,10 @@ try {
 			exit(0);
 			break;
 		case "getwatchlist":
+			if ($user_id == "") {
+				echo json_encode(["ok" => false, "message" => "Missing user_id"]);
+				exit(0);
+			}
 			$response = $client->send_request([
 				"type" => "get_watchlist",
 				"user_id" => $user_id,
@@ -64,6 +80,10 @@ try {
 			exit(0);
 			break;
 		case "getreviews":
+			if ($movie_id == "") {
+				echo json_encode(["ok" => false, "message" => "Missing movie_id"]);
+				exit(0);
+			}
 			$response = $client->send_request([
 				"type" => "get_reviews",
 				"movie_id" => $movie_id
@@ -72,10 +92,19 @@ try {
 				echo json_encode(["ok" => false, "message" => "failed"]);
 				exit(0);
 			}
+			$reviews = $response['reviews'];
 			echo json_encode(["ok" => true, "reviews" => $reviews, "message" => "Got reviews"]);
 			exit(0);
 			break;
 		case "addreview":
+			if ($movie_id == "") {
+				echo json_encode(["ok" => false, "message" => "Missing movie_id"]);
+				exit(0);
+			}
+			if ($user_id == "") {
+				echo json_encode(["ok" => false, "message" => "Missing user_id"]);
+				exit(0);
+			}
 			$response = $client->send_request([
 				"type" => "submit_review",
 				"user_id" => $user_id,
