@@ -63,6 +63,18 @@ try {
 			echo json_encode(["ok" => true, "movies" => $movies, "message" => "Success"]);
 			exit(0);
 			break;
+		case "getreviews":
+			$response = $client->send_request([
+				"type" => "get_reviews",
+				"movie_id" => $movie_id
+			]);
+			if (!is_array($response) || empty($response["ok"])) {
+				echo json_encode(["ok" => false, "message" => "failed"]);
+				exit(0);
+			}
+			echo json_encode(["ok" => true, "reviews" => $reviews, "message" => "Got reviews"]);
+			exit(0);
+			break;
 		case "addreview":
 			$response = $client->send_request([
 				"type" => "submit_review",

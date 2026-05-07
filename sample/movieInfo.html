@@ -92,10 +92,63 @@
                         <input type="number" id="rating" min="1" max="10" placeholder="1-10" required>
                         <input type="text" id="review" placeholder="Enter Review Here" required>
                         <button type="button" class="submitReview" onclick="addReviewRating(${index}, '${user_id}')">Submit Review/Rating</button>
-                    <div>
+                    </div>
+
+                    <div id="userReviews"></div>
                 </div>
                 </div>`;
-                selectedMovie.innerHTML = movieSelectedOption; 
+                selectedMovie.innerHTML = movieSelectedOption;
+
+                getReviews(index);
+            }
+
+           function getReviews(index){
+
+                let movie = movieArray[index];
+                let movie_id = movie.id
+
+                var request = new XMLHttpRequest();
+                request.open("POST","watch_list.php",true);
+                request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                request.onreadystatechange= function ()
+                {
+                    
+                    if ((this.readyState == 4)&&(this.status == 200))
+                    {
+                        text = JSON.parse(this.responseText);
+
+                        if(text.ok == true){
+                            displayReviews(text.reviews);
+                        }
+                        else{
+                            alert("Something went wrong");
+                        }
+	                }
+
+                    }
+                    request.send("type=getreviews&movie_id="+movie_id);
+                
+            }
+
+            function displayReviews(reviews){
+                userReviews = document.getElementById("userReviews");
+
+
+                reviews.forEach((review) => {
+
+                    date = new Date(review.created_at * 1000).toLocaleDateString("en-US")
+
+                    reviewList =
+                    `
+                    <div class="reviewArea">
+                        <p>User_id ${review.user_id}</p>
+                        <p>Rating ${review.rating}</p>
+                        <p>${review.comment}</p>
+                        <p>Date ${date}</p>
+                    </div>`;
+
+                    userReviews.innerHTML += reviewList;
+                });
             }
 
             function addReviewRating(index, user_id){
