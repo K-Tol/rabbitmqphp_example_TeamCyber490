@@ -1,0 +1,19 @@
+[Unit]
+Description=Service for the Distributed Cluster Log Listener
+After=network.target
+
+[Service]
+# change the users, working environment, and path to logListener for each vm
+User=cyber
+Group=cyber
+
+WorkingDirectory=/home/cyber/deploy/
+ExecStart=/usr/bin/php /home/cyber/deploy/logListener.php
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
