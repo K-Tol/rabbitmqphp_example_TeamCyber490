@@ -7,8 +7,16 @@ require_once('rabbitMQLib.inc');
 // save logs here, change to specific path for each environment
 $logFile = "/home/cyber/deploy/app_logs/cluster.log";
 
-function processLogs($log) {
+function processLogs($logRequest) {
     global $logFile;
+    if ($logRequest["type"] != null && $logRequest["type"] == "cluster_log") {
+        $source = $logRequest["source"];
+        $message = $logRequest["message"];
+        $timestamp = $logRequest["timestamp"];
+        $combinedLog = $timestamp . "From: " . $source . ": " . $message . PHP_EOL;
+        file_put_contents($logFile, $combinedLog, FILE_APPEND);
+        return true;
+    }
 
 }
 
