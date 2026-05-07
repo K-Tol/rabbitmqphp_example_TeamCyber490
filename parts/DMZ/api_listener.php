@@ -1,12 +1,8 @@
 #!/usr/bin/php
 <?php
-
-// hello, this is a deploy test
-
 require_once(__DIR__ . '/path.inc');
 require_once(__DIR__ . '/get_host_info.inc');
 require_once(__DIR__ . '/rabbitMQLib.inc');
-//require_once('/login.php.inc'); // - [ ] needed?
 require_once(__DIR__ . '/../../vendor/autoload.php');
 require_once(__DIR__ . '/apikey.php');
 
@@ -28,21 +24,20 @@ function tmdbClient() {
 function distribute_log(string $log) {
   $ClusterVmName = gethostname();
   $nameAndLog = "[$ClusterVmName]" . $log;
-
-  //get ini
-  $rabbitClient = new rabbitMQClient();
+// change to the correct queue on other environments
+  $rabbitClient = new rabbitMQClient("logging.ini", "qa_dmz_log");
   $rabbitClient -> publish([
     "type" => "cluster_log",
     "source" => $ClusterVmName,
     "message" => $log,
     "timestamp" => time()
   ]);
-
 }
 
 // base from php-tmdb/api/examples/movies/model/get.php
 function syncMovie(int $tmdb_id) {
   error_log("syncMovie started for tmdb_id: $tmdb_id");
+  distribute_log("syncMovie started for tmdb_id: $tmdb_id");
   try {
     $client = tmdbClient();
     $repository = new MovieRepository($client);
@@ -64,6 +59,7 @@ function syncMovie(int $tmdb_id) {
     }
 
     error_log("syncMovie sending store_movie for tmdb_id: $tmdb_id");
+    distribute_log("syncMovie sending store_movie for tmdb_id: $tmdb_id");
     $result ->publish([
       "type" => "store_movie",
       "genre_ids" => $genre_ids,
@@ -83,6 +79,7 @@ function syncMovie(int $tmdb_id) {
       ]
     ]);
     error_log("syncMovie store_movie message published for tmdb_id: $tmdb_id");
+    distribute_log("syncMovie store_movie message published for tmdb_id: $tmdb_id");
     return ["ok" => true];
   }
   catch (TmdbApiException $e) {
@@ -105,9 +102,11 @@ function syncGenres() {
 
     $rClient = new rabbitMQClient("movieServer.ini", "movieServer");
     error_log("number of genres: " . count($genres));
+    distribute_log("number of genres: " . count($genres));
 
     foreach ($genres as $n) {
       error_log("publishing genre: " . $n -> getName());
+      distribute_log("publishing genre: " . $n -> getName());
       $rClient -> publish([
         "type" => "store_genre",
         "tmdb_genre_id" => $n -> getId(),
@@ -130,11 +129,13 @@ function syncGenres() {
 
 function syncSearch(string $query) {
   error_log("syncSearch started for query: $query");
+  distribute_log("syncSearch started for query: $query");
   try {
     $client = tmdbClient();
     $searchRepository = new SearchRepository($client);
     $search_result = $searchRepository -> searchMovie($query, new MovieSearchQuery());
     error_log("syncSearch got results from TMDB");
+    distribute_log("syncSearch got results from TMDB");
 
     foreach ($search_result as $n) {
       $tmdb_id = $n -> getId();
@@ -142,10 +143,13 @@ function syncSearch(string $query) {
         continue;
       }
       error_log("syncSearch syncing tmdb_id: $tmdb_id");
+      distribute_log("syncSearch syncing tmdb_id: $tmdb_id");
       syncMovie($tmdb_id);
       error_log("syncSearch finished syncing tmdb_id: $tmdb_id");
+      distribute_log("syncSearch finished syncing tmdb_id: $tmdb_id");
     }
     error_log("syncSearch complete");
+    distribute_log("syncSearch complete");
     return ["ok" => true];
   }
   catch (TmdbApiException $e) {
@@ -163,12 +167,14 @@ function syncSearch(string $query) {
 function syncPopular() {
 // copied this layout from syncMovie, should've used syncSearch smh
   error_log("syncPopular started");
+  distribute_log("syncPopular started");
   try {
     $client = tmdbClient();
     $repository = new MovieRepository($client);
 
     $popular = $repository -> getPopular();
     error_log("Got popular from tmdb, how many movies?: " . count($popular));
+    distribute_log("Got popular from tmdb, how many movies?: " . count($popular));
 
     foreach ($popular as $x) {
       $tmdb_id = $x -> getId();
@@ -176,11 +182,14 @@ function syncPopular() {
         continue;
       }
       error_log("syncing movie with tmdb_id: $tmdb_id" );
+      distribute_log("syncing movie with tmdb_id: $tmdb_id" );
       syncMovie($tmdb_id);
       error_log("finished syncing movie with tmdb_id: $tmdb_id" );
+      distribute_log("finished syncing movie with tmdb_id: $tmdb_id" );
     }
     
     error_log("syncPopular() finished");
+    distribute_log("syncPopular() finished");
     return ["ok" => true];
   }
   catch (TmdbApiException $e) {
@@ -198,12 +207,14 @@ function syncPopular() {
 function syncNowPlaying() {
 // copied this layout from syncPopular
   error_log("syncNowPlaying started");
+  distribute_log("syncNowPlaying started");
   try {
     $client = tmdbClient();
     $repository = new MovieRepository($client);
 
     $nowPlaying = $repository -> getNowPlaying();
     error_log("Got now playing from tmdb, how many movies?: " . count($nowPlaying));
+    distribute_log("Got now playing from tmdb, how many movies?: " . count($nowPlaying));
 
     foreach ($nowPlaying as $x) {
       $tmdb_id = $x -> getId();
@@ -211,11 +222,14 @@ function syncNowPlaying() {
         continue;
       }
       error_log("syncing movie with tmdb_id: $tmdb_id" );
+      distribute_log("syncing movie with tmdb_id: $tmdb_id" );
       syncMovie($tmdb_id);
       error_log("finished syncing movie with tmdb_id: $tmdb_id" );
+      distribute_log("finished syncing movie with tmdb_id: $tmdb_id" );
     }
     
     error_log("syncNowPlaying() finished");
+    distribute_log("syncNowPlaying() finished");
     return ["ok" => true];
   }
   catch (TmdbApiException $e) {
@@ -257,11 +271,13 @@ function requestProcessor($request) {
 
 
 error_log("Syncing genres on startup");
+distribute_log("Syncing genres on startup");
 $result = syncGenres();
 print_r($result);
 
 $server = new rabbitMQServer("datasource.ini","datasourceServer");
 error_log("API listener is now running");
+distribute_log("API listener is now running");
 $server->process_requests('requestProcessor');
 ?>
 
