@@ -4,8 +4,6 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
-// This is from allen's db_stuff branch, adding getUsername
-
 /* 
 function for connecting to the database locally
 */
