@@ -4,7 +4,7 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 
-
+// This is from allen's db_stuff branch, adding getUsername
 
 /* 
 function for connecting to the database locally
@@ -187,6 +187,34 @@ function doLogout($sessionKey) {
 
 
 /*
+  function to get the username associated with a specific user_id from the db
+  copying from doValidate
+*/
+function getUsername($user_id) {
+  // get the username associated with user_id from the db
+  $stmt = db()->prepare("SELECT id, username FROM users WHERE id = ? LIMIT 1");
+  // checking if our query failed
+  if(!$stmt) {
+    return ["ok" => false];
+  }
+  // inserting user_id into query then executing said query, and getting the result
+  $stmt->bind_param("i", $user_id);
+  $stmt->execute();
+  $result = $stmt->get_result();
+  $row = $result->fetch_assoc();
+  // if a username was found, return id and username
+  if($row) {
+    return [
+      "ok" => true,
+      "user_id" => (int)$row["id"],
+      "username" => $row["username"]
+    ];
+  }
+  // if no username was found
+  return ["ok" => false];
+}
+
+/*
 function for processing requests that are comming in from rabbitMQ 
 */
 function requestProcessor($request)
@@ -225,6 +253,10 @@ function requestProcessor($request)
     case "logout":
       return doLogout(
         $request['session_key'] ?? ""
+      );
+    case "get_username":
+      return getUsername(
+        $request['user_id'] ?? ""
       );
     default:
       return [
