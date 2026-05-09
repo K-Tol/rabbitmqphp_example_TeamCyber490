@@ -19,7 +19,9 @@ try {
             "status" => $status
         ]);
     }
-    echo "3rd argument needs to be: new, passed, or failed";
+    else {
+        echo "3rd argument needs to be: new, passed, or failed";
+    }
 }
 catch (Exception $e) {
     echo $e->getMessage();
