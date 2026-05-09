@@ -26,3 +26,13 @@ CREATE TABLE IF NOT EXISTS sessions (
     INDEX (user_id),
     INDEX (end_time)
 );
+
+-- making a table to track which users follow which other users for follow lists
+CREATE TABLE IF NOT EXISTS follow_list (
+    follower_id INT NOT NULL,
+    following_id INT NOT NULL,
+    time_followed BIGINT NOT NULL,
+    PRIMARY KEY (follower_id, following_id),
+    FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE
+);

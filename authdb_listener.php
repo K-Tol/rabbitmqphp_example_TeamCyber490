@@ -188,7 +188,7 @@ function doLogout($sessionKey) {
   function to get the username associated with a specific user_id from the db
   copying from doValidate
 */
-function getUsername($user_id) {
+function getUsername(int $user_id) {
   // get the username associated with user_id from the db
   $stmt = db()->prepare("SELECT id, username FROM users WHERE id = ? LIMIT 1");
   // checking if our query failed
@@ -210,6 +210,48 @@ function getUsername($user_id) {
   }
   // if no username was found
   return ["ok" => false];
+}
+
+/*
+function to follow a user for follow lists
+*/
+function followUser(int $user_id, int $target_user_id) {
+  try {
+    // query to start check to see if the targeted id exists
+    $stmt = db() -> prepare("SELECT id FROM users WHERE id = ? LIMIT 1");
+    // checking if our query prepare failed
+    if(!$stmt) {
+      return ["ok" => false, "error" => "prepare_query_failed"];
+    }
+    // inserting target_user_id into query, then executing said query, and check if it exists
+    $stmt -> bind_param("i", $target_user_id);
+    $stmt -> execute();
+    if ($stmt -> get_result() -> num_rows === 0) {
+      return ["ok" => false, "error" => "user_not_found"];
+    }
+    // if they exist, insert both variables for new entry, execute query
+    $stmt2 = db() -> prepare(
+      "INSERT INTO follow_list (follower_id, following_id, time_followed)
+      VALUES (?, ?, UNIX_TIMESTAMP())"
+    );
+    if (!$stmt2) {
+      return ["ok" => false, "error" => "prepare_query_failed"];
+    }
+    $stmt2 -> bind_param("ii", $user_id, $target_user_id);
+    $stmt2 -> execute();
+  }
+  catch (Throwable $e) {
+    return ["ok" => false, "error" => "something_failed"];
+  }
+  return ["ok" => true];
+}
+
+function getFollowing() {
+
+}
+
+function getFollowers() {
+
 }
 
 /*
@@ -256,6 +298,15 @@ function requestProcessor($request)
       return getUsername(
         $request['user_id'] ?? ""
       );
+      case "follow_user":
+        return doFollowUser(
+          $request['user_id'] ?? 0,
+          $request['target_user_id'] ?? 0
+        );
+      case "get_following":
+        return;
+      case "get_followers":
+        return;
     default:
       return [
         "ok" => false,
