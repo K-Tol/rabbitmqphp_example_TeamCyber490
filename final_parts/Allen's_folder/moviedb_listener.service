@@ -1,0 +1,12 @@
+[Unit]
+Description=movie listener
+After=network.target rabbitmq-server.service mysql.service
+
+[Service]
+ExecStart=/usr/bin/php /home/allen/TeamCyber/rabbitmqphp_example_TeamCyber490/moviedb_listener.php
+WorkingDirectory=/home/allen/TeamCyber/rabbitmqphp_example_TeamCyber490
+Restart=always
+User=allen
+
+[Install]
+WantedBy=multi-user.target
