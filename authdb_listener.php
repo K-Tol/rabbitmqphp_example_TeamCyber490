@@ -189,27 +189,32 @@ function doLogout($sessionKey) {
   copying from doValidate
 */
 function getUsername(int $user_id) {
-  // get the username associated with user_id from the db
-  $stmt = db()->prepare("SELECT id, username FROM users WHERE id = ? LIMIT 1");
-  // checking if our query failed
-  if(!$stmt) {
+  try {
+    // get the username associated with user_id from the db
+    $stmt = db()->prepare("SELECT id, username FROM users WHERE id = ? LIMIT 1");
+    // checking if our query failed
+    if(!$stmt) {
+      return ["ok" => false];
+    }
+    // inserting user_id into query then executing said query, and getting the result
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    // if a username was found, return id and username
+    if($row) {
+      return [
+        "ok" => true,
+        "user_id" => (int)$row["id"],
+        "username" => $row["username"]
+      ];
+    }
+    // if no username was found
     return ["ok" => false];
+      }
+  catch (Throwable $e) {
+    return ["ok" => false, "error" => "something_failed"];
   }
-  // inserting user_id into query then executing said query, and getting the result
-  $stmt->bind_param("i", $user_id);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  $row = $result->fetch_assoc();
-  // if a username was found, return id and username
-  if($row) {
-    return [
-      "ok" => true,
-      "user_id" => (int)$row["id"],
-      "username" => $row["username"]
-    ];
-  }
-  // if no username was found
-  return ["ok" => false];
 }
 
 /*
@@ -246,42 +251,63 @@ function followUser(int $user_id, int $target_user_id) {
   return ["ok" => true];
 }
 
+/*
+function for unfollowing a user
+*/
 function unfollowUser(int $user_id, int $target_user_id) {
-  
-  // checking if our query prepare failed
-  if(!$stmt) {
-    return ["ok" => false, "error" => "prepare_query_failed"];
+  try {
+    // query will delete the row where user_id matches follower_id
+    $stmt = db() -> prepare(
+      "DELETE FROM follow_list WHERE follower_id = ? AND following_id = ?"
+    );
+    // checking if our query prepare failed
+    if(!$stmt) {
+      return ["ok" => false, "error" => "prepare_query_failed"];
+    }
+    // inserting the two variables from the backend php into the query and executing
+    $stmt -> bind_param("ii", $user_id, $target_user_id);
+    $stmt -> execute();
+    return ["ok" => true];
   }
-
+  catch (Throwable $e) {
+    return ["ok" => false, "error" => "something_failed"];
+  }
 }
 
 /*
 function for getting an array of users following a user_id
 */
 function getFollowing(int $user_id) {
-  // query will get associated id and username from users to follow_list
-  // from a specific follower_id, and sort by most recent
-  $stmt = db() -> prepare(
-    "SELECT users.id, users.username
-     FROM follow_list
-     JOIN users ON follow_list.following_id = users.id
-     WHERE follow_list.follower_id = ?
-     ORDER BY follow_list.time_followed DESC"
-  );
-  // checking if our query prepare failed
-  if(!$stmt) {
-    return ["ok" => false, "error" => "prepare_query_failed"];
+  try {
+    // query will get associated id and username from users to follow_list
+    // from a specific follower_id, and sort by most recent
+    $stmt = db() -> prepare(
+      "SELECT users.id, users.username
+      FROM follow_list
+      JOIN users ON follow_list.following_id = users.id
+      WHERE follow_list.follower_id = ?
+      ORDER BY follow_list.time_followed DESC"
+    );
+    // checking if our query prepare failed
+    if(!$stmt) {
+      return ["ok" => false, "error" => "prepare_query_failed"];
+    }
+    // insert user_id into query and execute into a var
+    $stmt -> bind_param("i", $user_id);
+    $stmt -> execute();
+    $queryResult = $stmt -> get_result();
+    // get all rows into a var to send to webserver backend php
+    $result = $queryResult -> fetch_all(MYSQLI_ASSOC);
+    return ["ok" => true, "users" => $result];
   }
-  // insert user_id into query and execute into a var
-  $stmt -> bind_param("i", $user_id);
-  $stmt -> execute();
-  $queryResult = $stmt -> get_result();
-  // get all rows into a var to send to webserver backend php
-  $result = $queryResult -> fetch_all(MYSQLI_ASSOC);
-  return ["ok" => true, "users" => $result];
-
+  catch (Throwable $e) {
+    return ["ok" => false, "error" => "something_failed"];
+  }
 }
 
+/*
+function for getting an array of followers of a user_id
+*/
 function getFollowers(int $user_id) {
   // copied from getFollowing
   // query will get associated id and username from users to follow_list
@@ -348,7 +374,7 @@ function requestProcessor($request)
       );
     case "get_username":
       return getUsername(
-        $request['user_id'] ?? ""
+        $request['user_id'] ?? 0
       );
       case "follow_user":
         return followUser(
@@ -365,7 +391,7 @@ function requestProcessor($request)
         $request['user_id'] ?? 0
         );
       case "get_followers":
-        return getFollowing(
+        return getFollowers(
         $request['user_id'] ?? 0
         );
     default:
