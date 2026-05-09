@@ -246,8 +246,27 @@ function followUser(int $user_id, int $target_user_id) {
   return ["ok" => true];
 }
 
-function getFollowing() {
+function unfollowUser(int $user_id, int $target_user_id) {
 
+}
+
+/*
+function for getting an array of users following a user_id
+*/
+function getFollowing(int $user_id) {
+  // query will get associated id and username from users to follow_list
+  // from a specific follower_id, and sort by most recent
+  $stmt = db() -> prepare(
+    "SELECT users.id, users.username
+     FROM follow_list
+     JOIN users ON follow_list.following_id = users.id
+     WHERE follow_list.follower_id = ?
+     ORDER BY follow_list.time_followed DESC"
+  );
+  // checking if our query prepare failed
+  if(!$stmt) {
+    return ["ok" => false, "error" => "prepare_query_failed"];
+  }
 }
 
 function getFollowers() {
@@ -299,12 +318,19 @@ function requestProcessor($request)
         $request['user_id'] ?? ""
       );
       case "follow_user":
-        return doFollowUser(
+        return followUser(
+          $request['user_id'] ?? 0,
+          $request['target_user_id'] ?? 0
+        );
+      case "unfollow_user":
+        return unfollowUser(
           $request['user_id'] ?? 0,
           $request['target_user_id'] ?? 0
         );
       case "get_following":
-        return;
+        return getFollowing(
+        $request['user_id'] ?? 0
+        );
       case "get_followers":
         return;
     default:
