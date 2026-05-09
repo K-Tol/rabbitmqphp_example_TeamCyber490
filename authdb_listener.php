@@ -267,6 +267,14 @@ function getFollowing(int $user_id) {
   if(!$stmt) {
     return ["ok" => false, "error" => "prepare_query_failed"];
   }
+  // insert user_id into query and execute into a var
+  $stmt -> bind_param("i", $user_id);
+  $stmt -> execute();
+  $queryResult = $stmt -> get_result();
+  // get all rows into a var to send to webserver backend php
+  $result = $queryResult -> fetch_all(MYSQLI_ASSOC);
+  return ["ok" => true, "users" => $result];
+
 }
 
 function getFollowers() {
