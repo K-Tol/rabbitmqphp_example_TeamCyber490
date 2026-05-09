@@ -247,6 +247,11 @@ function followUser(int $user_id, int $target_user_id) {
 }
 
 function unfollowUser(int $user_id, int $target_user_id) {
+  
+  // checking if our query prepare failed
+  if(!$stmt) {
+    return ["ok" => false, "error" => "prepare_query_failed"];
+  }
 
 }
 
@@ -277,8 +282,28 @@ function getFollowing(int $user_id) {
 
 }
 
-function getFollowers() {
-
+function getFollowers(int $user_id) {
+  // copied from getFollowing
+  // query will get associated id and username from users to follow_list
+  // from a specific following_id, and sort by most recent
+  $stmt = db() -> prepare(
+    "SELECT users.id, users.username
+     FROM follow_list
+     JOIN users ON follow_list.follower_id = users.id
+     WHERE follow_list.following_id = ?
+     ORDER BY follow_list.time_followed DESC"
+  );
+  // checking if our query prepare failed
+  if(!$stmt) {
+    return ["ok" => false, "error" => "prepare_query_failed"];
+  }
+  // insert user_id into query and execute into a var
+  $stmt -> bind_param("i", $user_id);
+  $stmt -> execute();
+  $queryResult = $stmt -> get_result();
+  // get all rows into a var to send to webserver backend php
+  $result = $queryResult -> fetch_all(MYSQLI_ASSOC);
+  return ["ok" => true, "users" => $result];
 }
 
 /*
@@ -340,7 +365,9 @@ function requestProcessor($request)
         $request['user_id'] ?? 0
         );
       case "get_followers":
-        return;
+        return getFollowing(
+        $request['user_id'] ?? 0
+        );
     default:
       return [
         "ok" => false,
