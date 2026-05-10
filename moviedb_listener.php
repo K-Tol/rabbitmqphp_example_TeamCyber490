@@ -17,6 +17,7 @@ function movieDB() {
 
     $connect = new mysqli('127.0.0.1', 'db_user', 'passwd123', 'movie_db');
     if($connect->connect_errno) {
+        broadcastLog("FATAL ERROR: movie_db connection failed - " . $connect->connect_error);
         die("movie_db connection failed: " . $connect->connect_error . PHP_EOL);
     }
     return $connect;
@@ -84,6 +85,7 @@ function storeMovie($movie, $genre_ids = []) {
     // this block will do the job of actually extracting movie data from the $movie array
     $tmdb_id = (int)($movie["tmdb_id"] ?? 0);
     $title = $movie["title"] ?? "";
+    broadcastLog("Storing/Updating movie '$title' (TMDB ID: $tmdb_id)");
     $overview = $movie["overview"] ?? null;
     $release_date = $movie["release_date"] ?? null;
     $runtime = isset($movie["runtime"]) ? (int)$movie["runtime"] : null;
@@ -108,6 +110,7 @@ function storeMovie($movie, $genre_ids = []) {
     // getting back results and then checking if the movie exists
     $row = $stmt->get_result()->fetch_assoc();
     if(!$row) {
+        broadcastLog("DB ERROR: Failed to retrieve internal ID after storing movie '$title'");
         return [
             "ok" => false,
             "error" => "store_failed"
@@ -161,6 +164,7 @@ function for matching movies to search query
 */
 function localMovSearch($query) {
     // query for search movies inside our movies table
+    broadcastLog("DB: executing local movie search for 'query'");
     $stmt = movieDB()->prepare(
         "SELECT id, tmdb_id, title, overview, release_date, poster_path
          FROM movies
@@ -190,6 +194,7 @@ function searchMovies($query) {
     $movies = localMovSearch($query);
     // if no movies were found, sned a rabbitMQ request to api handler on the dmz 
     if(count($movies) === 0) {
+        broadcastLog("DB: Local search empty. Requesting DMZ sync for '$query'");
         datasourceClient()->publish(["type" => "sync_search", "query" => $query]);
         return ["ok" => true, "movies" => []];
     }
@@ -213,6 +218,7 @@ function getFullDetails($movie_id) {
     $movie = $stmt->get_result()->fetch_assoc();
     // checks if movie even exists in the db
     if(!$movie) {
+        broadcastLog("DB WARNING: Requested full details for non-existent movie ID: $movie_id");
         return [
             "ok" => false,
             "error" => "movie_not_found"
@@ -250,6 +256,7 @@ function getFullDetails($movie_id) {
 // ALSO NEED A GET FUNCTION TO RETRIVE THE WATCHLIST IF REQUESTED (DONE)
 
 function addToWatch($user_id, $movie_id) {
+    broadcastLog("DB: user ID $user_id added movie ID $movie_id to watchlist");
   $stmt = movieDB()->prepare(
     "INSERT IGNORE INTO watchlist (user_id, movie_id, date_added)
      VALUES (?, ?, UNIX_TIMESTAMP())"
@@ -260,6 +267,7 @@ function addToWatch($user_id, $movie_id) {
 }
 
 function removeFromWatch($user_id, $movie_id) {
+    broadcastLog("DB: user ID $user_id removed movie ID $movie_id from watchlist");
     $stmt = movieDB()->prepare(
         "DELETE FROM watchlist
          WHERE user_id = ? AND movie_id = ?"
@@ -295,6 +303,7 @@ function getWatchlist($user_id) {
 // WORK ON FUNCTIONS FOR SUBMITTING AND GETTING REVIEWS
 
 function submitReview($user_id, $movie_id, $rating, $comment) {
+    broadcastLog("DB: user ID $user_id submitted review for movie ID $movie_id (Rating: $rating)");
     $stmt = movieDB()->prepare(
         "INSERT INTO reviews (user_id, movie_id, rating, comment, created_at)
         VALUES (?, ?, ?, ?, UNIX_TIMESTAMP())
@@ -367,6 +376,7 @@ function requestProcessor($request) {
     echo "received request".PHP_EOL;
     var_dump($request);
     if(!isset($request['type'])) {
+        broadcastLog("DB ERROR: received movie request with missing type");
         return [
             "ok" => false,
             "error" => "missing_type"
@@ -391,9 +401,11 @@ function requestProcessor($request) {
             return getWatchlist((int)($request["user_id"] ?? 0));
         // ADDING CASE STMTS FOR CRON
         case "sync_popular":
+            broadcastLog("DB: Requesting DMZ to sync popular movies");
             datasourceClient()->publish(["type" => "sync_popular"]);
             return ["ok" => true];
         case "sync_now_playing":
+            broadcastLog("DB: Requesting DMZ to sync now playing mobies")
             datasourceClient()->publish(["type" => "sync_now_playing"]);
             return ["ok" => true];
         // CASE STMTS FOR REVIEWS 
@@ -403,6 +415,7 @@ function requestProcessor($request) {
         case "get_reviews":
             return getReview((int)($request["movie_id"] ?? 0));
         default:
+            broadcastLog("DB WARNING: Unknown request type received: " . $request["type"]);
             return [
                 "ok" => false,
                 "error" => "unknown_request"
@@ -412,5 +425,6 @@ function requestProcessor($request) {
 
 $server = new rabbitMQServer("movieServer.ini", "movieServer");
 echo "Movie database listener is now running..." . PHP_EOL;
+broadcastLog("Movie database listener started");
 $server->process_requests('requestProcessor');
 ?>
