@@ -313,6 +313,54 @@ function unfollowUser(string $session_key, int $user_id, int $target_user_id) {
 }
 
 /*
+function for getting the users that are following the current user
+took boilplate followUser and getFollowing
+*/
+function followingUserCheck(string $session_key, int $user_id, int $target_user_id) {
+  try {
+    // validate session or fail
+    $validation = doValidate($session_key);
+    if ($validation["ok"] == false) {
+      distribute_log("invalid_session");
+      return [
+        "ok" => false,
+        "error" => "invalid_session"
+      ];
+    }
+    // query will check if there is following happening between follower_id
+    // and following_id
+    $stmt = db() -> prepare(
+      "SELECT 1 FROM follow_list WHERE follower_id = ? AND following_id = ? LIMIT 1"
+    );
+    // checking if our query prepare failed
+    if(!$stmt) {
+      distribute_log("prepare_query_failed");
+      return ["ok" => false, "error" => "prepare_query_failed"];
+    }
+    // inserting the two variables from the backend php into the query and executing
+    $stmt -> bind_param("ii", $user_id, $target_user_id);
+    $stmt -> execute();
+    $result = $stmt -> get_result();
+    // if there was more than 0 rows from that query they were following
+    // and send true, if not send false
+    if ($result -> num_rows > 0) {
+      return [
+        "ok" => true,
+        "is_following" => true
+      ];
+    }
+    return [
+      "ok" => true,
+      "is_following" => false
+    ];
+  }
+  catch (Throwable $e) {
+    distribute_log("something_failed");
+    return ["ok" => false, "error" => "something_failed"];
+  }
+}
+
+/*
 function for getting an array of users following a user_id
 */
 function getFollowing(string $session_key, int $user_id) {
@@ -468,6 +516,12 @@ function requestProcessor($request)
         );
       case "unfollow_user":
         return unfollowUser(
+          $request['session_key'] ?? "",
+          $request['user_id'] ?? 0,
+          $request['target_user_id'] ?? 0
+        );
+      case "is_following_user":
+        return followingUserCheck(
           $request['session_key'] ?? "",
           $request['user_id'] ?? 0,
           $request['target_user_id'] ?? 0
