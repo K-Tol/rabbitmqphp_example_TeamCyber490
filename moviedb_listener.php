@@ -331,7 +331,34 @@ function getReview($movie_id) {
     ];
 }
 
+// adding functions for logging
+function getLoggerClient() {
+    static $loggerClient = null;
+    if($loggerClient !== null) {
+        return $loggerClient;
+    }
 
+    $loggerClient = new rabbitMQClient("logging.ini", "qa_db_log");
+    return $loggerClient;
+}
+
+function broadcastLog($message) {
+    $source_host = gethostname();
+    $formatted_message = "[$source_host] " . $message;
+    $error_log($formatted_message);
+
+    try {
+        $client = getLoggerClient();
+        $client->publish([
+            "type" => "cluster_log",
+            "source" => $source_host,
+            "message" => $message,
+            "timestamp" => time()
+        ]);
+    } catch (Exception $e) {
+        error_log("Failed to broadcast log to cluster: " . $e->getMessage());
+    }
+}
 
 /*
 function for routing the requests that are coming through with their needed functions above
