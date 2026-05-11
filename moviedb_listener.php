@@ -405,7 +405,7 @@ function requestProcessor($request) {
             datasourceClient()->publish(["type" => "sync_popular"]);
             return ["ok" => true];
         case "sync_now_playing":
-            broadcastLog("DB: Requesting DMZ to sync now playing mobies")
+            broadcastLog("DB: Requesting DMZ to sync now playing mobies");
             datasourceClient()->publish(["type" => "sync_now_playing"]);
             return ["ok" => true];
         // CASE STMTS FOR REVIEWS 
