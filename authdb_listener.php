@@ -226,7 +226,40 @@ function getUsername(int $user_id) {
     return ["ok" => false];
       }
   catch (Throwable $e) {
-    distribute_log("something_failed");
+    return ["ok" => false, "error" => "something_failed"];
+  }
+}
+
+/*
+function to the user_id associated with a specific username from the db
+copying from getUsername
+*/
+function getID(string $username) {
+  try {
+    // get the user_id associated with username from the db
+    $stmt = db()->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
+    // checking if our query failed
+    if(!$stmt) {
+      distribute_log("prepare_query_failed");
+      return ["ok" => false, "error" => "prepare_query_failed"];
+    }
+    // inserting username into query, executing query, and getting the result
+    $stmt -> bind_param("s", $username);
+    $stmt -> execute();
+    $result = $stmt -> get_result();
+    $row = $result -> fetch_assoc();
+    // if a user_id was found, return id
+    if($row) {
+      return [
+        "ok" => true,
+        "user_id" => (int)$row["id"]
+      ];
+    }
+    // if no user_id was found
+    distribute_log("no user_id was found");
+    return ["ok" => false, "error" => "no user_id was found"];
+      }
+  catch (Throwable $e) {
     return ["ok" => false, "error" => "something_failed"];
   }
 }
@@ -272,7 +305,6 @@ function followUser(string $session_key, int $user_id, int $target_user_id) {
     $stmt2 -> execute();
   }
   catch (Throwable $e) {
-    distribute_log("something_failed");
     return ["ok" => false, "error" => "something_failed"];
   }
   return ["ok" => true];
@@ -307,7 +339,6 @@ function unfollowUser(string $session_key, int $user_id, int $target_user_id) {
     return ["ok" => true];
   }
   catch (Throwable $e) {
-    distribute_log("something_failed");
     return ["ok" => false, "error" => "something_failed"];
   }
 }
@@ -355,7 +386,6 @@ function followingUserCheck(string $session_key, int $user_id, int $target_user_
     ];
   }
   catch (Throwable $e) {
-    distribute_log("something_failed");
     return ["ok" => false, "error" => "something_failed"];
   }
 }
@@ -397,7 +427,6 @@ function getFollowing(string $session_key, int $user_id) {
     return ["ok" => true, "users" => $result];
   }
   catch (Throwable $e) {
-    distribute_log("something_failed");
     return ["ok" => false, "error" => "something_failed"];
   }
 }
@@ -440,7 +469,6 @@ function getFollowers(string $session_key, int $user_id) {
     return ["ok" => true, "users" => $result];
   }
   catch (Throwable $e) {
-    distribute_log("something_failed");
     return ["ok" => false, "error" => "something_failed"];
   }
 }
@@ -450,16 +478,20 @@ function getFollowers(string $session_key, int $user_id) {
 function to send logs to other vms, from api_listener
 */
 function distribute_log(string $log) {
-  $ClusterVmName = gethostname();
-  $nameAndLog = "[$ClusterVmName]" . $log;
-// change to the correct queue on other environments
-  $rabbitClient = new rabbitMQClient("logging.ini", "qa_db_log");
-  $rabbitClient -> publish([
-    "type" => "cluster_log",
-    "source" => $ClusterVmName,
-    "message" => $log,
-    "timestamp" => time()
-  ]);
+  try {
+    $ClusterVmName = gethostname();
+    // change to the correct queue on other environments
+    $rabbitClient = new rabbitMQClient("logging.ini", "qa_db_log");
+    $rabbitClient -> publish([
+      "type" => "cluster_log",
+      "source" => $ClusterVmName,
+      "message" => $log,
+      "timestamp" => time()
+    ]);
+  }
+  catch (Throwable $e) {
+    return ["ok" => false, "error" => "something_failed"];
+  }
 }
 
 /*
@@ -508,34 +540,38 @@ function requestProcessor($request)
       return getUsername(
         $request['user_id'] ?? 0
       );
-      case "follow_user":
-        return followUser(
-          $request['session_key'] ?? "",
-          $request['user_id'] ?? 0,
-          $request['target_user_id'] ?? 0
-        );
-      case "unfollow_user":
-        return unfollowUser(
-          $request['session_key'] ?? "",
-          $request['user_id'] ?? 0,
-          $request['target_user_id'] ?? 0
-        );
-      case "is_following_user":
-        return followingUserCheck(
-          $request['session_key'] ?? "",
-          $request['user_id'] ?? 0,
-          $request['target_user_id'] ?? 0
-        );
-      case "get_following":
-        return getFollowing(
+    case "get_id":
+      return getID(
+        $request['username'] ?? ""
+      );
+    case "follow_user":
+      return followUser(
+        $request['session_key'] ?? "",
+        $request['user_id'] ?? 0,
+        $request['target_user_id'] ?? 0
+      );
+    case "unfollow_user":
+      return unfollowUser(
+        $request['session_key'] ?? "",
+        $request['user_id'] ?? 0,
+        $request['target_user_id'] ?? 0
+      );
+    case "is_following_user":
+      return followingUserCheck(
+        $request['session_key'] ?? "",
+        $request['user_id'] ?? 0,
+        $request['target_user_id'] ?? 0
+      );
+    case "get_following":
+      return getFollowing(
+      $request['session_key'] ?? "",
+      $request['user_id'] ?? 0
+      );
+    case "get_followers":
+      return getFollowers(
         $request['session_key'] ?? "",
         $request['user_id'] ?? 0
-        );
-      case "get_followers":
-        return getFollowers(
-          $request['session_key'] ?? "",
-          $request['user_id'] ?? 0
-        );
+      );
     default:
       distribute_log("unsupported_type");
       return [
