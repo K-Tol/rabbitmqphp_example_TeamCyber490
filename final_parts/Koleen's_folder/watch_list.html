@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="movieInfo.css">
+        <link rel="stylesheet" href="index.css">
+
+</head>
+<body>
+  <h1>Welcome, <span id="name"></span>, here's your watchlist:</h1>
+
+  <div class="navbar">
+    <a class="default" href="index.html">Home</a>
+    <a href="watch_list.html">Watch List</a>
+    <a href="forum.html">Forum</a>
+    <a href="profile.html">Profile</a>
+  </div>
+    
+  <div id="div_watchlist"></div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+  </script>
+
+  <script>
+
+    userValidated = false;
+    username = "";
+    user_id = "";
+
+    watchList = document.getElementById("div_watchlist");
+    text = "";
+
+
+    //function to check if user is logged in
+    async function validateUser(){
+        response = await fetch('checkLogin.php');
+        result = await response.json();
+        if(result.status == 'authorized'){
+            userValidated = true;
+            username = result.username;
+            user_id = result.user_id;
+            document.getElementById("name").innerHTML = username;
+        }
+        else
+            window.location.href = "login.html";
+    }
+
+    validateUser().then(() => {
+      if(userValidated == true){
+        SendWatchListRequest(user_id);
+      }
+    })
+
+    function SendWatchListRequest(user_id)
+    {
+      var request = new XMLHttpRequest();
+      request.open("POST","watch_list.php",true);
+      request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+      request.onreadystatechange= function ()
+      {
+        
+        if ((this.readyState == 4)&&(this.status == 200))
+        {
+          displayWatchlist(this.responseText);
+        }		
+      }
+      request.send("type=getWatchList&user_id="+user_id);
+    }
+
+    function displayWatchlist(response){
+
+      text = JSON.parse(response);
+      text = text.movies;
+
+      //string template to display user's watchlist
+      text.forEach((movie, index) => {
+          movieOptions = 
+          `
+          <div class="card">
+          <div class="card-body">
+              <h3 class="card-title">${movie.title}</h3>
+              <p class="card-text">${movie.release_date}</p>
+              <button class="btn btn-primary" onclick="removeWatchList(${index}, '${user_id}')">Remove From Watchlist</button>            
+          </div>
+          </div>`;
+          div_watchlist.innerHTML += movieOptions; 
+      });
+    }
+
+    function removeWatchList(index, user_id){
+
+        let movie = text[index];
+        let movie_id = movie.id
+
+        
+        var request = new XMLHttpRequest();
+        request.open("POST","watch_list.php",true);
+        request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        request.onreadystatechange= function ()
+        {
+            
+            if ((this.readyState == 4)&&(this.status == 200))
+            {
+                text = JSON.parse(this.responseText);
+
+                if(text.status == "removed"){
+                    alert("Movie removed from watchlist");
+                    location.reload();
+                }
+                else{
+                    alert("Movie not removed, something went wrong");
+                }
+          }
+
+            }
+            request.send("type=removefromwatchlist&user_id="+user_id+"&movie_id="+movie_id);
+
+        }
+
+
+
+  </script>
+
+  <p><a href="/logout.php">Logout</a></p>
+</body>
+</html>

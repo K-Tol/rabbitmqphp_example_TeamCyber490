@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="movieInfo.css">
+        <link rel="stylesheet" href="index.css">
+    </head>
+    <body>
+
+        <div class="navbar">
+            <a class="default" href="index.html">Home</a>
+            <a href="watch_list.html">Watch List</a>
+            <a href="forum.html">Forum</a>
+            <a href="profile.html">Profile</a>
+        </div>
+
+        <div class="container ">
+            <div id="selectedMovie"></div>
+            <div id="movieGrid"></div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+        </script>
+
+        <script>
+
+            userValidated = false;
+            username = "";
+            user_id = "";
+            
+            //function to check if user is logged in
+            async function validateUser(){
+                response = await fetch('checkLogin.php');
+                result = await response.json();
+                if(result.status == 'authorized'){
+                    userValidated = true;
+                    username = result.username;
+                    user_id = result.user_id;
+                }
+                else
+                    window.location.href = "login.html";
+            }
+
+            validateUser().then(() => {
+            if(userValidated == true){
+                showMovies(user_id);
+            }
+            })
+
+           function getUsername(user_id){
+                return new Promise((resolve, reject) => {
+                var request = new XMLHttpRequest();
+                request.open("POST","getUsername.php",true);
+                request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                request.onreadystatechange= function ()
+                {
+                    
+                    if ((this.readyState == 4)&&(this.status == 200))
+                    {
+                        text = JSON.parse(this.responseText);
+
+                        if(text.status == "got-username"){
+                            username = text.username;
+                            resolve(username);
+                        }
+                        else{
+                            reject("Something went wrong")
+                        }
+	                }
+
+                    }
+                    request.send("type=get_username&user_id="+user_id);
+                });
+            }
+
+            function showMovies(){
+                //takes the search query from the database
+                infoJSON = sessionStorage.getItem('movieDetails');
+
+                //turns back from a string into an object
+                movieArray = JSON.parse(infoJSON);
+
+                //checks to see if the query went through properly
+                console.log("Movie Array:", movieArray);
+
+                movieGrid = document.getElementById("movieGrid");
+                selectedMovie = document.getElementById("selectedMovie");
+
+                //string template to insert into webpage with entries
+                movieArray.forEach((movie, index) => {
+                    movieOptions = 
+                    `
+                    <div class="card">
+                    <img src="https://image.tmdb.org/t/p/w200${movie.poster_path}" class="card-img-top" alt="${movie.title}">
+                    <div class="card-body">
+                        <h3 class="card-title">${movie.title}</h3>
+                        <p class="card-text">${movie.release_date}</p>
+                        <button class="btn btn-primary" onclick="userChoice(${index})">Select Movie</button>
+                    </div>
+                    </div>`;
+                    movieGrid.innerHTML += movieOptions; 
+                });
+            }
+            
+            //Shows the user's chosen movie with all details necessary
+            function userChoice(index){
+                //Selects the specifc movie from the array of movies
+                let movie = movieArray[index];
+
+                //String template for the selected movie
+                movieSelectedOption = 
+                `
+                <div class="card">
+                <img src="https://image.tmdb.org/t/p/w200${movie.poster_path}" class="card-img-top" alt="${movie.title}">
+                <div class="card-body">
+                    <h3 class="card-title">${movie.title}</h3>
+                    <p class="card-text">${movie.release_date}</p>
+                    <p class="card-text">${movie.overview}</p>
+                    <button type="button" class="addWatchList" onclick="addWatchList(${index}, '${user_id}')">Add To Watch List</button>
+
+                    <div class="rating&review">
+                        <input type="number" id="rating" min="1" max="10" placeholder="1-10" required>
+                        <input type="text" id="review" placeholder="Enter Review Here" required>
+                        <button type="button" class="submitReview" onclick="addReviewRating(${index}, '${user_id}')">Submit Review/Rating</button>
+                    </div>
+
+                    <div id="userReviews"></div>
+                </div>
+                </div>`;
+                selectedMovie.innerHTML = movieSelectedOption;
+
+                getReviews(index);
+            }
+
+           function getReviews(index){
+
+                let movie = movieArray[index];
+                let movie_id = movie.id
+
+                var request = new XMLHttpRequest();
+                request.open("POST","watch_list.php",true);
+                request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                request.onreadystatechange= function ()
+                {
+                    
+                    if ((this.readyState == 4)&&(this.status == 200))
+                    {
+                        text = JSON.parse(this.responseText);
+
+                        if(text.ok == true){
+                            displayReviews(text.reviews);
+                        }
+                        else{
+                            alert("Something went wrong");
+                        }
+	                }
+
+                    }
+                    request.send("type=getreviews&movie_id="+movie_id);
+                
+            }
+
+            async function displayReviews(reviews){
+                userReviews = document.getElementById("userReviews");
+
+                
+                for(review of reviews){
+
+                    date = new Date(review.created_at * 1000).toLocaleDateString("en-US")
+                    username = await getUsername(review.user_id);
+
+                    reviewList =
+                    `
+                    <div class="reviewArea">
+                        <p>Username ${username}</p>
+                        <p>Rating ${review.rating}</p>
+                        <p>${review.comment}</p>
+                        <p>Date ${date}</p>
+                    </div>`;
+
+                    userReviews.innerHTML += reviewList;
+                }
+            }
+
+            function addReviewRating(index, user_id){
+                if(userValidated == false){
+                    window.location.href = "login.html";
+                }
+
+                let movie = movieArray[index];
+                let movie_id = movie.id
+                let rating = document.getElementById("rating").value
+                let review = document.getElementById("review").value
+
+                var request = new XMLHttpRequest();
+                request.open("POST","watch_list.php",true);
+                request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                request.onreadystatechange= function ()
+                {
+                    
+                    if ((this.readyState == 4)&&(this.status == 200))
+                    {
+                        text = JSON.parse(this.responseText);
+                        console.log(text);
+
+                        if(text.status == "added"){
+                            alert("Review and Rating submited");
+                        }
+                        else{
+                            alert("Review and Rating not submited, something went wrong");
+                        }
+	                }
+
+                    }
+                    request.send("type=addreview&user_id="+user_id+"&movie_id="+movie_id+"&rating="+rating+"&review="+review);
+                
+            }
+
+
+            function addWatchList(index, user_id){
+                if(userValidated == false){
+                    window.location.href = "login.html";
+                }
+
+                let movie = movieArray[index];
+                let movie_id = movie.id
+
+                
+                var request = new XMLHttpRequest();
+                request.open("POST","watch_list.php",true);
+                request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+                request.onreadystatechange= function ()
+                {
+                    
+                    if ((this.readyState == 4)&&(this.status == 200))
+                    {
+                        text = JSON.parse(this.responseText);
+
+                        if(text.status == "added"){
+                            alert("Movie Added to watchlist");
+                        }
+                        else{
+                            alert("Movie not added, something went wrong");
+                        }
+	                }
+
+                    }
+                    request.send("type=addtowatchlist&user_id="+user_id+"&movie_id="+movie_id);
+		
+                }
+
+        </script>
+        
+    </body>
+</html>

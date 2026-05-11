@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="movieInfo.css">
+        <link rel="stylesheet" href="index.css">
+    </head>
+    <body>
+        <h1>Welcome to the user profile page</h1>
+
+        <div class="navbar">
+            <a class="default" href="index.html">Home</a>
+            <a href="watch_list.html">Watch List</a>
+            <a href="forum.html">Forum</a>
+           <a href="profile.html">Profile</a>
+        </div>
+
+        <div class="followSomeone">
+                Enter a username:<input type="text" id="searchUsername" placeholder="Example - Hello5">
+                <button type="button" class="followUser" onclick="followUser()">Follow User</button>
+                <button type="button" class="unfollowUser" onclick="unfollowUser()">Unfollow User</button>
+        </div>
+
+        <div class="followList">
+            <ul class="list-group" id="followList">
+            </ul>
+        </div>
+
+        <div class="followerList">
+            <ul class="list-group" id="followerList">
+            </ul>
+        </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+    </script>
+    <script>
+        userValidated = false;
+        username = "";
+        user_id = "";
+        
+        
+        //function to check if user is logged in
+        async function validateUser(){
+            response = await fetch('checkLogin.php');
+            result = await response.json();
+            if(result.status == 'authorized'){
+                userValidated = true;
+                username = result.username;
+                user_id = result.user_id;
+            }
+            else
+                window.location.href = "login.html";
+        }
+
+        validateUser().then(() => {
+        if(userValidated == true){
+            SendFollowingRequest(user_id);
+            SendFollowerRequest(user_id);
+        }
+        })
+
+        //function to grab the user_id tied to a specifc username
+        function requestUserId(username){
+            return new Promise((resolve, reject) => {
+            var request = new XMLHttpRequest();
+            request.open("POST","getUser_id.php",true);
+            request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+            request.onreadystatechange= function ()
+            {
+                
+                if ((this.readyState == 4)&&(this.status == 200))
+                {
+                    text = JSON.parse(this.responseText);
+
+                    if(text.status == "got-user_id"){
+                        resolve(text.user_id);
+                    }
+                    else{
+                        reject("Something went wrong")
+                    }
+                }
+
+                }
+                request.send("type=get_id&username="+username);
+            });
+        }
+
+
+        function SendFollowingRequest(user_id)
+        {
+        var request = new XMLHttpRequest();
+        request.open("POST","profile.php",true);
+        request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        request.onreadystatechange= function ()
+        {
+            
+            if ((this.readyState == 4)&&(this.status == 200))
+            {
+            showFollowing(this.responseText);
+            }		
+        }
+        request.send("type=get_following&user_id="+user_id);
+        }
+
+        function showFollowing(response){
+
+            followList = document.getElementById("followList");
+
+            text = JSON.parse(response);
+            text = text.users;
+
+            //string template to display user's watchlist
+            text.forEach((user, index) => {
+                following = 
+                `
+                    <li class="list-group-item">${user.users}</li>
+                `;
+                followList.innerHTML += following; 
+            });
+        }
+
+        async function followUser(){
+
+            let userOfInterest = document.getElementById("searchUsername").value;
+
+            let target = await requestUserId(userOfInterest);
+
+    
+            var request = new XMLHttpRequest();
+            request.open("POST","profile.php",true);
+            request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+            request.onreadystatechange= function ()
+            {
+                
+                if ((this.readyState == 4)&&(this.status == 200))
+                {
+                    text = JSON.parse(this.responseText);
+
+                    if(text.status == "added"){
+                        alert("Added User to Follow List");
+                    }
+                    else{
+                        alert("User not added, something went wrong");
+                    }
+                }
+
+                }
+                request.send("type=follow_user&user_id="+user_id+"&target_user_id="+target); 
+        }
+
+        function SendFollowerRequest(user_id){
+            var request = new XMLHttpRequest();
+            request.open("POST","profile.php",true);
+            request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+            request.onreadystatechange= function ()
+            {
+                
+                if ((this.readyState == 4)&&(this.status == 200))
+                {
+                showFollower(this.responseText);
+                }		
+            }
+            request.send("type=get_followers&user_id="+user_id);
+        }
+
+        function showFollower(response){
+
+            followerList = document.getElementById("followerList");
+
+            text = JSON.parse(response);
+            text = text.users;
+
+            //string template to display user's watchlist
+            text.forEach((user, index) => {
+                followers = 
+                `
+                    <li class="list-group-item">${user.users}</li>
+                `;
+                followerList.innerHTML += followers; 
+            });
+        }
+
+        async function unfollowUser(){
+
+            let userOfInterest = document.getElementById("searchUsername").value;
+
+            let target = await requestUserId(userOfInterest);
+
+    
+            var request = new XMLHttpRequest();
+            request.open("POST","profile.php",true);
+            request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+            request.onreadystatechange= function ()
+            {
+                
+                if ((this.readyState == 4)&&(this.status == 200))
+                {
+                    text = JSON.parse(this.responseText);
+
+                    if(text.status == "removed"){
+                        alert("Removed User from Follow List");
+                    }
+                    else{
+                        alert("User not added, something went wrong");
+                    }
+                }
+
+                }
+                request.send("type=unfollow_user&user_id="+user_id+"&target_user_id="+target); 
+        }
+
+    </script>
+</html>
