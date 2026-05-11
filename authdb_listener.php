@@ -16,6 +16,7 @@ function db() {
   $connect = new mysqli('127.0.0.1', 'db_user', 'passwd123', 'auth_db');  // direct connection to our database
   // kills this script if connection fails
   if($connect->connect_errno) {
+    distribute_log("Database connections failed: " . $connect->connect_error);
     die("Database connections failed: " . $connect->connect_error . PHP_EOL);
   }
   return $connect;
@@ -24,7 +25,7 @@ function db() {
 
 
 /* 
-function for account registration
+function for account registrationx
 */
 function doRegister($username, $password) {
   $hashedPword = password_hash($password, PASSWORD_DEFAULT);
@@ -35,6 +36,7 @@ function doRegister($username, $password) {
   );
   // checking to see if the prepping went wrong
   if(!$stmt) {
+    distribute_log("prepare_query_failed");
     return [
       "ok" => false,
       "error" => "prep_failed"
@@ -48,11 +50,13 @@ function doRegister($username, $password) {
     $stmt->execute();
   } catch(mysqli_sql_exception $e) {
       if((int)$e->getCode() === 1062) {
+        distribute_log("username_exists");
         return [
           "ok" => false,
           "error" => "username_exists"
         ];
       }
+      distribute_log("db_insert_failed");
       return [
         "ok" => false,
         "error" => "db_insert_failed"
@@ -73,6 +77,7 @@ function doLogin($username,$password)
       "SELECT id, pass_hash FROM users WHERE username = ? LIMIT 1"
     );
     if(!$stmt) {
+      distribute_log("prepare_query_failed");
       return ["ok" => false];
     }
     // binding the username and executing the query
@@ -83,6 +88,7 @@ function doLogin($username,$password)
     $user = $result->fetch_assoc();
     // checking if the user even exists
     if(!$user) {
+      distribute_log("invalid_credentials");
       return [
         "ok" => false,
         "error" => "invalid_credentials"
@@ -90,6 +96,7 @@ function doLogin($username,$password)
     }
     // verifying the password that's coming through
     if(!password_verify($password, $user["pass_hash"])) {
+      distribute_log("invalid_credentials");
       return [
         "ok" => false,
         "error" => "invalid_credentials"
@@ -105,6 +112,7 @@ function doLogin($username,$password)
     );
     // checks if our query failed
     if(!$stmt2) {
+      distribute_log("session_insert_failed");
       return [
         "ok" => false,
         "error" => "session_insert_failed"
@@ -114,6 +122,7 @@ function doLogin($username,$password)
     $stmt2->bind_param("si", $sessionKey, $userId);
     // executing the session insert and if it fails then login fails
     if(!$stmt2->execute()) {
+      distribute_log("session_insert_failed");
       return [
         "ok" => false,
         "error" => "session_insert_failed"
@@ -144,6 +153,7 @@ function doValidate($sessionKey) {
   );
   // checking if our query failed
   if(!$stmt) {
+    distribute_log("prepare_query_failed");
     return ["ok" => false];
   }
   // inserting session key into query then executing said query, and getting the result
@@ -160,6 +170,7 @@ function doValidate($sessionKey) {
     ];
   }
   // if no valid sesh was found
+  distribute_log("no valid sesh was found");
   return ["ok" => false];
 }
 
@@ -175,6 +186,7 @@ function doLogout($sessionKey) {
   );
   // logout will fail if our db fails to create the query
   if(!$stmt) {
+    distribute_log("prepare_query_failed");
     return ["ok" => false];
   }
   // binding session key and executing query, then returns true when logout is complete
@@ -194,6 +206,7 @@ function getUsername(int $user_id) {
     $stmt = db()->prepare("SELECT id, username FROM users WHERE id = ? LIMIT 1");
     // checking if our query failed
     if(!$stmt) {
+      distribute_log("prepare_query_failed");
       return ["ok" => false];
     }
     // inserting user_id into query then executing said query, and getting the result
@@ -218,20 +231,65 @@ function getUsername(int $user_id) {
 }
 
 /*
+function to the user_id associated with a specific username from the db
+copying from getUsername
+*/
+function getID(string $username) {
+  try {
+    // get the user_id associated with username from the db
+    $stmt = db()->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
+    // checking if our query failed
+    if(!$stmt) {
+      distribute_log("prepare_query_failed");
+      return ["ok" => false, "error" => "prepare_query_failed"];
+    }
+    // inserting username into query, executing query, and getting the result
+    $stmt -> bind_param("s", $username);
+    $stmt -> execute();
+    $result = $stmt -> get_result();
+    $row = $result -> fetch_assoc();
+    // if a user_id was found, return id
+    if($row) {
+      return [
+        "ok" => true,
+        "user_id" => (int)$row["id"]
+      ];
+    }
+    // if no user_id was found
+    distribute_log("no user_id was found");
+    return ["ok" => false, "error" => "no user_id was found"];
+      }
+  catch (Throwable $e) {
+    return ["ok" => false, "error" => "something_failed"];
+  }
+}
+
+/*
 function to follow a user for follow lists
 */
-function followUser(int $user_id, int $target_user_id) {
+function followUser(string $session_key, int $user_id, int $target_user_id) {
   try {
+    // validate session or fail
+    $validation = doValidate($session_key);
+    if ($validation["ok"] == false) {
+      distribute_log("invalid_session");
+      return [
+        "ok" => false,
+        "error" => "invalid_session"
+      ];
+    }
     // query to start check to see if the targeted id exists
     $stmt = db() -> prepare("SELECT id FROM users WHERE id = ? LIMIT 1");
     // checking if our query prepare failed
     if(!$stmt) {
+      distribute_log("prepare_query_failed");
       return ["ok" => false, "error" => "prepare_query_failed"];
     }
     // inserting target_user_id into query, then executing said query, and check if it exists
     $stmt -> bind_param("i", $target_user_id);
     $stmt -> execute();
     if ($stmt -> get_result() -> num_rows === 0) {
+      distribute_log("user_not_found");
       return ["ok" => false, "error" => "user_not_found"];
     }
     // if they exist, insert both variables for new entry, execute query
@@ -240,6 +298,7 @@ function followUser(int $user_id, int $target_user_id) {
       VALUES (?, ?, UNIX_TIMESTAMP())"
     );
     if (!$stmt2) {
+      distribute_log("prepare_query_failed");
       return ["ok" => false, "error" => "prepare_query_failed"];
     }
     $stmt2 -> bind_param("ii", $user_id, $target_user_id);
@@ -254,14 +313,24 @@ function followUser(int $user_id, int $target_user_id) {
 /*
 function for unfollowing a user
 */
-function unfollowUser(int $user_id, int $target_user_id) {
+function unfollowUser(string $session_key, int $user_id, int $target_user_id) {
   try {
+    // validate session or fail
+    $validation = doValidate($session_key);
+    if ($validation["ok"] == false) {
+      distribute_log("invalid_session");
+      return [
+        "ok" => false,
+        "error" => "invalid_session"
+      ];
+    }
     // query will delete the row where user_id matches follower_id
     $stmt = db() -> prepare(
       "DELETE FROM follow_list WHERE follower_id = ? AND following_id = ?"
     );
     // checking if our query prepare failed
     if(!$stmt) {
+      distribute_log("prepare_query_failed");
       return ["ok" => false, "error" => "prepare_query_failed"];
     }
     // inserting the two variables from the backend php into the query and executing
@@ -275,10 +344,66 @@ function unfollowUser(int $user_id, int $target_user_id) {
 }
 
 /*
+function for getting the users that are following the current user
+took boilplate followUser and getFollowing
+*/
+function followingUserCheck(string $session_key, int $user_id, int $target_user_id) {
+  try {
+    // validate session or fail
+    $validation = doValidate($session_key);
+    if ($validation["ok"] == false) {
+      distribute_log("invalid_session");
+      return [
+        "ok" => false,
+        "error" => "invalid_session"
+      ];
+    }
+    // query will check if there is following happening between follower_id
+    // and following_id
+    $stmt = db() -> prepare(
+      "SELECT 1 FROM follow_list WHERE follower_id = ? AND following_id = ? LIMIT 1"
+    );
+    // checking if our query prepare failed
+    if(!$stmt) {
+      distribute_log("prepare_query_failed");
+      return ["ok" => false, "error" => "prepare_query_failed"];
+    }
+    // inserting the two variables from the backend php into the query and executing
+    $stmt -> bind_param("ii", $user_id, $target_user_id);
+    $stmt -> execute();
+    $result = $stmt -> get_result();
+    // if there was more than 0 rows from that query they were following
+    // and send true, if not send false
+    if ($result -> num_rows > 0) {
+      return [
+        "ok" => true,
+        "is_following" => true
+      ];
+    }
+    return [
+      "ok" => true,
+      "is_following" => false
+    ];
+  }
+  catch (Throwable $e) {
+    return ["ok" => false, "error" => "something_failed"];
+  }
+}
+
+/*
 function for getting an array of users following a user_id
 */
-function getFollowing(int $user_id) {
+function getFollowing(string $session_key, int $user_id) {
   try {
+    // validate session or fail
+    $validation = doValidate($session_key);
+    if ($validation["ok"] == false) {
+      distribute_log("invalid_session");
+      return [
+        "ok" => false,
+        "error" => "invalid_session"
+      ];
+    }
     // query will get associated id and username from users to follow_list
     // from a specific follower_id, and sort by most recent
     $stmt = db() -> prepare(
@@ -290,6 +415,7 @@ function getFollowing(int $user_id) {
     );
     // checking if our query prepare failed
     if(!$stmt) {
+      distribute_log("prepare_query_failed");
       return ["ok" => false, "error" => "prepare_query_failed"];
     }
     // insert user_id into query and execute into a var
@@ -308,28 +434,64 @@ function getFollowing(int $user_id) {
 /*
 function for getting an array of followers of a user_id
 */
-function getFollowers(int $user_id) {
-  // copied from getFollowing
-  // query will get associated id and username from users to follow_list
-  // from a specific following_id, and sort by most recent
-  $stmt = db() -> prepare(
-    "SELECT users.id, users.username
-     FROM follow_list
-     JOIN users ON follow_list.follower_id = users.id
-     WHERE follow_list.following_id = ?
-     ORDER BY follow_list.time_followed DESC"
-  );
-  // checking if our query prepare failed
-  if(!$stmt) {
-    return ["ok" => false, "error" => "prepare_query_failed"];
+function getFollowers(string $session_key, int $user_id) {
+  try {
+    // validate session or fail
+      $validation = doValidate($session_key);
+      if ($validation["ok"] == false) {
+        distribute_log("invalid_session");
+        return [
+          "ok" => false,
+          "error" => "invalid_session"
+        ];
+      }
+    // copied from getFollowing
+    // query will get associated id and username from users to follow_list
+    // from a specific following_id, and sort by most recent
+    $stmt = db() -> prepare(
+      "SELECT users.id, users.username
+      FROM follow_list
+      JOIN users ON follow_list.follower_id = users.id
+      WHERE follow_list.following_id = ?
+      ORDER BY follow_list.time_followed DESC"
+    );
+    // checking if our query prepare failed
+    if(!$stmt) {
+      distribute_log("prepare_query_failed");
+      return ["ok" => false, "error" => "prepare_query_failed"];
+    }
+    // insert user_id into query and execute into a var
+    $stmt -> bind_param("i", $user_id);
+    $stmt -> execute();
+    $queryResult = $stmt -> get_result();
+    // get all rows into a var to send to webserver backend php
+    $result = $queryResult -> fetch_all(MYSQLI_ASSOC);
+    return ["ok" => true, "users" => $result];
   }
-  // insert user_id into query and execute into a var
-  $stmt -> bind_param("i", $user_id);
-  $stmt -> execute();
-  $queryResult = $stmt -> get_result();
-  // get all rows into a var to send to webserver backend php
-  $result = $queryResult -> fetch_all(MYSQLI_ASSOC);
-  return ["ok" => true, "users" => $result];
+  catch (Throwable $e) {
+    return ["ok" => false, "error" => "something_failed"];
+  }
+}
+
+
+/*
+function to send logs to other vms, from api_listener
+*/
+function distribute_log(string $log) {
+  try {
+    $ClusterVmName = gethostname();
+    // change to the correct queue on other environments
+    $rabbitClient = new rabbitMQClient("logging.ini", "qa_db_log");
+    $rabbitClient -> publish([
+      "type" => "cluster_log",
+      "source" => $ClusterVmName,
+      "message" => $log,
+      "timestamp" => time()
+    ]);
+  }
+  catch (Throwable $e) {
+    return ["ok" => false, "error" => "something_failed"];
+  }
 }
 
 /*
@@ -339,10 +501,12 @@ function requestProcessor($request)
 {
   // will print debug messages
   echo "received request".PHP_EOL;
+  distribute_log("received request");
   var_dump($request);
   // check if the requests that are coming through has a type
   if(!isset($request['type']))
   {
+    distribute_log("missing_type");
     return [
       "ok" => false,
       "error" => "missing_type"
@@ -376,25 +540,40 @@ function requestProcessor($request)
       return getUsername(
         $request['user_id'] ?? 0
       );
-      case "follow_user":
-        return followUser(
-          $request['user_id'] ?? 0,
-          $request['target_user_id'] ?? 0
-        );
-      case "unfollow_user":
-        return unfollowUser(
-          $request['user_id'] ?? 0,
-          $request['target_user_id'] ?? 0
-        );
-      case "get_following":
-        return getFollowing(
+    case "get_id":
+      return getID(
+        $request['username'] ?? ""
+      );
+    case "follow_user":
+      return followUser(
+        $request['session_key'] ?? "",
+        $request['user_id'] ?? 0,
+        $request['target_user_id'] ?? 0
+      );
+    case "unfollow_user":
+      return unfollowUser(
+        $request['session_key'] ?? "",
+        $request['user_id'] ?? 0,
+        $request['target_user_id'] ?? 0
+      );
+    case "is_following_user":
+      return followingUserCheck(
+        $request['session_key'] ?? "",
+        $request['user_id'] ?? 0,
+        $request['target_user_id'] ?? 0
+      );
+    case "get_following":
+      return getFollowing(
+      $request['session_key'] ?? "",
+      $request['user_id'] ?? 0
+      );
+    case "get_followers":
+      return getFollowers(
+        $request['session_key'] ?? "",
         $request['user_id'] ?? 0
-        );
-      case "get_followers":
-        return getFollowers(
-        $request['user_id'] ?? 0
-        );
+      );
     default:
+      distribute_log("unsupported_type");
       return [
         "ok" => false,
         "error" => "unsupported_type"
@@ -405,6 +584,7 @@ function requestProcessor($request)
 
 $server = new rabbitMQServer("testRabbitMQ.ini","testServer");
 echo "Auth database listener is now running and waiting for requests..." . PHP_EOL;
+distribute_log("Auth database listener is now running and waiting for requests...");
 $server->process_requests('requestProcessor');
 exit();
 ?>
