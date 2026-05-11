@@ -1,0 +1,334 @@
+<!doctype html> 
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Team Cyber Movie Forum Discussion</title>
+
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    // W3Schools W3.CSS styles //
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+    <style>
+      body {
+        background-color: #000;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+
+      .forum-box {
+        max-width: 800px;
+        margin: auto;
+      }
+
+      .movie-card {
+        background-color: #1a1a1a;
+        color: white;
+        border: 1px solid #333;
+      }
+
+      .comment-box {
+        background-color: #111;
+        border-left: 4px solid red;
+      }
+
+      .comments-section {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #333;
+      }
+
+      .comment-item {
+        background-color: #0a0a0a;
+        border-left: 4px solid #555;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 4px;
+      }
+
+      .comment-item p {
+        margin-bottom: 5px;
+        font-size: 0.95em;
+      }
+
+      .comment-input-form {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #0a0a0a;
+        border-radius: 4px;
+      }
+
+      .comment-input-form input,
+      .comment-input-form textarea {
+        font-size: 0.9em;
+      }
+
+      .btn-comment {
+        background-color: #666;
+        font-size: 0.9em;
+        padding: 5px 10px;
+        color: white;
+      }
+
+      .btn-comment:hover {
+        background-color: #888;
+      }
+
+      input, textarea {
+        background-color: #222 !important;
+        color: white !important;
+        border: 1px solid #555 !important;
+      }
+
+      input::placeholder, textarea::placeholder {
+        color: #aaa;
+      }
+
+      .small-text {
+        color: #aaa;
+        font-size: 0.85em;
+      }
+
+      .empty-message {
+        background-color: #111;
+        border: 1px solid #333;
+        padding: 15px;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="w3-container w3-black w3-center w3-padding-32">
+      <h1>Team Cyber Movie Forum</h1>
+      <p>Discuss movies, reviews, ratings, and favorite scenes.</p>
+    </div>
+
+    <div class="w3-container forum-box w3-padding-32">
+
+      <div class="w3-card w3-round-large w3-padding movie-card">
+        <h2 class="w3-text-red">Start a Discussion</h2>
+
+        <label>Movie Title</label>
+        <input class="w3-input w3-margin-bottom w3-round" type="text" id="movieTitle" placeholder="Example: The Dark Knight">
+
+        <label>Your Name</label>
+        <input class="w3-input w3-margin-bottom w3-round" type="text" id="userName" placeholder="Enter your name">
+
+        <label>Discussion Post</label>
+        <textarea class="w3-input w3-margin-bottom w3-round" id="userComment" rows="4" placeholder="Write your thoughts about the movie..."></textarea>
+
+        <button class="w3-button w3-red w3-round" onclick="addPost()">Post Discussion</button>
+      </div>
+
+      <h2 class="w3-text-red w3-margin-top">Forum Discussions</h2>
+
+      <div id="posts"></div>
+
+    </div>
+
+    <script>
+      var API_FILE = "forum_backend.php";
+
+      window.onload = function() {
+        loadPosts();
+      };
+
+      function sendRequest(type, data) {
+        var formData = new FormData();
+        formData.append("type", type);
+
+        for (var key in data) {
+          formData.append(key, data[key]);
+        }
+
+        return fetch(API_FILE, {
+          method: "POST",
+          body: formData
+        }).then(function(response) {
+          return response.json();
+        });
+      }
+
+      function loadPosts() {
+        sendRequest("getposts", {}).then(function(data) {
+          if (!data.ok) {
+            alert(data.message);
+            return;
+          }
+
+          displayPosts(data.posts);
+        }).catch(function(error) {
+          alert("Could not load forum posts. Make sure forum_backend.php is in the same folder as this HTML file.");
+          console.log(error);
+        });
+      }
+
+      function addPost() {
+        var movieTitle = document.getElementById("movieTitle").value.trim();
+        var userName = document.getElementById("userName").value.trim();
+        var userComment = document.getElementById("userComment").value.trim();
+
+        if (movieTitle == "" || userName == "" || userComment == "") {
+          alert("Please fill out all fields.");
+          return;
+        }
+
+        sendRequest("addpost", {
+          movie_title: movieTitle,
+          user_name: userName,
+          user_comment: userComment
+        }).then(function(data) {
+          if (!data.ok) {
+            alert(data.message);
+            return;
+          }
+
+          document.getElementById("movieTitle").value = "";
+          document.getElementById("userName").value = "";
+          document.getElementById("userComment").value = "";
+
+          loadPosts();
+        }).catch(function(error) {
+          alert("Could not add discussion post.");
+          console.log(error);
+        });
+      }
+
+      function addComment(postId) {
+        var commentName = document.getElementById("commentName-" + postId).value.trim();
+        var commentText = document.getElementById("commentText-" + postId).value.trim();
+
+        if (commentName == "" || commentText == "") {
+          alert("Please fill out all fields.");
+          return;
+        }
+
+        sendRequest("addcomment", {
+          post_id: postId,
+          comment_name: commentName,
+          comment_text: commentText
+        }).then(function(data) {
+          if (!data.ok) {
+            alert(data.message);
+            return;
+          }
+
+          loadPosts();
+        }).catch(function(error) {
+          alert("Could not add comment.");
+          console.log(error);
+        });
+      }
+
+      function deletePost(postId) {
+        if (!confirm("Delete this discussion and all of its comments?")) {
+          return;
+        }
+
+        sendRequest("deletepost", {
+          post_id: postId
+        }).then(function(data) {
+          if (!data.ok) {
+            alert(data.message);
+            return;
+          }
+
+          loadPosts();
+        }).catch(function(error) {
+          alert("Could not delete post.");
+          console.log(error);
+        });
+      }
+
+      function displayPosts(posts) {
+        var postsDiv = document.getElementById("posts");
+        postsDiv.innerHTML = "";
+
+        if (posts.length === 0) {
+          postsDiv.innerHTML = "<div class='empty-message'>No discussions yet. Start the first movie discussion.</div>";
+          return;
+        }
+
+        posts.forEach(function(post) {
+          var postDiv = document.createElement("div");
+          postDiv.className = "w3-card w3-round-large w3-padding w3-margin-bottom comment-box";
+
+          var title = document.createElement("h3");
+          title.textContent = post.movie_title;
+          postDiv.appendChild(title);
+
+          var author = document.createElement("p");
+          author.innerHTML = "<b>Posted by:</b> " + escapeHTML(post.user_name);
+          postDiv.appendChild(author);
+
+          var comment = document.createElement("p");
+          comment.textContent = post.user_comment;
+          postDiv.appendChild(comment);
+
+          var date = document.createElement("p");
+          date.className = "small-text";
+          date.textContent = "Posted on " + post.created_at + " | Comments: " + post.comment_count;
+          postDiv.appendChild(date);
+
+          var deleteButton = document.createElement("button");
+          deleteButton.className = "w3-button w3-small w3-red w3-round";
+          deleteButton.textContent = "Delete Discussion";
+          deleteButton.onclick = function() {
+            deletePost(post.id);
+          };
+          postDiv.appendChild(deleteButton);
+
+          var commentsSection = document.createElement("div");
+          commentsSection.className = "comments-section";
+
+          var commentsTitle = document.createElement("h5");
+          commentsTitle.textContent = "Comments";
+          commentsSection.appendChild(commentsTitle);
+
+          post.comments.forEach(function(reply) {
+            var replyDiv = document.createElement("div");
+            replyDiv.className = "comment-item";
+
+            var replyName = document.createElement("p");
+            replyName.innerHTML = "<b>" + escapeHTML(reply.comment_name) + ":</b>";
+            replyDiv.appendChild(replyName);
+
+            var replyText = document.createElement("p");
+            replyText.textContent = reply.comment_text;
+            replyDiv.appendChild(replyText);
+
+            var replyDate = document.createElement("p");
+            replyDate.className = "small-text";
+            replyDate.textContent = reply.created_at;
+            replyDiv.appendChild(replyDate);
+
+            commentsSection.appendChild(replyDiv);
+          });
+
+          var formDiv = document.createElement("div");
+          formDiv.className = "comment-input-form";
+          formDiv.innerHTML =
+            "<input class='w3-input w3-margin-bottom w3-round' type='text' placeholder='Your name' id='commentName-" + post.id + "'>" +
+            "<textarea class='w3-input w3-margin-bottom w3-round' rows='2' placeholder='Add a comment...' id='commentText-" + post.id + "'></textarea>" +
+            "<button class='w3-button btn-comment w3-round' onclick='addComment(" + post.id + ")'>Post Comment</button>";
+
+          commentsSection.appendChild(formDiv);
+          postDiv.appendChild(commentsSection);
+          postsDiv.appendChild(postDiv);
+        });
+      }
+
+      function escapeHTML(text) {
+        var div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  </body>
+</html>
