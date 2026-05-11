@@ -21,12 +21,11 @@
         <div class="followSomeone">
                 Enter a username:<input type="text" id="searchUsername" placeholder="Example - Hello5">
                 <button type="button" class="followUser" onclick="followUser()">Follow User</button>
+                <button type="button" class="unfollowUser" onclick="unfollowUser()">Unfollow User</button>
         </div>
 
         <div class="followList">
-            <ul class="list-group">
-                <li class="list-group-item">Test1</li>
-                <li class="list-group-item">Test2</li>
+            <ul class="list-group" id="followList">
             </ul>
         </div>
     </body>
@@ -53,7 +52,8 @@
 
         validateUser().then(() => {
         if(userValidated == true){
-            showFollowing(user_id);
+            SendFollowingRequest(user_id);
+            //SendFollowerRequest(user_id);
         }
         })
 
@@ -84,15 +84,45 @@
         }
 
 
-        function showFollowing(){
+        function SendFollowingRequest(user_id)
+        {
+        var request = new XMLHttpRequest();
+        request.open("POST","profile.php",true);
+        request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        request.onreadystatechange= function ()
+        {
+            
+            if ((this.readyState == 4)&&(this.status == 200))
+            {
+            showFollowing(this.responseText);
+            }		
+        }
+        request.send("type=get_following&user_id="+user_id);
+        }
 
+        function showFollowing(response){
+
+            followList = document.getElementById("followList");
+
+            text = JSON.parse(response);
+            text = text.users;
+
+            //string template to display user's watchlist
+            text.forEach((user, index) => {
+                followers = 
+                `
+                <ul class="list-group">
+                    <li class="list-group-item">${user.users}</li>
+                </ul>`;
+                followList.innerHTML += followers; 
+            });
         }
 
         async function followUser(){
 
-            userOfInterest = document.getElementById("searchUsername").value;
+            let userOfInterest = document.getElementById("searchUsername").value;
 
-            target = await requestUserId(userOfInterest);
+            let target = await requestUserId(userOfInterest);
 
     
             var request = new XMLHttpRequest();
@@ -115,6 +145,35 @@
 
                 }
                 request.send("type=follow_user&user_id="+user_id+"&target_user_id="+target); 
+        }
+        
+        async function unfollowUser(){
+
+            let userOfInterest = document.getElementById("searchUsername").value;
+
+            let target = await requestUserId(userOfInterest);
+
+    
+            var request = new XMLHttpRequest();
+            request.open("POST","profile.php",true);
+            request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+            request.onreadystatechange= function ()
+            {
+                
+                if ((this.readyState == 4)&&(this.status == 200))
+                {
+                    text = JSON.parse(this.responseText);
+
+                    if(text.status == "removed"){
+                        alert("Added User to Follow List");
+                    }
+                    else{
+                        alert("User not added, something went wrong");
+                    }
+                }
+
+                }
+                request.send("type=unfollow_user&user_id="+user_id+"&target_user_id="+target); 
         }
 
     </script>
