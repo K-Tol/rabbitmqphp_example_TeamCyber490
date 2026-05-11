@@ -1,5 +1,3 @@
--- movie_forum_schema.sql
--- Database schema for the beginner-friendly forum backend.
 
 CREATE DATABASE IF NOT EXISTS movie_forum
     CHARACTER SET utf8mb4
